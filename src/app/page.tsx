@@ -1,10 +1,7 @@
 'use client';
-import styled from 'styled-components';
-
-const BigText = styled.h1`
-    font-size: 52px;
-`;
-
+import BodyContent from 'components/BodyContent';
 export default function Page() {
-    return <BigText>Boilerplate</BigText>;
+    return (
+        <BodyContent child={<div style={{ color: 'white' }}>CXhujsko</div>} />
+    );
 }
