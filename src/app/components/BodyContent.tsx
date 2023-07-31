@@ -1,8 +1,13 @@
 import Header from './Header';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Mukta } from 'next/font/google';
+import { useCookies } from 'react-cookie';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 
-const font = Mukta({
+export const font = Mukta({
     weight: '400',
     subsets: ['latin'],
 });
@@ -23,7 +28,7 @@ const MainWrapper = styled.section`
     border-right: 1px solid #c7c7c745;
 `;
 
-const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle`
     * {
         margin: 0;
         padding: 0;
@@ -34,15 +39,60 @@ const GlobalStyle = createGlobalStyle`
         }
     }
 `;
-export default function BodyContent({ child }) {
+interface User {
+    email: string;
+}
+
+export default function BodyContent({ child, auth, mail }) {
+    const [isLogged, setLogged] = useState<boolean>(false);
+    const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
+    const [email, setEmail] = useState<string>('');
+    const router = useRouter();
+
+    const refreshToken = async () => {
+        const token = cookie.refreshToken;
+        const res = await axios.post('http://localhost:5000/token', {
+            refreshToken: token,
+        });
+        if (res.status === 200) {
+            const decoded: User = jwtDecode(res.data.accessToken);
+            setEmail(decoded.email);
+            mail(decoded.email);
+        } else {
+            deleteCookie('refreshToken');
+        }
+    };
+
+    useEffect(() => {
+        const path = window.location.pathname;
+        if (cookie.refreshToken) {
+            refreshToken();
+            if (path.substring(0, 2) === '/x') {
+                router.push('/home');
+            }
+            setLogged(true);
+        } else {
+            if (path.substring(0, 2) !== '/x') {
+                router.push('/x');
+            }
+        }
+    }, []);
     return (
         <div className={font.className}>
             <GlobalStyle />
 
-            <Wrapper>
-                <Header />
-                <MainWrapper>{child}</MainWrapper>
-            </Wrapper>
+            {isLogged ? (
+                <>
+                    {!auth && (
+                        <Wrapper>
+                            <Header email={email} />
+                            <MainWrapper>{child}</MainWrapper>
+                        </Wrapper>
+                    )}
+                </>
+            ) : (
+                <>{auth && <>{child}</>}</>
+            )}
         </div>
     );
 }

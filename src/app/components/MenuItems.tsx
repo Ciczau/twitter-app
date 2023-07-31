@@ -32,6 +32,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'home',
+        name: 'Home',
     },
     {
         icon: (
@@ -40,6 +41,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'explore',
+        name: 'Explore',
     },
     {
         icon: (
@@ -48,6 +50,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'notifications',
+        name: 'Notifications',
     },
     {
         icon: (
@@ -60,6 +63,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'messages',
+        name: 'Messages',
     },
     {
         icon: (
@@ -72,6 +76,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'lists',
+        name: 'Lists',
     },
     {
         icon: (
@@ -84,6 +89,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'bookmarks',
+        name: 'Bookmarks',
     },
     {
         icon: (
@@ -96,6 +102,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'communities',
+        name: 'Communities',
     },
     {
         icon: (
@@ -108,5 +115,6 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: 'profile',
+        name: 'Profile',
     },
 ];

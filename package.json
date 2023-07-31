@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@nextui-org/react": "^1.0.0-beta.13",
         "@types/node": "20.2.5",
         "@types/react": "18.2.7",
         "@types/react-dom": "18.2.4",
@@ -17,10 +18,13 @@
         "eslint-config-next": "13.4.4",
         "framer-motion": "^10.12.16",
         "graphql": "^16.6.0",
+        "jwt-decode": "^3.1.2",
         "next": "13.4.4",
         "react": "18.2.0",
+        "react-cookie": "^4.1.1",
         "react-dom": "18.2.0",
         "react-icons": "^4.10.1",
+        "react-textarea-autosize": "^8.5.2",
         "styled-components": "^5.3.11",
         "typescript": "5.0.4"
     }
