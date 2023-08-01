@@ -23,7 +23,7 @@ const Wrapper = styled.div`
 const MainWrapper = styled.section`
     height: auto;
     width: 600px;
-    max-width: 80vw;
+    max-width: 85vw;
     border-left: 1px solid #c7c7c745;
     border-right: 1px solid #c7c7c745;
 `;

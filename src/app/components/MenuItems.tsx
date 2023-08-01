@@ -15,13 +15,10 @@ const IconWrapper = styled.div`
     height: 50px;
     border-radius: 50%;
     display: flex;
+    position: relative;
     justify-content: center;
+    z-index: 999;
     align-items: center;
-    transition: all 0.15s ease;
-    cursor: pointer;
-    &:hover {
-        background-color: #80808034;
-    }
 `;
 
 export const menuItems = [

@@ -59,19 +59,23 @@ const Header = ({ email }) => {
                     style={{
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: width > 767 ? 'space-around' : 'center',
+                        padding: '6px',
+
+                        width: '100%',
+                        zIndex: '9999999999',
                     }}
                 >
                     <img
                         src="/p2.2.jpeg"
                         style={{
-                            width: '50px',
+                            width: '45px',
                             objectFit: 'cover',
-                            height: '50px',
+                            height: '45px',
                             borderRadius: '50%',
-                            margin: '10px',
                         }}
                     />
-                    <div>{email}</div>
+                    {width > 767 && <div>{email}</div>}
                 </Tooltip>
             </S.HeaderElement>
         </S.Wrapper>

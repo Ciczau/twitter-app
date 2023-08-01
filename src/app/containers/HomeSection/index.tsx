@@ -15,6 +15,9 @@ interface Tweet {
     email: string;
     text: string;
     _id: string;
+    likes: number;
+    views: number;
+    retweets: number;
 }
 
 const HomeSection = ({ email }) => {
@@ -42,12 +45,24 @@ const HomeSection = ({ email }) => {
         console.log(res);
         setTweets(res.data.result);
     };
+
+    const handleTweetLike = async (tweetId: string) => {
+        try {
+            const res = await axios.post('http://localhost:5000/tweet/like', {
+                email: email,
+                tweetId: tweetId,
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
     useEffect(() => {
         getTweets();
     }, []);
     useEffect(() => {
         console.log(tweets);
     }, [tweets]);
+
     return (
         <S.Wrapper>
             <S.Head>Home</S.Head>
@@ -99,6 +114,7 @@ const HomeSection = ({ email }) => {
                 const year = dateObject.getFullYear();
                 const month = dateObject.getMonth() + 1;
                 const day = dateObject.getDate();
+                console.log(tweet);
                 return (
                     <S.Tweet key={index}>
                         <S.Avatar src="/p2.2.jpeg" />
@@ -116,8 +132,11 @@ const HomeSection = ({ email }) => {
                                         size="100%"
                                         color="#585858"
                                         style={{ width: '25px' }}
+                                        onClick={() =>
+                                            handleTweetLike(tweet._id)
+                                        }
                                     />
-                                    <div>0</div>
+                                    <div>{tweet.likes}</div>
                                 </S.IconWrapper>
 
                                 <S.IconWrapper>
@@ -126,7 +145,7 @@ const HomeSection = ({ email }) => {
                                         color="#585858"
                                         style={{ width: '25px' }}
                                     />
-                                    <div>0</div>
+                                    <div>{tweet.retweets}</div>
                                 </S.IconWrapper>
                                 <S.IconWrapper>
                                     <ImStatsBars
@@ -134,7 +153,7 @@ const HomeSection = ({ email }) => {
                                         color="#585858"
                                         style={{ width: '25px' }}
                                     />
-                                    <div>0</div>
+                                    <div>{tweet.views}</div>
                                 </S.IconWrapper>
                             </S.IconsWrapper>
                         </S.TweetContent>

@@ -20,6 +20,7 @@ export const RegisterButton = styled.button`
     font-family: inherit;
     color: inherit;
     border: 0;
+    cursor: pointer;
     background-color: #0aa8f1;
 `;
 
