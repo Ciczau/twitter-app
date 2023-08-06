@@ -1,9 +1,12 @@
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 export const Wrapper = styled.div`
     display: flex;
     width: 100%;
     color: white;
+
     flex-direction: column;
 `;
 
@@ -40,6 +43,7 @@ export const TweetCreatorWrapper = styled.div`
     width: 100%;
     border-bottom: 1px solid #c7c7c745;
     padding: 15px;
+
     display: flex;
     justify-content: space-between;
 `;
@@ -89,10 +93,11 @@ export const Avatar = styled.img`
     object-fit: cover;
     border-radius: 50%;
 `;
-export const Tweet = styled.div`
+export const Tweet = styled(motion.div)`
     width: 100%;
     border-bottom: 1px solid #c7c7c745;
     padding: 15px;
+
     display: flex;
     justify-content: space-between;
 `;
@@ -105,6 +110,7 @@ export const TweetHeader = styled.div`
 export const TweetContent = styled.div`
     width: calc(100% - 60px);
     display: flex;
+    word-break: break-all;
     flex-direction: column;
 `;
 
@@ -130,6 +136,51 @@ export const IconWrapper = styled.div`
     color: #585858;
     display: flex;
     width: 15%;
+    cursor: pointer;
     justify-content: space-between;
     align-items: center;
+`;
+
+export const ReplyBackground = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    background-color: #7b808849;
+`;
+
+export const ReplyWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    top: 100px;
+    z-index: 99999999;
+    left: 0;
+    color: white;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+`;
+
+export const Reply = styled.div`
+    background-color: black;
+    border-radius: 15px;
+    width: 600px;
+    position: relative;
+    z-index: 9999999999;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 90vw;
+`;
+
+export const LinkWrapper = styled(Link)`
+    text-decoration: none;
+    color: #3c79e9;
+    &:hover {
+        text-decoration: underline;
+    }
 `;
