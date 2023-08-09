@@ -30,7 +30,7 @@ export const Header = styled.header`
 export const HeaderElement = styled.div`
     display: flex;
     align-items: center;
-    z-index: 99999999;
+    z-index: 999999;
 
     cursor: pointer;
     border-radius: 50px;

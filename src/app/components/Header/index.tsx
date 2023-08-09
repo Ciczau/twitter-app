@@ -1,8 +1,7 @@
 import { menuItems } from 'components/MenuItems';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { Tooltip } from '@nextui-org/react';
 import * as S from './index.styles';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { font } from 'components/BodyContent';
@@ -26,7 +25,6 @@ const Header = ({ email }) => {
         };
     }, []);
     const handleLogout = () => {
-        console.log('ci');
         deleteCookie('refreshToken');
         router.push('/x');
     };
@@ -34,10 +32,13 @@ const Header = ({ email }) => {
         <S.Wrapper>
             <S.Header>
                 {menuItems.map((item, index) => {
+                    const link =
+                        item.name === 'Profile' ? `/${email}` : item.link;
+
                     return (
                         <S.HeaderElement
                             key={index}
-                            onClick={() => handleRedirect(item.link)}
+                            onClick={() => handleRedirect(link)}
                         >
                             <div>{item.icon}</div>
                             {width > 767 && <div>{item.name}</div>}

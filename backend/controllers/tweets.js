@@ -29,6 +29,45 @@ export const getTweets = async (req, res) => {
     return res.status(200).send({ result });
 };
 
+export const getUserTweets = async (req, res) => {
+    const { email } = req.body;
+    const result = await tweets
+        .find({ email: email, reply: 0 })
+        .sort({ _id: -1 })
+        .toArray();
+    console.log(result);
+    return res.status(200).send({ result });
+};
+
+export const getUserReplies = async (req, res) => {
+    const { email } = req.body;
+    const result = await tweets
+        .find({ email: email, reply: 1 })
+        .sort({ _id: -1 })
+        .toArray();
+    console.log(result);
+    return res.status(200).send({ result });
+};
+
+export const getUserLikes = async (req, res) => {
+    const { email } = req.body;
+    const like = await likes.find({ userId: email }).toArray();
+    const likesTab = like.map((el) => {
+        return new ObjectId(el.tweetId);
+    });
+    console.log(likesTab);
+    let result = [];
+    for (let i = likesTab.length - 1; i >= 0; i--) {
+        console.log(i);
+
+        const record = await tweets.findOne({ _id: likesTab[i] });
+        console.log(record);
+        result.push(record);
+    }
+
+    return res.status(200).send({ result });
+};
+
 export const tweetLike = async (req, res) => {
     const { tweetId, email, mode } = req.body;
     console.log(tweetId);

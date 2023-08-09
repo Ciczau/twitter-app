@@ -3,6 +3,9 @@ import { Login, Register, refreshToken } from '../controllers/users.js';
 import {
     getLikes,
     getTweets,
+    getUserLikes,
+    getUserReplies,
+    getUserTweets,
     postTweet,
     tweetLike,
 } from '../controllers/tweets.js';
@@ -16,3 +19,6 @@ router.post('/tweet/like', tweetLike);
 router.post('/tweet/likes', getLikes);
 
 router.get('/tweet/get', getTweets);
+router.post('/user/tweets', getUserTweets);
+router.post('/user/replies', getUserReplies);
+router.post('/user/likes', getUserLikes);

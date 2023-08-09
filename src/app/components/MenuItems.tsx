@@ -28,7 +28,7 @@ export const menuItems = [
                 <FaHome size="100%" style={{ width: '25px' }} color="white" />
             </IconWrapper>
         ),
-        link: 'home',
+        link: '/home',
         name: 'Home',
     },
     {
@@ -37,7 +37,7 @@ export const menuItems = [
                 <FaSearch size="100%" style={{ width: '25px' }} color="white" />
             </IconWrapper>
         ),
-        link: 'explore',
+        link: '/explore',
         name: 'Explore',
     },
     {
@@ -46,7 +46,7 @@ export const menuItems = [
                 <FaBell size="100%" style={{ width: '22px' }} color="white" />
             </IconWrapper>
         ),
-        link: 'notifications',
+        link: '/notifications',
         name: 'Notifications',
     },
     {
@@ -59,7 +59,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: 'messages',
+        link: '/messages',
         name: 'Messages',
     },
     {
@@ -72,7 +72,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: 'lists',
+        link: '/lists',
         name: 'Lists',
     },
     {
@@ -85,7 +85,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: 'bookmarks',
+        link: '/bookmarks',
         name: 'Bookmarks',
     },
     {
@@ -98,7 +98,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: 'communities',
+        link: '/communities',
         name: 'Communities',
     },
     {
@@ -111,7 +111,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: 'profile',
+        link: '/profile',
         name: 'Profile',
     },
 ];
