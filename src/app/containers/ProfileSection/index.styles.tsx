@@ -26,8 +26,6 @@ export const Avatar = styled.img`
     border-radius: 50%;
     margin: 0px 15px;
     border: 4px solid black;
-    background-color: white;
-    overflow-y: visible;
 `;
 
 export const SetUpProfileButton = styled.button`

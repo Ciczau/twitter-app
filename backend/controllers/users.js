@@ -59,7 +59,7 @@ export const Register = async (req, res) => {
         nick: nick,
         name: nick,
         bio: '',
-        avatarId: 'default',
+        avatarId: 'defaultAvatar',
         password: encryptedPassword,
         refreshToken: refreshToken,
     });

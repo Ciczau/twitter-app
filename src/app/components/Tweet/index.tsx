@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { HiOutlineChat } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
+import { useRouter } from 'next/router';
 
 import * as S from './index.styles';
 
@@ -73,7 +74,9 @@ const Tweet = ({
 }: Props) => {
     const [avatar, setAvatar] = useState<string>('');
     const [name, setName] = useState<string>('');
+
     const dateObject = new Date(date);
+    const router = useRouter();
 
     const getUser = async () => {
         const res = await axios.post('http://localhost:5000/user', {
@@ -113,7 +116,15 @@ const Tweet = ({
             <S.TweetContent>
                 <S.TweetHeader>
                     <S.User>{name} </S.User>
-                    <S.Date>{formattedDate}</S.Date>
+                    <S.UserDate>
+                        <div onClick={() => router.push(`/${nick}`)}>
+                            @{nick}
+                        </div>
+                        <div style={{ margin: '0 4px', fontWeight: 'bold' }}>
+                            &middot;
+                        </div>
+                        <div> {formattedDate}</div>
+                    </S.UserDate>
                 </S.TweetHeader>
 
                 {parentId && !isReply && (

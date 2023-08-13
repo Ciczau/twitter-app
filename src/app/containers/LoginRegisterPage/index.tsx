@@ -23,10 +23,12 @@ const LoginRegisterPage = ({ child }) => {
                     <S.RegisterButton onClick={() => handleToggle('register')}>
                         CREATE ACCOUNT
                     </S.RegisterButton>
-                    <p>Already have an account?</p>
-                    <S.LoginButton onClick={() => handleToggle('login')}>
-                        LOGIN
-                    </S.LoginButton>
+                    <div>
+                        <p>Already have an account?</p>
+                        <S.LoginButton onClick={() => handleToggle('login')}>
+                            LOGIN
+                        </S.LoginButton>
+                    </div>
                 </S.ContentWrapper>
             </S.Wrapper>
         </div>

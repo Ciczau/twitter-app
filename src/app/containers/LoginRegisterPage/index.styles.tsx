@@ -26,6 +26,7 @@ export const RegisterButton = styled.button`
 
 export const LoginButton = styled(RegisterButton)`
     background-color: transparent;
+    margin: 10px;
     border: 1px solid #0aa8f1;
 `;
 export const ContentWrapper = styled.div`

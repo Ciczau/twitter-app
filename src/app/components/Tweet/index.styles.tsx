@@ -34,9 +34,12 @@ export const User = styled.div`
     font-weight: bold;
 `;
 
-export const Date = styled.div`
+export const UserDate = styled.div`
     font-size: 14px;
+    display: flex;
+    justify-content: space-between;
     color: gray;
+    cursor: pointer;
     margin-left: 10px;
 `;
 
