@@ -1,23 +1,16 @@
-import { useState } from 'react';
-import * as S from './index.styles';
-import LoginRegisterForm from 'components/LoginRegisterForm';
 import { useRouter } from 'next/navigation';
+
 import { font } from 'components/BodyContent';
 
-const LoginRegisterPage = ({ child }) => {
-    const [toggleForm, setToggleForm] = useState<boolean>(false);
-    const [type, setType] = useState<string>('');
+import * as S from './index.styles';
 
+const LoginRegisterPage = ({ child }) => {
     const router = useRouter();
+
     const handleToggle = (type: string) => {
-        setToggleForm(true);
-        setType(type);
         router.push(`/x/${type}`);
     };
 
-    const listenClose = () => {
-        setToggleForm(false);
-    };
     return (
         <div className={font.className}>
             {child}

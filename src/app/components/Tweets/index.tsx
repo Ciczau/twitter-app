@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react';
-import * as S from './index.styles';
 import { BiSolidImageAdd } from 'react-icons/bi';
 import { FaRegSmile } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
-import Tweet, { TweetType } from 'components/Tweet';
 import axios from 'axios';
-const TweetCreate = ({ handleChange, createTweet, placeholder }) => {
+
+import Tweet, { TweetType } from 'components/Tweet';
+
+import * as S from './index.styles';
+const TweetCreate = ({
+    text,
+    handleChange,
+    createTweet,
+    placeholder,
+    avatar,
+}) => {
     return (
         <>
-            <S.Avatar src="/p2.2.jpeg" />
+            <S.Avatar src={avatar} />
             <S.TweetCreator>
                 <S.Input
                     minRows={1}
@@ -16,6 +24,7 @@ const TweetCreate = ({ handleChange, createTweet, placeholder }) => {
                     maxLength={255}
                     placeholder={placeholder}
                     onChange={handleChange}
+                    value={text}
                 />
 
                 <S.SubmitBar>
@@ -38,14 +47,15 @@ const TweetCreate = ({ handleChange, createTweet, placeholder }) => {
     );
 };
 
-const Tweets = ({ email, type }) => {
+const Tweets = ({ nick, type, avatar }) => {
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
+    const [parents, setParents] = useState<TweetType[]>([]);
     const [likes, setLikes] = useState<Array<string>>([]);
     const [replyMode, setReplyMode] = useState<boolean>(false);
     const [replyTarget, setReplyTarget] = useState<TweetType>({
         date: '',
-        email: '',
+        nick: '',
         text: '',
         _id: '',
         likes: 0,
@@ -58,12 +68,16 @@ const Tweets = ({ email, type }) => {
     };
     const createTweet = async () => {
         handleReplyMode(false, '');
+        setText('');
         try {
             const res = await axios.post('http://localhost:5000/tweet/create', {
-                email: email,
+                nick: nick,
                 text: text,
                 parentId: replyTarget?._id,
             });
+            if (res.status === 200) {
+                setTweets((prevTweets) => [res.data.newTweet, ...prevTweets]);
+            }
         } catch (err) {
             console.log(err);
         }
@@ -75,11 +89,11 @@ const Tweets = ({ email, type }) => {
             res = await axios.get('http://localhost:5000/tweet/get');
         } else {
             res = await axios.post(`http://localhost:5000/user/${type}`, {
-                email: email,
+                nick: nick,
             });
         }
         const likes = await axios.post('http://localhost:5000/tweet/likes', {
-            email: email,
+            nick: nick,
         });
         console.log(res);
         setLikes(likes.data.result);
@@ -105,14 +119,31 @@ const Tweets = ({ email, type }) => {
             })
         );
         await axios.post('http://localhost:5000/tweet/like', {
-            email: email,
+            nick: nick,
             tweetId: tweetId,
             mode: isTweetLiked,
         });
     };
+
+    const getParents = async () => {
+        let parentTweets: Array<TweetType> = [];
+        for (const tweet of tweets) {
+            if (tweet.parentId) {
+                const res = await axios.post(
+                    'http://localhost:5000/tweet/getone',
+                    { tweetId: tweet.parentId }
+                );
+                parentTweets.push(res.data.result);
+            }
+        }
+        setParents(parentTweets);
+    };
     useEffect(() => {
         getTweets();
-    }, [email]);
+    }, [nick]);
+    useEffect(() => {
+        getParents();
+    }, [tweets]);
     const handleReplyMode = (mode: boolean, target: string) => {
         setReplyMode(mode);
         const targetTweet = tweets.filter((el) => el._id === target);
@@ -136,7 +167,7 @@ const Tweets = ({ email, type }) => {
                             />
                             <Tweet
                                 date={replyTarget?.date}
-                                email={replyTarget?.email}
+                                nick={replyTarget?.nick}
                                 text={replyTarget?.text}
                                 _id={replyTarget?._id}
                                 likes={replyTarget?.likes}
@@ -165,9 +196,11 @@ const Tweets = ({ email, type }) => {
                                 }}
                             >
                                 <TweetCreate
+                                    text={text}
                                     handleChange={handleChange}
                                     createTweet={createTweet}
                                     placeholder="Post your reply!"
+                                    avatar={avatar}
                                 />
                             </div>
                         </S.Reply>
@@ -177,21 +210,23 @@ const Tweets = ({ email, type }) => {
             {type === 'home' && (
                 <S.TweetCreatorWrapper>
                     <TweetCreate
+                        text={text}
                         handleChange={handleChange}
                         createTweet={createTweet}
                         placeholder="What is happening?!"
+                        avatar={avatar}
                     />
                 </S.TweetCreatorWrapper>
             )}
             {tweets.map((tweet: TweetType, index) => {
                 const isLiked = likes.includes(tweet._id);
-                const parentTweet = tweets.filter(
+                const parentTweet: TweetType[] = parents.filter(
                     (el) => el._id === tweet.parentId
                 );
                 return (
                     <Tweet
                         date={tweet.date}
-                        email={tweet.email}
+                        nick={tweet.nick}
                         text={tweet.text}
                         likes={tweet.likes}
                         parentId={tweet.parentId}

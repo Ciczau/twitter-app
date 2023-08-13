@@ -1,11 +1,12 @@
-import Header from './Header';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Mukta } from 'next/font/google';
 import { useCookies } from 'react-cookie';
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
+
+import Header from './Header';
 
 export const font = Mukta({
     weight: '400',
@@ -39,14 +40,22 @@ export const GlobalStyle = createGlobalStyle`
         }
     }
 `;
-interface User {
-    email: string;
+export interface User {
+    nick: string;
+    bio: string;
+    name: string;
+    avatar: string;
 }
 
-export default function BodyContent({ child, auth, mail }) {
+export default function BodyContent({ child, auth, nickName }) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
-    const [email, setEmail] = useState<string>('');
+    const [user, setUser] = useState<User>({
+        nick: '',
+        name: '',
+        bio: '',
+        avatar: '',
+    });
     const router = useRouter();
 
     const refreshToken = async () => {
@@ -54,10 +63,12 @@ export default function BodyContent({ child, auth, mail }) {
         const res = await axios.post('http://localhost:5000/token', {
             refreshToken: token,
         });
+
         if (res.status === 200) {
-            const decoded: User = jwtDecode(res.data.accessToken);
-            setEmail(decoded.email);
-            mail(decoded.email);
+            let decoded: User = jwtDecode(res.data.accessToken);
+            console.log(decoded);
+            setUser(decoded);
+            nickName(decoded);
         } else {
             deleteCookie('refreshToken');
         }
@@ -85,7 +96,7 @@ export default function BodyContent({ child, auth, mail }) {
                 <>
                     {!auth && (
                         <Wrapper>
-                            <Header email={email} />
+                            <Header user={user} />
                             <MainWrapper>{child}</MainWrapper>
                         </Wrapper>
                     )}

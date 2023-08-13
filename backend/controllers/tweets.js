@@ -1,18 +1,18 @@
 import { ObjectId } from 'mongodb';
-import { db } from '../database/Mongo.js';
+import { db } from '../database/mongo.js';
 const tweets = db.collection('tweets');
 const likes = db.collection('likes');
 export const postTweet = async (req, res) => {
-    const { email, text, parentId } = req.body;
+    const { nick, text, parentId } = req.body;
     let reply = 0;
     if (parentId) {
         reply = 1;
     }
     console.log(reply);
-    if (!email || !text) return res.status(400).send({ msg: 'Error' });
+    if (!nick || !text) return res.status(400).send({ msg: 'Error' });
     const date = new Date();
     await tweets.insertOne({
-        email: email,
+        nick: nick,
         text: text,
         date: date,
         likes: 0,
@@ -21,7 +21,8 @@ export const postTweet = async (req, res) => {
         parentId: parentId,
         views: 0,
     });
-    return res.status(200).send({ msg: 'Success' });
+    const newTweet = await tweets.findOne({ nick: nick, date: date });
+    return res.status(200).send({ msg: 'Success', newTweet });
 };
 
 export const getTweets = async (req, res) => {
@@ -29,10 +30,17 @@ export const getTweets = async (req, res) => {
     return res.status(200).send({ result });
 };
 
+export const getSingleTweet = async (req, res) => {
+    const { tweetId } = req.body;
+    const _id = new ObjectId(tweetId);
+    const result = await tweets.findOne({ _id: _id });
+    return res.status(200).send({ result });
+};
+
 export const getUserTweets = async (req, res) => {
-    const { email } = req.body;
+    const { nick } = req.body;
     const result = await tweets
-        .find({ email: email, reply: 0 })
+        .find({ nick: nick, reply: 0 })
         .sort({ _id: -1 })
         .toArray();
     console.log(result);
@@ -40,9 +48,9 @@ export const getUserTweets = async (req, res) => {
 };
 
 export const getUserReplies = async (req, res) => {
-    const { email } = req.body;
+    const { nick } = req.body;
     const result = await tweets
-        .find({ email: email, reply: 1 })
+        .find({ nick: nick, reply: 1 })
         .sort({ _id: -1 })
         .toArray();
     console.log(result);
@@ -50,8 +58,8 @@ export const getUserReplies = async (req, res) => {
 };
 
 export const getUserLikes = async (req, res) => {
-    const { email } = req.body;
-    const like = await likes.find({ userId: email }).toArray();
+    const { nick } = req.body;
+    const like = await likes.find({ userId: nick }).toArray();
     const likesTab = like.map((el) => {
         return new ObjectId(el.tweetId);
     });
@@ -69,19 +77,19 @@ export const getUserLikes = async (req, res) => {
 };
 
 export const tweetLike = async (req, res) => {
-    const { tweetId, email, mode } = req.body;
+    const { tweetId, nick, mode } = req.body;
     console.log(tweetId);
-    if (!tweetId || !email) return res.status(400).send({ msg: 'Error' });
+    if (!tweetId || !nick) return res.status(400).send({ msg: 'Error' });
     const id = new ObjectId(tweetId);
     if (!mode) {
         const date = new Date();
         await likes.insertOne({
             tweetId: tweetId,
-            userId: email,
+            userId: nick,
             date: date,
         });
     } else {
-        await likes.deleteOne({ tweetId: tweetId, userId: email });
+        await likes.deleteOne({ tweetId: tweetId, userId: nick });
     }
 
     const tweet = await tweets.findOne({ _id: id });
@@ -98,9 +106,9 @@ export const tweetLike = async (req, res) => {
 };
 
 export const getLikes = async (req, res) => {
-    const { email } = req.body;
-    console.log(email);
-    const likedTweets = await likes.find({ userId: email }).toArray();
+    const { nick } = req.body;
+    console.log(nick);
+    const likedTweets = await likes.find({ userId: nick }).toArray();
     const result = likedTweets.map((el) => el.tweetId);
     return res.status(200).send({ result });
 };

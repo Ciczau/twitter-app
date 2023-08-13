@@ -1,19 +1,19 @@
 'use client';
 import { useState } from 'react';
-import BodyContent from 'components/BodyContent';
+import BodyContent, { User } from 'components/BodyContent';
 import HomeSection from 'containers/HomeSection';
 import type { NextPage } from 'next';
 
 const Home: NextPage = () => {
-    const [mail, setMail] = useState<string>('');
-    const getMail = (data) => {
-        setMail(data);
+    const [user, setUser] = useState<User>();
+    const getUser = (data) => {
+        setUser(data);
     };
     return (
         <BodyContent
-            child={<HomeSection email={mail} />}
+            child={<HomeSection user={user} />}
             auth={false}
-            mail={getMail}
+            nickName={getUser}
         />
     );
 };

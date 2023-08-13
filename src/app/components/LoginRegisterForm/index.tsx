@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
-import * as S from './index.styles';
+import { useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 
+import * as S from './index.styles';
+
 const LoginRegisterForm = ({ type }) => {
     const [email, setEmail] = useState<string>('');
+    const [nick, setNick] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [passwordCheck, setPasswordCheck] = useState<string>('');
-    const [typeProp, setTypeProp] = useState<string>('');
-    const [cookie, setCookie] = useCookies();
+    const [_, setCookie] = useCookies();
     const [success, setSuccess] = useState<boolean>(false);
     const [validEmail, setValidEmail] = useState<boolean>(true);
     const [validPassword, setValidPassword] = useState<boolean>(true);
+    const [validNick, setValidNick] = useState<boolean>(true);
+
     const router = useRouter();
 
     const HeadText = type === 'login' ? 'Login on twitter' : 'Join twitter';
@@ -22,10 +25,13 @@ const LoginRegisterForm = ({ type }) => {
             ? 'Want to create an account?'
             : 'Already have an account?';
     const ButtonText = type === 'login' ? 'Register' : 'Login';
+
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
     };
-
+    const handleNickChange = (e) => {
+        setNick(e.target.value);
+    };
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     };
@@ -40,36 +46,43 @@ const LoginRegisterForm = ({ type }) => {
         try {
             const res = await axios.post(`http://localhost:5000/user/${type}`, {
                 email: email,
+                nick: nick,
                 password: password,
                 repeatPassword: passwordCheck,
             });
             console.log(res.status);
             if (res.status === 200) {
-                if (type === 'login') {
-                    const expire = new Date();
-                    expire.setTime(expire.getTime() + 60 * 60 * 24 * 1000);
-                    setCookie('refreshToken', res.data.refreshToken, {
-                        path: '/',
-                        expires: expire,
-                    });
-                    setSuccess(true);
-                    setTimeout(() => {
-                        router.push('/home');
-                    }, 700);
-                }
+                const expire = new Date();
+                expire.setTime(expire.getTime() + 60 * 60 * 24 * 1000);
+                setCookie('refreshToken', res.data.refreshToken, {
+                    path: '/',
+                    expires: expire,
+                });
+                setSuccess(true);
+                setTimeout(() => {
+                    router.push('/home');
+                }, 700);
             }
         } catch (err) {
             if (err.request.status === 403) {
                 setValidPassword(false);
             }
             if (err.request.status === 409) {
-                setValidEmail(false);
+                if (err.response.data.mail) {
+                    setValidEmail(false);
+                }
+                if (err.response.data.nick) {
+                    setValidNick(false);
+                }
             }
             if (err.request.status === 401) {
                 setValidPassword(false);
             }
             if (err.request.status === 404) {
                 setValidEmail(false);
+            }
+            if (err.request.status === 408) {
+                setValidNick(false);
             }
         }
     };
@@ -81,13 +94,6 @@ const LoginRegisterForm = ({ type }) => {
             router.push('/x/login');
         }
     };
-    useEffect(() => {
-        setTypeProp(type);
-        console.log(type);
-    }, []);
-    useEffect(() => {
-        console.log(validPassword);
-    }, [validPassword]);
 
     return (
         <S.Wrapper initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
@@ -106,19 +112,28 @@ const LoginRegisterForm = ({ type }) => {
                     <div style={{ color: 'white', fontSize: '30px' }}>
                         {HeadText}
                     </div>
+                    {type === 'register' && (
+                        <S.Input
+                            placeholder="Email"
+                            onChange={handleEmailChange}
+                            valid={validEmail}
+                        />
+                    )}
                     <S.Input
-                        placeholder="Email"
-                        onChange={handleEmailChange}
-                        valid={validEmail}
+                        placeholder="Nick"
+                        onChange={handleNickChange}
+                        valid={validNick}
                     />
                     <S.Input
                         placeholder="Password"
+                        type="password"
                         onChange={handlePasswordChange}
                         valid={validPassword}
                     />
                     {type === 'register' && (
                         <S.Input
                             placeholder="Repeat password"
+                            type="password"
                             onChange={handleRepeatPasswordChange}
                             valid={validPassword}
                         />

@@ -1,12 +1,13 @@
-import { menuItems } from 'components/MenuItems';
 import { useRouter } from 'next/router';
 import { Tooltip } from '@nextui-org/react';
-import * as S from './index.styles';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { font } from 'components/BodyContent';
 
-const Header = ({ email }) => {
+import { font } from 'components/BodyContent';
+import { menuItems } from 'components/MenuItems';
+
+import * as S from './index.styles';
+const Header = ({ user }) => {
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
     const router = useRouter();
@@ -33,7 +34,7 @@ const Header = ({ email }) => {
             <S.Header>
                 {menuItems.map((item, index) => {
                     const link =
-                        item.name === 'Profile' ? `/${email}` : item.link;
+                        item.name === 'Profile' ? `/${user.nick}` : item.link;
 
                     return (
                         <S.HeaderElement
@@ -67,16 +68,8 @@ const Header = ({ email }) => {
                         zIndex: '9999999999',
                     }}
                 >
-                    <img
-                        src="/p2.2.jpeg"
-                        style={{
-                            width: '45px',
-                            objectFit: 'cover',
-                            height: '45px',
-                            borderRadius: '50%',
-                        }}
-                    />
-                    {width > 767 && <div>{email}</div>}
+                    <S.Avatar src={user.avatar} />
+                    {width > 767 && <div>{user.nick}</div>}
                 </Tooltip>
             </S.HeaderElement>
         </S.Wrapper>

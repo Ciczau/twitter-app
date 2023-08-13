@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import css from 'styled-jsx/css';
 
 export const Background = styled.div`
     position: fixed;
@@ -37,7 +38,7 @@ export const AvatarWrapper = styled.div`
     height: 150px;
     margin: 10px;
     border-radius: 50%;
-    background: url('/p2.2.jpeg');
+    background: ${(props) => props.src && `url(${props.src})`};
     background-position: center;
     background-size: cover;
     display: flex;
@@ -77,9 +78,10 @@ export const Input = styled.input`
 export const Label = styled.label`
     position: absolute;
     left: 30px;
-    margin-top: 18px;
-    font-size: 18px;
-    color: #797676;
+    margin-top: ${(props) => (props.isEmpty ? '18px' : '2px')};
+    font-size: ${(props) => (props.isEmpty ? '18px' : '15px')};
+    color: ${(props) => (props.isEmpty ? '#797676' : '#1463a3')};
+
     transition: all 0.3s ease;
     ${Input}:focus ~ & {
         margin-top: 2px;

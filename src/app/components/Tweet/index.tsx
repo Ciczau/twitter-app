@@ -1,10 +1,14 @@
-import * as S from './index.styles';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { HiOutlineChat } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
+
+import * as S from './index.styles';
+
 export interface TweetType {
     date: string;
-    email: string;
+    nick: string;
     text: string;
     _id: string;
     likes: number;
@@ -21,9 +25,40 @@ interface Props extends TweetType {
     isReply: boolean;
 }
 
+function formatTimeDifference(date: Date): string {
+    const now: Date = new Date();
+    const timeDifference: number = now.getTime() - date.getTime();
+
+    if (timeDifference < 60000) {
+        // Mniej niż 1 minuta
+        return Math.floor(timeDifference / 1000) + 's';
+    } else if (timeDifference < 3600000) {
+        // Mniej niż 1 godzina
+        return Math.floor(timeDifference / 60000) + 'm';
+    } else if (timeDifference < 86400000) {
+        // Mniej niż 24 godziny
+        return Math.floor(timeDifference / 3600000) + 'h';
+    } else if (now.getFullYear() !== date.getFullYear()) {
+        // Różny rok
+        const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+        return dateFormatter.format(date) + ' ' + date.getFullYear();
+    } else {
+        // Wszystko inne (dni i miesiąc)
+        const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
+            month: 'long',
+            day: 'numeric',
+        });
+        return dateFormatter.format(date);
+    }
+}
+
 const Tweet = ({
     date,
-    email,
+    nick,
     text,
     _id,
     likes,
@@ -36,11 +71,23 @@ const Tweet = ({
     isLiked,
     isReply,
 }: Props) => {
+    const [avatar, setAvatar] = useState<string>('');
+    const [name, setName] = useState<string>('');
     const dateObject = new Date(date);
 
-    const year = dateObject.getFullYear();
-    const month = dateObject.getMonth() + 1;
-    const day = dateObject.getDate();
+    const getUser = async () => {
+        const res = await axios.post('http://localhost:5000/user', {
+            nick: nick,
+        });
+        setAvatar(res.data.avatar);
+        setName(res.data.name);
+    };
+
+    useEffect(() => {
+        getUser();
+    }, [nick]);
+
+    const formattedDate = formatTimeDifference(dateObject);
     return (
         <S.Tweet isReply={isReply}>
             <div
@@ -50,7 +97,7 @@ const Tweet = ({
                     alignItems: 'center',
                 }}
             >
-                <S.Avatar src="/p2.2.jpeg" />
+                <S.Avatar src={avatar} />
                 {isReply && (
                     <div
                         style={{
@@ -65,10 +112,8 @@ const Tweet = ({
             </div>
             <S.TweetContent>
                 <S.TweetHeader>
-                    <S.User>{email} </S.User>
-                    <S.Date>
-                        {day}.{month}.{year}
-                    </S.Date>
+                    <S.User>{name} </S.User>
+                    <S.Date>{formattedDate}</S.Date>
                 </S.TweetHeader>
 
                 {parentId && !isReply && (
@@ -79,8 +124,8 @@ const Tweet = ({
                         }}
                     >
                         Replying to&nbsp;
-                        <S.LinkWrapper href={`/${parentTweet?.email}`}>
-                            @{parentTweet?.email}
+                        <S.LinkWrapper href={`/${parentTweet?.nick}`}>
+                            @{parentTweet?.nick}
                         </S.LinkWrapper>
                     </div>
                 )}

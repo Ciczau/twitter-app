@@ -8,7 +8,7 @@ const Home = ({ child }) => {
             <BodyContent
                 child={<LoginRegisterPage child={child} />}
                 auth={true}
-                mail={(data) => console.log(data)}
+                nickName={(data) => console.log(data)}
             />
         </div>
     );

@@ -59,3 +59,10 @@ export const LogoutButton = styled.div`
     outline: 0;
     box-shadow: 0px 0px 5px 3px #0000001d;
 `;
+
+export const Avatar = styled.img`
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+`;

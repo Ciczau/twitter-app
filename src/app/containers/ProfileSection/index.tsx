@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import * as S from './index.styles';
 import { BsArrowLeftShort } from 'react-icons/bs';
 import { useRouter } from 'next/router';
-import Tweet, { TweetType } from 'components/Tweet';
+
 import Tweets from 'components/Tweets';
-import Link from 'next/link';
-const ProfileSection = ({ email, profile, type, child }) => {
+import { User } from 'components/BodyContent';
+
+import * as S from './index.styles';
+
+const ProfileSection = ({ user, profile, type, child }) => {
     const router = useRouter();
     const pathname = router.pathname;
-    const [likes, setLikes] = useState<Array<string>>([]);
     const [choice, setChoice] = useState<number>(
         pathname === '/[profile]'
             ? 0
@@ -16,13 +17,15 @@ const ProfileSection = ({ email, profile, type, child }) => {
             ? 1
             : 2
     );
+    const [userData, setUserData] = useState<User>();
 
     const handleChoice = (choice: number, url: string) => {
         setChoice(choice);
         router.replace(`/${profile}${url}`);
     };
-    const { previous } = router.query;
-
+    useEffect(() => {
+        setUserData(user);
+    }, [user]);
     return (
         <>
             {child}
@@ -44,8 +47,8 @@ const ProfileSection = ({ email, profile, type, child }) => {
                 </S.Header>
                 <S.ProfileHeader />
                 <S.AvatarBar>
-                    <S.Avatar />
-                    {email === profile ? (
+                    <S.Avatar src={userData?.avatar} />
+                    {userData?.nick === profile ? (
                         <S.SetUpProfileButton
                             onClick={() => router.push('/profile/settings')}
                         >
@@ -56,8 +59,13 @@ const ProfileSection = ({ email, profile, type, child }) => {
                     )}
                 </S.AvatarBar>
                 <S.Description>
-                    <div>{profile}</div>
-                    <div>@{profile}</div>
+                    <div style={{ lineHeight: '19px', marginBottom: '15px' }}>
+                        <div style={{ color: 'white', fontWeight: 'bold' }}>
+                            {userData?.name}
+                        </div>
+                        <div>@{userData?.nick}</div>
+                    </div>
+                    <div style={{ color: 'white' }}>{userData?.bio}</div>
                     <div>0 Following 1 Follower</div>
                 </S.Description>
                 <S.NavBar>
@@ -80,7 +88,7 @@ const ProfileSection = ({ email, profile, type, child }) => {
                         Likes
                     </S.Button>
                 </S.NavBar>
-                <Tweets email={profile} type={type} />
+                <Tweets nick={profile} avatar={user?.avatar} type={type} />
             </S.Wrapper>
         </>
     );

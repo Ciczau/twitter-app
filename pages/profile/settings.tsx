@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import BodyContent from 'components/BodyContent';
+import BodyContent, { User } from 'components/BodyContent';
 
 import type { NextPage } from 'next';
 import ProfileSection from 'containers/ProfileSection';
@@ -10,23 +10,30 @@ import { TweetType } from 'components/Tweet';
 import Settings from 'components/Settings';
 
 const Home: NextPage = () => {
-    const [mail, setMail] = useState<string>('');
-    const getMail = (data) => {
-        setMail(data);
+    const [user, setUser] = useState<User>();
+    const getUser = (data) => {
+        setUser(data);
     };
 
     return (
         <BodyContent
             child={
                 <ProfileSection
-                    email={mail}
-                    profile={mail}
+                    user={user}
+                    profile={user?.nick}
                     type="tweets"
-                    child={<Settings email={mail} />}
+                    child={
+                        <Settings
+                            nick={user?.nick}
+                            name={user?.name}
+                            bio={user?.bio}
+                            avatar={user?.avatar}
+                        />
+                    }
                 />
             }
             auth={false}
-            mail={getMail}
+            nickName={getUser}
         />
     );
 };

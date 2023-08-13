@@ -1,34 +1,34 @@
 'use client';
 import { useState, useEffect } from 'react';
-import BodyContent from 'components/BodyContent';
+import BodyContent, { User } from 'components/BodyContent';
 
 import type { NextPage } from 'next';
 import ProfileSection from 'containers/ProfileSection';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { TweetType } from 'components/Tweet';
+import axios from 'axios';
 
 const Home: NextPage = () => {
-    const [mail, setMail] = useState<string>('');
+    const [user, setUser] = useState<User>();
 
     const router = useRouter();
 
-    const getMail = (data) => {
-        setMail(data);
+    const getUser = (data) => {
+        setUser(data);
     };
 
     return (
         <BodyContent
             child={
                 <ProfileSection
-                    email={mail}
+                    user={user}
                     profile={router.query.profile}
                     type="likes"
                     child={null}
                 />
             }
             auth={false}
-            mail={getMail}
+            nickName={getUser}
         />
     );
 };

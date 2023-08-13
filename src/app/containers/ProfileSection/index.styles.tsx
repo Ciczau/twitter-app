@@ -17,12 +17,12 @@ export const ProfileHeader = styled.div`
     background-color: #2b2b2e;
 `;
 
-export const Avatar = styled.div`
+export const Avatar = styled.img`
     max-width: 20vw;
     max-height: 20vw;
     width: 150px;
     height: 150px;
-
+    object-fit: cover;
     border-radius: 50%;
     margin: 0px 15px;
     border: 4px solid black;
