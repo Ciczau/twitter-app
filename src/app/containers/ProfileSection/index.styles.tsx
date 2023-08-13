@@ -87,3 +87,9 @@ export const Button = styled.button`
         background-color: #aaaaaa16;
     }
 `;
+
+export const Warning = styled.div`
+    width: 100%;
+    text-align: center;
+    font-size: 30px;
+`;

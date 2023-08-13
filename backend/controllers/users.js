@@ -83,7 +83,7 @@ export const Login = async (req, res) => {
     return res.status(200).send({ msg: 'Success', refreshToken });
 };
 
-function generateRandomCode() {
+export function generateRandomCode() {
     const characters =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let code = '';
@@ -131,7 +131,9 @@ export const EditProfile = async (req, res) => {
 export const GetUser = async (req, res) => {
     const { nick } = req.body;
     const user = await Users.findOne({ nick: nick });
+    if (!user) return res.status(404).send();
     const avatar = `https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`;
     const name = user.name;
-    return res.status(200).send({ avatar, name });
+    const bio = user.bio;
+    return res.status(200).send({ avatar, name, bio });
 };

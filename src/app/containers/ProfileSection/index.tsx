@@ -40,22 +40,30 @@ const ProfileSection = ({ user, profile, type, child }) => {
                         <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
                             {profile}
                         </div>
-                        <div style={{ fontSize: '13px', color: 'gray' }}>
-                            0 Tweets
-                        </div>
+                        {user.nick !== '' && (
+                            <div style={{ fontSize: '13px', color: 'gray' }}>
+                                0 Tweets
+                            </div>
+                        )}
                     </div>
                 </S.Header>
                 <S.ProfileHeader />
                 <S.AvatarBar>
                     <S.Avatar src={userData?.avatar} />
-                    {userData?.nick === profile ? (
-                        <S.SetUpProfileButton
-                            onClick={() => router.push('/profile/settings')}
-                        >
-                            Edit profile
-                        </S.SetUpProfileButton>
-                    ) : (
-                        <S.FollowButton>Follow</S.FollowButton>
+                    {user.nick !== '' && (
+                        <>
+                            {userData?.nick === profile ? (
+                                <S.SetUpProfileButton
+                                    onClick={() =>
+                                        router.push('/profile/settings')
+                                    }
+                                >
+                                    Edit profile
+                                </S.SetUpProfileButton>
+                            ) : (
+                                <S.FollowButton>Follow</S.FollowButton>
+                            )}
+                        </>
                     )}
                 </S.AvatarBar>
                 <S.Description>
@@ -63,32 +71,48 @@ const ProfileSection = ({ user, profile, type, child }) => {
                         <div style={{ color: 'white', fontWeight: 'bold' }}>
                             {userData?.name}
                         </div>
-                        <div>@{userData?.nick}</div>
+                        <div>@{profile}</div>
                     </div>
-                    <div style={{ color: 'white' }}>{userData?.bio}</div>
-                    <div>0 Following 1 Follower</div>
+                    {user.nick !== '' && (
+                        <>
+                            <div style={{ color: 'white' }}>
+                                {userData?.bio}
+                            </div>
+                            <div>0 Following 1 Follower</div>
+                        </>
+                    )}
                 </S.Description>
-                <S.NavBar>
-                    <S.Button
-                        active={choice === 0 ? true : false}
-                        onClick={() => handleChoice(0, '/')}
-                    >
-                        Tweets
-                    </S.Button>
-                    <S.Button
-                        active={choice === 1 ? true : false}
-                        onClick={() => handleChoice(1, '/replies')}
-                    >
-                        Replies
-                    </S.Button>
-                    <S.Button
-                        active={choice === 2 ? true : false}
-                        onClick={() => handleChoice(2, '/likes')}
-                    >
-                        Likes
-                    </S.Button>
-                </S.NavBar>
-                <Tweets nick={profile} avatar={user?.avatar} type={type} />
+                {user.nick !== '' ? (
+                    <>
+                        <S.NavBar>
+                            <S.Button
+                                active={choice === 0 ? true : false}
+                                onClick={() => handleChoice(0, '/')}
+                            >
+                                Tweets
+                            </S.Button>
+                            <S.Button
+                                active={choice === 1 ? true : false}
+                                onClick={() => handleChoice(1, '/replies')}
+                            >
+                                Replies
+                            </S.Button>
+                            <S.Button
+                                active={choice === 2 ? true : false}
+                                onClick={() => handleChoice(2, '/likes')}
+                            >
+                                Likes
+                            </S.Button>
+                        </S.NavBar>
+                        <Tweets
+                            nick={profile}
+                            avatar={user?.avatar}
+                            type={type}
+                        />
+                    </>
+                ) : (
+                    <S.Warning>This user doesn't exists!</S.Warning>
+                )}
             </S.Wrapper>
         </>
     );

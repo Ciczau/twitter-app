@@ -51,6 +51,7 @@ const TweetCreate = ({
                             type="file"
                             hidden
                             id="imageInput"
+                            accept="image/*"
                             onChange={(e) => {
                                 handleFile(e);
                                 handleImage(e);
