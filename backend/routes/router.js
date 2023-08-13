@@ -35,7 +35,7 @@ router.post('/user/login', Login);
 router.post('/user/edit', upload.single('file'), EditProfile);
 router.post('/user', GetUser);
 router.post('/token', refreshToken);
-router.post('/tweet/create', postTweet);
+router.post('/tweet/create', upload.single('file'), postTweet);
 router.post('/tweet/like', tweetLike);
 router.post('/tweet/likes', getLikes);
 

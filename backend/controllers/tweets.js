@@ -1,28 +1,68 @@
 import { ObjectId } from 'mongodb';
 import { db } from '../database/mongo.js';
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+import axios from 'axios';
+cloudinary.config({
+    cloud_name: 'df4tupotg',
+    api_key: '626447796253867',
+    api_secret: 'mPXy5pytK8szulO6NY69mlAtP8Y',
+});
+
+export function generateRandomCode() {
+    const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let code = '';
+
+    for (let i = 0; i < 16; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters[randomIndex];
+    }
+
+    return code;
+}
 const tweets = db.collection('tweets');
 const likes = db.collection('likes');
 export const postTweet = async (req, res) => {
-    const { nick, text, parentId } = req.body;
-    let reply = 0;
-    if (parentId) {
-        reply = 1;
+    try {
+        const { file } = req;
+        const { nick, text, parentId } = req.body;
+        let reply = 0;
+        if (parentId) {
+            reply = 1;
+        }
+        const imageId = generateRandomCode();
+        if (file) {
+            const uploadResult = await cloudinary.uploader.upload(file.path, {
+                public_id: imageId,
+                invalidate: true,
+            });
+
+            if (uploadResult) {
+                await fs.promises.unlink(file.path);
+            }
+        }
+        if (!nick || !text) return res.status(400).send({ msg: 'Error' });
+        const date = new Date();
+        await tweets.insertOne({
+            nick: nick,
+            text: text,
+            date: date,
+            likes: 0,
+            retweets: 0,
+            reply: reply,
+            parentId: parentId,
+            imageId: file
+                ? `https://res.cloudinary.com/df4tupotg/image/upload/${imageId}`
+                : '',
+            views: 0,
+        });
+        const newTweet = await tweets.findOne({ nick: nick, date: date });
+        return res.status(200).send({ msg: 'Success', newTweet });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).send('Internal Server Error');
     }
-    console.log(reply);
-    if (!nick || !text) return res.status(400).send({ msg: 'Error' });
-    const date = new Date();
-    await tweets.insertOne({
-        nick: nick,
-        text: text,
-        date: date,
-        likes: 0,
-        retweets: 0,
-        reply: reply,
-        parentId: parentId,
-        views: 0,
-    });
-    const newTweet = await tweets.findOne({ nick: nick, date: date });
-    return res.status(200).send({ msg: 'Success', newTweet });
 };
 
 export const getTweets = async (req, res) => {

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion } from 'framer-motion';
+import { IoMdClose } from 'react-icons/io';
 import Link from 'next/link';
 export const Wrapper = styled.div`
     display: flex;
@@ -72,6 +73,7 @@ export const Input = styled(TextareaAutosize)`
 
 export const SubmitBar = styled.div`
     display: flex;
+    margin-top: 20px;
     justify-content: space-between;
 `;
 
@@ -123,6 +125,11 @@ export const Date = styled.div`
     font-size: 14px;
     color: gray;
     margin-left: 10px;
+`;
+export const Image = styled.img`
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
 `;
 
 export const IconsWrapper = styled.div`
@@ -182,5 +189,21 @@ export const LinkWrapper = styled(Link)`
     color: #3c79e9;
     &:hover {
         text-decoration: underline;
+    }
+`;
+export const DeleteImageButton = styled(IoMdClose)`
+    position: absolute;
+    margin-top: 10px;
+    margin-right: 10px;
+    color: black;
+    width: 30px;
+    padding: 5px;
+    height: 30px;
+    cursor: pointer;
+    background-color: #adadad;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    &:hover {
+        background-color: gray;
     }
 `;

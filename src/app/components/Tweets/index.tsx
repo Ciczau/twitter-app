@@ -13,7 +13,12 @@ const TweetCreate = ({
     createTweet,
     placeholder,
     avatar,
+    handleFile,
 }) => {
+    const [image, setImage] = useState<string>('');
+    const handleImage = (e) => {
+        setImage(URL.createObjectURL(e.target.files[0]));
+    };
     return (
         <>
             <S.Avatar src={avatar} />
@@ -26,21 +31,52 @@ const TweetCreate = ({
                     onChange={handleChange}
                     value={text}
                 />
-
+                {image !== '' && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                        }}
+                    >
+                        <S.Image src={image} />
+                        <S.DeleteImageButton
+                            size="100%"
+                            onClick={() => setImage('')}
+                        />
+                    </div>
+                )}
                 <S.SubmitBar>
                     <div>
-                        <BiSolidImageAdd
-                            size="100%"
-                            color="#1b60a0"
-                            style={{ width: '25px' }}
+                        <input
+                            type="file"
+                            hidden
+                            id="imageInput"
+                            onChange={(e) => {
+                                handleFile(e);
+                                handleImage(e);
+                            }}
                         />
+                        <label htmlFor="imageInput">
+                            <BiSolidImageAdd
+                                size="100%"
+                                color="#1b60a0"
+                                style={{ width: '25px' }}
+                            />
+                        </label>
                         <FaRegSmile
                             size="100%"
                             color="#1b60a0"
                             style={{ width: '20px', marginLeft: '5px' }}
                         />
                     </div>
-                    <S.SendButton onClick={createTweet}>Tweet</S.SendButton>
+                    <S.SendButton
+                        onClick={async () => {
+                            createTweet();
+                            setImage('');
+                        }}
+                    >
+                        Tweet
+                    </S.SendButton>
                 </S.SubmitBar>
             </S.TweetCreator>
         </>
@@ -52,11 +88,13 @@ const Tweets = ({ nick, type, avatar }) => {
     const [tweets, setTweets] = useState<TweetType[]>([]);
     const [parents, setParents] = useState<TweetType[]>([]);
     const [likes, setLikes] = useState<Array<string>>([]);
+    const [file, setFile] = useState<string>('');
     const [replyMode, setReplyMode] = useState<boolean>(false);
     const [replyTarget, setReplyTarget] = useState<TweetType>({
         date: '',
         nick: '',
         text: '',
+        imageId: '',
         _id: '',
         likes: 0,
         parentId: '',
@@ -66,15 +104,24 @@ const Tweets = ({ nick, type, avatar }) => {
     const handleChange = (e) => {
         setText(e.target.value);
     };
+
+    const handleFile = (e) => {
+        setFile(e.target.files[0]);
+    };
+
     const createTweet = async () => {
         handleReplyMode(false, '');
         setText('');
         try {
-            const res = await axios.post('http://localhost:5000/tweet/create', {
-                nick: nick,
-                text: text,
-                parentId: replyTarget?._id,
-            });
+            const formData = new FormData();
+            formData.append('nick', nick);
+            formData.append('text', text);
+            formData.append('parentId', replyTarget?._id);
+            formData.append('file', file);
+            const res = await axios.post(
+                'http://localhost:5000/tweet/create',
+                formData
+            );
             if (res.status === 200) {
                 setTweets((prevTweets) => [res.data.newTweet, ...prevTweets]);
             }
@@ -170,6 +217,7 @@ const Tweets = ({ nick, type, avatar }) => {
                                 nick={replyTarget?.nick}
                                 text={replyTarget?.text}
                                 _id={replyTarget?._id}
+                                imageId={replyTarget?.imageId}
                                 likes={replyTarget?.likes}
                                 parentId={replyTarget?.parentId}
                                 views={replyTarget?.views}
@@ -198,6 +246,7 @@ const Tweets = ({ nick, type, avatar }) => {
                                 <TweetCreate
                                     text={text}
                                     handleChange={handleChange}
+                                    handleFile={handleFile}
                                     createTweet={createTweet}
                                     placeholder="Post your reply!"
                                     avatar={avatar}
@@ -212,6 +261,7 @@ const Tweets = ({ nick, type, avatar }) => {
                     <TweetCreate
                         text={text}
                         handleChange={handleChange}
+                        handleFile={handleFile}
                         createTweet={createTweet}
                         placeholder="What is happening?!"
                         avatar={avatar}
@@ -230,6 +280,7 @@ const Tweets = ({ nick, type, avatar }) => {
                         text={tweet.text}
                         likes={tweet.likes}
                         parentId={tweet.parentId}
+                        imageId={tweet.imageId}
                         views={tweet.views}
                         retweets={tweet.retweets}
                         _id={tweet._id}

@@ -54,6 +54,7 @@ export const IconWrapper = styled.div`
     color: #585858;
     display: flex;
     width: 15%;
+    font-weight: bold;
     cursor: pointer;
     justify-content: space-between;
     align-items: center;
@@ -65,4 +66,11 @@ export const LinkWrapper = styled(Link)`
     &:hover {
         text-decoration: underline;
     }
+`;
+
+export const Image = styled.img`
+    width: 100%;
+    margin-top: 10px;
+    height: 100%;
+    border-radius: 15px;
 `;

@@ -14,6 +14,7 @@ export interface TweetType {
     _id: string;
     likes: number;
     parentId: string;
+    imageId: string;
     views: number;
     retweets: number;
 }
@@ -31,16 +32,12 @@ function formatTimeDifference(date: Date): string {
     const timeDifference: number = now.getTime() - date.getTime();
 
     if (timeDifference < 60000) {
-        // Mniej niż 1 minuta
         return Math.floor(timeDifference / 1000) + 's';
     } else if (timeDifference < 3600000) {
-        // Mniej niż 1 godzina
         return Math.floor(timeDifference / 60000) + 'm';
     } else if (timeDifference < 86400000) {
-        // Mniej niż 24 godziny
         return Math.floor(timeDifference / 3600000) + 'h';
     } else if (now.getFullYear() !== date.getFullYear()) {
-        // Różny rok
         const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
             year: 'numeric',
             month: 'long',
@@ -48,7 +45,6 @@ function formatTimeDifference(date: Date): string {
         });
         return dateFormatter.format(date) + ' ' + date.getFullYear();
     } else {
-        // Wszystko inne (dni i miesiąc)
         const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
             month: 'long',
             day: 'numeric',
@@ -64,6 +60,7 @@ const Tweet = ({
     _id,
     likes,
     parentId,
+    imageId,
     views,
     retweets,
     onTweetLike,
@@ -141,6 +138,7 @@ const Tweet = ({
                     </div>
                 )}
                 <div>{text}</div>
+                {imageId !== '' && <S.Image src={imageId} />}
                 {!isReply && (
                     <S.IconsWrapper>
                         <S.IconWrapper>
