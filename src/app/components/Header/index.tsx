@@ -7,6 +7,7 @@ import { font } from 'components/BodyContent';
 import { menuItems } from 'components/MenuItems';
 
 import * as S from './index.styles';
+import axios from 'axios';
 const Header = ({ user }) => {
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
@@ -25,7 +26,10 @@ const Header = ({ user }) => {
             window.removeEventListener('resize', handleWidth);
         };
     }, []);
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        const res = await axios.post('http://localhost:5000/user/logout', {
+            nick: user.nick,
+        });
         deleteCookie('refreshToken');
         router.push('/x');
     };

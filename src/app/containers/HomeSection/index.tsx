@@ -29,7 +29,7 @@ const HomeSection = ({ user }) => {
                     Following
                 </S.Button>
             </S.SelectionWrapper>
-            <Tweets nick={user?.nick} avatar={user?.avatar} type="home" />
+            <Tweets nick={user?.nick} avatar={user?.avatarId} type="home" />
         </S.Wrapper>
     );
 };

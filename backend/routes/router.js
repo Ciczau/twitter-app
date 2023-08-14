@@ -5,6 +5,7 @@ import {
     GetUser,
     GetUsers,
     Login,
+    Logout,
     Register,
     refreshToken,
 } from '../controllers/users.js';
@@ -40,6 +41,7 @@ const upload = multer({ storage: storage });
 export const router = express();
 router.post('/user/register', Register);
 router.post('/user/login', Login);
+router.post('/user/logout', Logout);
 router.post('/user/edit', upload.single('file'), EditProfile);
 router.post('/user', GetUser);
 router.post('/users', GetUsers);

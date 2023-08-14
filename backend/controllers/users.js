@@ -89,6 +89,13 @@ export const Login = async (req, res) => {
     return res.status(200).send({ msg: 'Success', refreshToken });
 };
 
+export const Logout = async (req, res) => {
+    const { nick } = req.body;
+    if (!nick) return res.status(400).send();
+    await Users.updateOne({ nick: nick }, { $set: { refreshToken: '' } });
+    return res.status(200).send();
+};
+
 export function generateRandomCode() {
     const characters =
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
