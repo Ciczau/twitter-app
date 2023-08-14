@@ -3,19 +3,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
-import ProfileSection from 'containers/ProfileSection';
 import BodyContent, { User } from 'components/BodyContent';
+import FollowSection from 'containers/ProfileSection/FollowSection';
 
-const Home = ({ type = 'tweets' }) => {
+const Home = () => {
     const router = useRouter();
     const { profile } = router.query;
 
-    const [user, setUser] = useState<User>();
     const [userProfile, setUserProfile] = useState<User>();
 
-    const getUser = (data: User) => {
-        setUser(data);
-    };
     const getUserByProfile = async () => {
         try {
             const res = await axios.post('http://localhost:5000/user', {
@@ -28,7 +24,7 @@ const Home = ({ type = 'tweets' }) => {
                         nick: nick,
                         name: res.data.name,
                         bio: res.data.bio,
-                        avatarId: res.data.avatar,
+                        avatar: res.data.avatar,
                         followers: res.data.followers,
                         following: res.data.following,
                         tweets: res.data.tweets,
@@ -45,16 +41,9 @@ const Home = ({ type = 'tweets' }) => {
     }, [profile]);
     return (
         <BodyContent
-            child={
-                <ProfileSection
-                    user={user}
-                    profile={userProfile}
-                    type={type}
-                    child={null}
-                />
-            }
+            child={<FollowSection user={userProfile} />}
             auth={false}
-            nickName={getUser}
+            nickName={() => console.log()}
         />
     );
 };

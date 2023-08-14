@@ -44,7 +44,10 @@ export interface User {
     nick: string;
     bio: string;
     name: string;
-    avatar: string;
+    avatarId: string;
+    tweets: number;
+    followers: number;
+    following: number;
 }
 
 export default function BodyContent({ child, auth, nickName }) {
@@ -54,7 +57,10 @@ export default function BodyContent({ child, auth, nickName }) {
         nick: '',
         name: '',
         bio: '',
-        avatar: '',
+        avatarId: '',
+        tweets: 0,
+        followers: 0,
+        following: 0,
     });
     const router = useRouter();
 

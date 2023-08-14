@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import styled from 'styled-components';
 export const Wrapper = styled.div`
     color: white;
@@ -41,9 +42,10 @@ export const SetUpProfileButton = styled.button`
 `;
 
 export const FollowButton = styled(SetUpProfileButton)`
-    color: black;
+    color: ${(props) => (props.isFollowing ? 'white' : 'black')};
     font-weight: bold;
-    background-color: white;
+    background-color: ${(props) => (props.isFollowing ? 'black' : 'white')};
+    border: ${(props) => (props.isFollowing ? '1px solid gray' : '0')};
 `;
 
 export const AvatarBar = styled.div`
@@ -92,4 +94,12 @@ export const Warning = styled.div`
     width: 100%;
     text-align: center;
     font-size: 30px;
+`;
+
+export const LinkWrapper = styled(Link)`
+    color: #757373;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
 `;

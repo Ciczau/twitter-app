@@ -68,7 +68,7 @@ const Header = ({ user }) => {
                         zIndex: '9999999999',
                     }}
                 >
-                    <S.Avatar src={user.avatar} />
+                    <S.Avatar src={user.avatarId} />
                     {width > 767 && <div>{user.nick}</div>}
                 </Tooltip>
             </S.HeaderElement>

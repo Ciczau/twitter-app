@@ -1,17 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
-import BodyContent, { User } from 'components/BodyContent';
-
-import type { NextPage } from 'next';
-import ProfileSection from 'containers/ProfileSection';
-import { useRouter } from 'next/router';
 import axios from 'axios';
-import { TweetType } from 'components/Tweet';
+import { useRouter } from 'next/router';
+
+import ProfileSection from 'containers/ProfileSection';
+import BodyContent, { User } from 'components/BodyContent';
 import Settings from 'components/Settings';
 
-const Home: NextPage = () => {
+const Home = ({ type = 'tweets' }) => {
     const [user, setUser] = useState<User>();
-    const getUser = (data) => {
+
+    const getUser = (data: User) => {
         setUser(data);
     };
 
@@ -20,14 +19,14 @@ const Home: NextPage = () => {
             child={
                 <ProfileSection
                     user={user}
-                    profile={user?.nick}
-                    type="tweets"
+                    profile={user}
+                    type={type}
                     child={
                         <Settings
                             nick={user?.nick}
                             name={user?.name}
+                            avatar={user?.avatarId}
                             bio={user?.bio}
-                            avatar={user?.avatar}
                         />
                     }
                 />

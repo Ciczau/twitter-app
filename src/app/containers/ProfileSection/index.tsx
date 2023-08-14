@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BsArrowLeftShort } from 'react-icons/bs';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 import Tweets from 'components/Tweets';
 import { User } from 'components/BodyContent';
@@ -17,15 +18,53 @@ const ProfileSection = ({ user, profile, type, child }) => {
             ? 1
             : 2
     );
+    const [clientData, setClientData] = useState<User>();
     const [userData, setUserData] = useState<User>();
+    const [isFollowing, setFollowing] = useState<boolean>(false);
 
     const handleChoice = (choice: number, url: string) => {
         setChoice(choice);
-        router.replace(`/${profile}${url}`);
+        router.replace(`/${profile.nick}${url}`);
     };
+
+    const checkIfFollowing = async () => {
+        const res = await axios.post('http://localhost:5000/follow/check', {
+            follower: clientData?.nick,
+            following: userData?.nick,
+        });
+        console.log(res.data.result);
+        setFollowing(res.data.result);
+    };
+
+    const followUser = async (type: string) => {
+        try {
+            const res = await axios.post(
+                `http://localhost:5000/follow/${type}`,
+                {
+                    user: clientData?.nick,
+                    userToFollow: userData?.nick,
+                }
+            );
+            if (res.status === 200) {
+                setFollowing(!isFollowing);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     useEffect(() => {
-        setUserData(user);
+        setUserData(profile);
+    }, [profile]);
+    useEffect(() => {
+        setClientData(user);
     }, [user]);
+    useEffect(() => {
+        checkIfFollowing();
+    }, [userData, clientData]);
+    useEffect(() => {
+        console.log(isFollowing);
+    }, [isFollowing]);
     return (
         <>
             {child}
@@ -38,21 +77,22 @@ const ProfileSection = ({ user, profile, type, child }) => {
                     />
                     <div style={{ marginLeft: '15px', lineHeight: '22px' }}>
                         <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                            {profile}
+                            {userData?.name}
                         </div>
-                        {user.nick !== '' && (
+                        {userData?.nick !== '' && (
                             <div style={{ fontSize: '13px', color: 'gray' }}>
-                                0 Tweets
+                                {userData?.tweets} Tweet
+                                {userData?.tweets !== 1 && <>s</>}
                             </div>
                         )}
                     </div>
                 </S.Header>
                 <S.ProfileHeader />
                 <S.AvatarBar>
-                    <S.Avatar src={userData?.avatar} />
-                    {user.nick !== '' && (
+                    <S.Avatar src={userData?.avatarId} />
+                    {userData?.nick !== '' && (
                         <>
-                            {userData?.nick === profile ? (
+                            {userData?.nick === clientData?.nick ? (
                                 <S.SetUpProfileButton
                                     onClick={() =>
                                         router.push('/profile/settings')
@@ -61,7 +101,16 @@ const ProfileSection = ({ user, profile, type, child }) => {
                                     Edit profile
                                 </S.SetUpProfileButton>
                             ) : (
-                                <S.FollowButton>Follow</S.FollowButton>
+                                <S.FollowButton
+                                    isFollowing={isFollowing}
+                                    onClick={async () =>
+                                        followUser(
+                                            isFollowing ? 'delete' : 'add'
+                                        )
+                                    }
+                                >
+                                    Follow{isFollowing && <>ing</>}
+                                </S.FollowButton>
                             )}
                         </>
                     )}
@@ -71,18 +120,37 @@ const ProfileSection = ({ user, profile, type, child }) => {
                         <div style={{ color: 'white', fontWeight: 'bold' }}>
                             {userData?.name}
                         </div>
-                        <div>@{profile}</div>
+                        <div>@{userData?.nick}</div>
                     </div>
-                    {user.nick !== '' && (
+                    {userData?.nick !== '' && (
                         <>
                             <div style={{ color: 'white' }}>
                                 {userData?.bio}
                             </div>
-                            <div>0 Following 1 Follower</div>
+                            <div style={{ display: 'flex' }}>
+                                <S.LinkWrapper
+                                    href={`/${userData?.nick}/following`}
+                                >
+                                    <b style={{ color: 'white' }}>
+                                        {userData?.following}
+                                    </b>{' '}
+                                    Following
+                                </S.LinkWrapper>
+                                <S.LinkWrapper
+                                    href={`/${userData?.nick}/followers`}
+                                >
+                                    <b style={{ color: 'white' }}>
+                                        &nbsp;
+                                        {userData?.followers}
+                                    </b>{' '}
+                                    Follower
+                                    {userData?.followers !== 1 && <>s</>}
+                                </S.LinkWrapper>
+                            </div>
                         </>
                     )}
                 </S.Description>
-                {user.nick !== '' ? (
+                {userData?.nick !== '' ? (
                     <>
                         <S.NavBar>
                             <S.Button
@@ -105,8 +173,8 @@ const ProfileSection = ({ user, profile, type, child }) => {
                             </S.Button>
                         </S.NavBar>
                         <Tweets
-                            nick={profile}
-                            avatar={user?.avatar}
+                            nick={userData?.nick}
+                            avatar={userData?.avatarId}
                             type={type}
                         />
                     </>

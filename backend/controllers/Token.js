@@ -5,9 +5,17 @@ export const generateRefreshToken = (nick, bio, name) => {
         expiresIn: '864000s',
     });
 };
-export const generateAccessToken = (nick, bio, name, avatar) => {
+export const generateAccessToken = (
+    nick,
+    bio,
+    name,
+    avatarId,
+    tweets,
+    followers,
+    following
+) => {
     return jwt.sign(
-        { nick, bio, name, avatar },
+        { nick, bio, name, avatarId, tweets, followers, following },
         process.env.JWT_SECRET_ACCESS_KEY,
         {
             expiresIn: '15s',

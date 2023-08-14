@@ -23,6 +23,7 @@ export function generateRandomCode() {
 }
 const tweets = db.collection('tweets');
 const likes = db.collection('likes');
+const users = db.collection('users');
 export const postTweet = async (req, res) => {
     try {
         const { file } = req;
@@ -57,6 +58,11 @@ export const postTweet = async (req, res) => {
                 : '',
             views: 0,
         });
+        const user = await users.findOne({ nick: nick });
+        await users.updateOne(
+            { nick: nick },
+            { $set: { tweets: user.tweets + 1 } }
+        );
         const newTweet = await tweets.findOne({ nick: nick, date: date });
         return res.status(200).send({ msg: 'Success', newTweet });
     } catch (error) {

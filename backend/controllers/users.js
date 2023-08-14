@@ -30,7 +30,10 @@ export const refreshToken = async (req, res) => {
             user.nick,
             user.bio,
             user.name,
-            avatarUrl
+            avatarUrl,
+            user.tweets,
+            user.followers,
+            user.following
         );
 
         return res.status(200).send({ accessToken });
@@ -62,6 +65,9 @@ export const Register = async (req, res) => {
         avatarId: 'defaultAvatar',
         password: encryptedPassword,
         refreshToken: refreshToken,
+        tweets: 0,
+        following: 0,
+        followers: 0,
     });
     return res.status(200).send({ msg: 'Success', refreshToken });
 };
@@ -104,7 +110,7 @@ export const EditProfile = async (req, res) => {
         const user = await Users.findOne({ nick: nick });
         await Users.updateOne(
             { nick: nick },
-            { $set: { name: name, bio: bio, avatarId: fileName } }
+            { $set: { name: name, bio: bio } }
         );
 
         if (file) {
@@ -115,7 +121,10 @@ export const EditProfile = async (req, res) => {
                 public_id: fileName,
                 invalidate: true,
             });
-
+            await Users.updateOne(
+                { nick: nick },
+                { $set: { avatarId: fileName } }
+            );
             if (uploadResult) {
                 await fs.promises.unlink(file.path);
             }
@@ -133,7 +142,20 @@ export const GetUser = async (req, res) => {
     const user = await Users.findOne({ nick: nick });
     if (!user) return res.status(404).send();
     const avatar = `https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`;
-    const name = user.name;
-    const bio = user.bio;
-    return res.status(200).send({ avatar, name, bio });
+    const { name, bio, followers, following, tweets } = user;
+    return res
+        .status(200)
+        .send({ avatar, name, bio, followers, following, tweets });
+};
+
+export const GetUsers = async (req, res) => {
+    const { list } = req.body;
+    console.log(list);
+    if (!list) return res.status(400).send();
+    const users = [];
+    for (let i = 0; i < list.length; i++) {
+        const user = await Users.findOne({ nick: list[i] });
+        users.push(user);
+    }
+    return res.status(200).send({ users });
 };
