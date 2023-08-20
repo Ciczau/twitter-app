@@ -31,6 +31,12 @@ export const postTweet = async (req, res) => {
         let reply = 0;
         if (parentId) {
             reply = 1;
+            const id = new ObjectId(parentId);
+            const parentTweet = await tweets.findOne({ _id: id });
+            await tweets.updateOne(
+                { _id: id },
+                { $set: { retweets: parentTweet.retweets + 1 } }
+            );
         }
         const imageId = generateRandomCode();
         if (file) {

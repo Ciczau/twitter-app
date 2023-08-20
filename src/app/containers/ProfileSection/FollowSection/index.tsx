@@ -1,9 +1,11 @@
 import { BsArrowLeftShort } from 'react-icons/bs';
-import * as S from './index.styles';
 import { useState, useEffect } from 'react';
-import { User } from 'components/BodyContent';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+
+import { User } from 'components/BodyContent';
+
+import * as S from './index.styles';
 
 const FollowSection = ({ user }) => {
     const router = useRouter();

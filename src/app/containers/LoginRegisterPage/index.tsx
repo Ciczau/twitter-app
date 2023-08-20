@@ -15,9 +15,9 @@ const LoginRegisterPage = ({ child }) => {
         <div className={font.className}>
             {child}
             <S.Wrapper>
-                <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '60px' }}>LATEST WORLD NEWS</div>
-                    <div style={{ fontSize: '35px' }}>Join twitter</div>
+                <div>
+                    <h1>LATEST WORLD NEWS</h1>
+                    <h2>Join twitter</h2>
                 </div>
                 <S.ContentWrapper>
                     <S.RegisterButton onClick={() => handleToggle('register')}>

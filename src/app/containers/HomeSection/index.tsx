@@ -6,7 +6,9 @@ import { User } from 'components/BodyContent';
 import * as S from './index.styles';
 
 const HomeSection = ({ user }) => {
-    const [choice, setChoice] = useState<number>(0);
+    const [activeTab, setActiveTab] = useState<'popular' | 'following'>(
+        'popular'
+    );
     const [userData, setUserData] = useState<User>();
 
     useEffect(() => {
@@ -17,19 +19,23 @@ const HomeSection = ({ user }) => {
             <S.Head>Home</S.Head>
             <S.SelectionWrapper>
                 <S.Button
-                    onClick={() => setChoice(0)}
-                    active={choice === 0 ? true : false}
+                    onClick={() => setActiveTab('popular')}
+                    active={activeTab === 'popular' ? true : false}
                 >
                     For you
                 </S.Button>
                 <S.Button
-                    onClick={() => setChoice(1)}
-                    active={choice === 1 ? true : false}
+                    onClick={() => setActiveTab('following')}
+                    active={activeTab === 'following' ? true : false}
                 >
                     Following
                 </S.Button>
             </S.SelectionWrapper>
-            <Tweets nick={user?.nick} avatar={user?.avatarId} type="home" />
+            <Tweets
+                nick={userData?.nick}
+                avatar={userData?.avatarId}
+                type="home"
+            />
         </S.Wrapper>
     );
 };

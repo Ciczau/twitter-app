@@ -7,6 +7,7 @@ import axios from 'axios';
 import Tweet, { TweetType } from 'components/Tweet';
 
 import * as S from './index.styles';
+
 const TweetCreate = ({
     text,
     handleChange,

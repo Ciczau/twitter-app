@@ -11,6 +11,18 @@ export const Wrapper = styled.div`
     align-items: center;
     color: white;
     flex-direction: column;
+    div {
+        text-align: center;
+    }
+    h1 {
+        font-size: 60px;
+    }
+    h2 {
+        font-size: 40px;
+    }
+    p {
+        font-size: 30px;
+    }
 `;
 
 export const RegisterButton = styled.button`
@@ -33,7 +45,7 @@ export const ContentWrapper = styled.div`
     text-align: center;
     height: 30vh;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
     flex-direction: column;
 `;

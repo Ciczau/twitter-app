@@ -2,12 +2,13 @@ import { useRouter } from 'next/router';
 import { Tooltip } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
+import axios from 'axios';
 
 import { font } from 'components/BodyContent';
 import { menuItems } from 'components/MenuItems';
 
 import * as S from './index.styles';
-import axios from 'axios';
+
 const Header = ({ user }) => {
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);

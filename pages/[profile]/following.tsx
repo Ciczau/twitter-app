@@ -24,7 +24,7 @@ const Home = () => {
                         nick: nick,
                         name: res.data.name,
                         bio: res.data.bio,
-                        avatar: res.data.avatar,
+                        avatarId: res.data.avatar,
                         followers: res.data.followers,
                         following: res.data.following,
                         tweets: res.data.tweets,

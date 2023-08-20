@@ -1,7 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import ProfileSection from 'containers/ProfileSection';
 import BodyContent, { User } from 'components/BodyContent';
