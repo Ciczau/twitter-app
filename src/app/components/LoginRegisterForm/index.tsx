@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
+
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -44,11 +45,15 @@ const LoginRegisterForm = ({ type }) => {
         setValidEmail(true);
         setValidPassword(true);
         try {
-            const res = await axios.post(`http://localhost:5000/user/${type}`, {
-                email: email,
-                nick: nick,
-                password: password,
-                repeatPassword: passwordCheck,
+            const res = await instance({
+                url: `/user/${type}`,
+                method: 'POST',
+                data: {
+                    email: email,
+                    nick: nick,
+                    password: password,
+                    repeatPassword: passwordCheck,
+                },
             });
             console.log(res.status);
             if (res.status === 200) {
@@ -102,16 +107,8 @@ const LoginRegisterForm = ({ type }) => {
                     color="white"
                     onClick={() => router.push('/x')}
                 />
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <div style={{ color: 'white', fontSize: '30px' }}>
-                        {HeadText}
-                    </div>
+                <S.FormWrapper>
+                    <p>{HeadText}</p>
                     {type === 'register' && (
                         <S.Input
                             placeholder="Email"
@@ -155,26 +152,11 @@ const LoginRegisterForm = ({ type }) => {
                         )}
                     </S.SubmitButton>
 
-                    <div
-                        style={{
-                            color: 'white',
-                            display: 'flex',
-                            fontSize: '20px',
-                            cursor: 'pointer',
-                        }}
-                        onClick={handleRedirect}
-                    >
+                    <S.BottomTextWrapper onClick={handleRedirect}>
                         <div>{BottomText} </div>
-                        <div
-                            style={{
-                                marginLeft: '5px',
-                                color: '#128dd4',
-                            }}
-                        >
-                            {ButtonText}
-                        </div>
-                    </div>
-                </div>
+                        <button>{ButtonText}</button>
+                    </S.BottomTextWrapper>
+                </S.FormWrapper>
             </S.FormWindow>
         </S.Wrapper>
     );

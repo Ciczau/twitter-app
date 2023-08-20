@@ -1,50 +1,52 @@
 import { useState, useEffect } from 'react';
-import { BsArrowLeftShort } from 'react-icons/bs';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 
 import Tweets from 'components/Tweets';
 import { User } from 'components/BodyContent';
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
 const ProfileSection = ({ user, profile, type, child }) => {
     const router = useRouter();
     const pathname = router.pathname;
-    const [choice, setChoice] = useState<number>(
+    const [activeTab, setActiveTab] = useState<'tweets' | 'replies' | 'likes'>(
         pathname === '/[profile]'
-            ? 0
+            ? 'tweets'
             : pathname === '/[profile]/replies'
-            ? 1
-            : 2
+            ? 'replies'
+            : 'likes'
     );
     const [clientData, setClientData] = useState<User>();
     const [userData, setUserData] = useState<User>();
     const [isFollowing, setFollowing] = useState<boolean>(false);
 
-    const handleChoice = (choice: number, url: string) => {
-        setChoice(choice);
+    const handleChoice = (
+        activeTab: 'tweets' | 'replies' | 'likes',
+        url: string
+    ) => {
+        setActiveTab(activeTab);
         router.replace(`/${profile.nick}${url}`);
     };
 
     const checkIfFollowing = async () => {
-        const res = await axios.post('http://localhost:5000/follow/check', {
-            follower: clientData?.nick,
-            following: userData?.nick,
+        const res = await instance({
+            url: '/follow/check',
+            method: 'POST',
+            data: { follower: clientData?.nick, following: userData?.nick },
         });
         console.log(res.data.result);
         setFollowing(res.data.result);
     };
 
-    const followUser = async (type: string) => {
+    const handleFollow = async () => {
+        const type = isFollowing ? 'delete' : 'add';
         try {
-            const res = await axios.post(
-                `http://localhost:5000/follow/${type}`,
-                {
-                    user: clientData?.nick,
-                    userToFollow: userData?.nick,
-                }
-            );
+            const res = await instance({
+                url: `/follow/${type}`,
+                method: 'POST',
+                data: { user: clientData?.nick, userToFollow: userData?.nick },
+            });
             if (res.status === 200) {
                 setFollowing(!isFollowing);
             }
@@ -55,37 +57,28 @@ const ProfileSection = ({ user, profile, type, child }) => {
 
     useEffect(() => {
         setUserData(profile);
-    }, [profile]);
-    useEffect(() => {
         setClientData(user);
-    }, [user]);
-    useEffect(() => {
         checkIfFollowing();
-    }, [userData, clientData]);
-    useEffect(() => {
-        console.log(isFollowing);
-    }, [isFollowing]);
+    }, [profile, user, userData, clientData]);
+
     return (
         <>
             {child}
             <S.Wrapper>
                 <S.Header>
-                    <BsArrowLeftShort
+                    <S.LeftArrowIcon
                         size="100%"
-                        style={{ width: '30px' }}
                         onClick={() => router.push('/home')}
                     />
-                    <div style={{ marginLeft: '15px', lineHeight: '22px' }}>
-                        <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                            {userData?.name}
-                        </div>
+                    <S.HeaderInfoWrapper>
+                        <S.HeaderUserName>{userData?.name}</S.HeaderUserName>
                         {userData?.nick !== '' && (
-                            <div style={{ fontSize: '13px', color: 'gray' }}>
+                            <S.HeaderTweetCount>
                                 {userData?.tweets} Tweet
                                 {userData?.tweets !== 1 && <>s</>}
-                            </div>
+                            </S.HeaderTweetCount>
                         )}
-                    </div>
+                    </S.HeaderInfoWrapper>
                 </S.Header>
                 <S.ProfileHeader />
                 <S.AvatarBar>
@@ -103,11 +96,7 @@ const ProfileSection = ({ user, profile, type, child }) => {
                             ) : (
                                 <S.FollowButton
                                     isFollowing={isFollowing}
-                                    onClick={async () =>
-                                        followUser(
-                                            isFollowing ? 'delete' : 'add'
-                                        )
-                                    }
+                                    onClick={handleFollow}
                                 >
                                     Follow{isFollowing && <>ing</>}
                                 </S.FollowButton>
@@ -116,30 +105,23 @@ const ProfileSection = ({ user, profile, type, child }) => {
                     )}
                 </S.AvatarBar>
                 <S.Description>
-                    <div style={{ lineHeight: '19px', marginBottom: '15px' }}>
-                        <div style={{ color: 'white', fontWeight: 'bold' }}>
-                            {userData?.name}
-                        </div>
+                    <S.NameWrapper>
+                        <S.UserName>{userData?.name}</S.UserName>
                         <div>@{userData?.nick}</div>
-                    </div>
+                    </S.NameWrapper>
                     {userData?.nick !== '' && (
                         <>
-                            <div style={{ color: 'white' }}>
-                                {userData?.bio}
-                            </div>
-                            <div style={{ display: 'flex' }}>
+                            <S.UserBio>{userData?.bio}</S.UserBio>
+                            <div>
                                 <S.LinkWrapper
                                     href={`/${userData?.nick}/following`}
                                 >
-                                    <b style={{ color: 'white' }}>
-                                        {userData?.following}
-                                    </b>{' '}
-                                    Following
+                                    <b>{userData?.following}</b> Following
                                 </S.LinkWrapper>
                                 <S.LinkWrapper
                                     href={`/${userData?.nick}/followers`}
                                 >
-                                    <b style={{ color: 'white' }}>
+                                    <b>
                                         &nbsp;
                                         {userData?.followers}
                                     </b>{' '}
@@ -154,28 +136,32 @@ const ProfileSection = ({ user, profile, type, child }) => {
                     <>
                         <S.NavBar>
                             <S.Button
-                                active={choice === 0 ? true : false}
-                                onClick={() => handleChoice(0, '/')}
+                                active={activeTab === 'tweets' ? true : false}
+                                onClick={() => handleChoice('tweets', '/')}
                             >
                                 Tweets
                             </S.Button>
                             <S.Button
-                                active={choice === 1 ? true : false}
-                                onClick={() => handleChoice(1, '/replies')}
+                                active={activeTab === 'replies' ? true : false}
+                                onClick={() =>
+                                    handleChoice('replies', '/replies')
+                                }
                             >
                                 Replies
                             </S.Button>
                             <S.Button
-                                active={choice === 2 ? true : false}
-                                onClick={() => handleChoice(2, '/likes')}
+                                active={activeTab === 'likes' ? true : false}
+                                onClick={() => handleChoice('likes', '/likes')}
                             >
                                 Likes
                             </S.Button>
                         </S.NavBar>
                         <Tweets
-                            nick={userData?.nick}
+                            nick={clientData?.nick}
+                            profile={userData?.nick}
                             avatar={userData?.avatarId}
                             type={type}
+                            postTweet={null}
                         />
                     </>
                 ) : (

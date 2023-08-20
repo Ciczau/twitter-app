@@ -2,7 +2,9 @@ import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion } from 'framer-motion';
 import { IoMdClose } from 'react-icons/io';
+import { BiSolidImageAdd } from 'react-icons/bi';
 import Link from 'next/link';
+import { FaRegSmile } from 'react-icons/fa';
 export const Wrapper = styled.div`
     display: flex;
     width: 100%;
@@ -42,7 +44,7 @@ export const Button = styled.button`
 
 export const TweetCreatorWrapper = styled.div`
     width: 100%;
-    border-bottom: 1px solid #c7c7c745;
+    border-bottom: ${(props) => (props.reply ? '0' : '1px solid #c7c7c745')};
     padding: 15px;
 
     display: flex;
@@ -132,6 +134,11 @@ export const Image = styled.img`
     border-radius: 15px;
 `;
 
+export const ImageWrapper = styled.div`
+    display: flex;
+    justify-content: flex-end;
+`;
+
 export const IconsWrapper = styled.div`
     width: 50%;
     display: flex;
@@ -206,4 +213,22 @@ export const DeleteImageButton = styled(IoMdClose)`
     &:hover {
         background-color: gray;
     }
+`;
+
+export const ReplyClose = styled(IoMdClose)`
+    margin-bottom: 15px;
+    color: white;
+`;
+
+export const AddImageIcon = styled(BiSolidImageAdd)`
+    width: 25px;
+    color: #1b60a0;
+    cursor: pointer;
+`;
+
+export const EmojiListIcon = styled(FaRegSmile)`
+    width: 20px;
+    cursor: pointer;
+    margin-left: 5px;
+    color: #1b60a0;
 `;

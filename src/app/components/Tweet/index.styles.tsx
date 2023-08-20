@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
+import { HiOutlineChat } from 'react-icons/hi';
+import { ImStatsBars } from 'react-icons/im';
 
 export const Avatar = styled.img`
     width: 40px;
@@ -73,4 +76,49 @@ export const Image = styled.img`
     margin-top: 10px;
     height: 100%;
     border-radius: 15px;
+`;
+export const AvatarWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+`;
+
+export const VerticalLine = styled.div`
+    height: calc(100% - 50px);
+    width: 1px;
+    margin-top: 10px;
+    padding-bottom: 30px;
+    background-color: gray;
+`;
+
+export const Dot = styled.div`
+    margin: 0 4px;
+    font-weight: 700;
+`;
+export const ReplyingInfo = styled.div`
+    color: gray;
+    display: flex;
+`;
+export const EmptyHeartIcon = styled(AiOutlineHeart)`
+    color: #585858;
+    width: 25px;
+`;
+
+export const FullHeartIcon = styled(AiFillHeart)`
+    color: #8d0225;
+    width: 25px;
+`;
+
+export const RetweetIcon = styled(HiOutlineChat)`
+    width: 25px;
+    color: #585858;
+`;
+
+export const ViewsIcon = styled(ImStatsBars)`
+    width: 25px;
+    color: #585858;
+`;
+
+export const LikeCounter = styled.div`
+    color: #8d0225;
 `;

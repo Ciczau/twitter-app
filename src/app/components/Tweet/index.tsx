@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
-import { HiOutlineChat } from 'react-icons/hi';
-import { ImStatsBars } from 'react-icons/im';
 import { useRouter } from 'next/router';
+
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -25,6 +23,7 @@ interface Props extends TweetType {
     parentTweet: TweetType | null;
     isLiked: boolean;
     isReply: boolean;
+    post: boolean;
 }
 
 function formatTimeDifference(date: Date): string {
@@ -68,6 +67,7 @@ const Tweet = ({
     parentTweet,
     isLiked,
     isReply,
+    post,
 }: Props) => {
     const [avatar, setAvatar] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -76,8 +76,10 @@ const Tweet = ({
     const router = useRouter();
 
     const getUser = async () => {
-        const res = await axios.post('http://localhost:5000/user', {
-            nick: nick,
+        const res = await instance({
+            url: '/user',
+            method: 'POST',
+            data: { nick: nick },
         });
         setAvatar(res.data.avatar);
         setName(res.data.name);
@@ -87,29 +89,13 @@ const Tweet = ({
         getUser();
     }, [nick]);
 
-    const formattedDate = formatTimeDifference(dateObject);
+    const formattedDate = date ? formatTimeDifference(dateObject) : 0;
     return (
         <S.Tweet isReply={isReply}>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
+            <S.AvatarWrapper>
                 <S.Avatar src={avatar} />
-                {isReply && (
-                    <div
-                        style={{
-                            height: 'calc(100% - 50px)',
-                            width: '1px',
-                            marginTop: '10px',
-                            paddingBottom: '30px',
-                            backgroundColor: 'gray',
-                        }}
-                    ></div>
-                )}
-            </div>
+                {isReply && <S.VerticalLine />}
+            </S.AvatarWrapper>
             <S.TweetContent>
                 <S.TweetHeader>
                     <S.User>{name} </S.User>
@@ -117,25 +103,25 @@ const Tweet = ({
                         <div onClick={() => router.push(`/${nick}`)}>
                             @{nick}
                         </div>
-                        <div style={{ margin: '0 4px', fontWeight: 'bold' }}>
-                            &middot;
+                        <S.Dot>&middot;</S.Dot>
+                        <div
+                            onClick={() =>
+                                router.push(`/${nick}/status/${_id}`)
+                            }
+                        >
+                            {' '}
+                            {formattedDate}
                         </div>
-                        <div> {formattedDate}</div>
                     </S.UserDate>
                 </S.TweetHeader>
 
                 {parentId && !isReply && (
-                    <div
-                        style={{
-                            color: 'gray',
-                            display: 'flex',
-                        }}
-                    >
+                    <S.ReplyingInfo>
                         Replying to&nbsp;
                         <S.LinkWrapper href={`/${parentTweet?.nick}`}>
                             @{parentTweet?.nick}
                         </S.LinkWrapper>
-                    </div>
+                    </S.ReplyingInfo>
                 )}
                 <div>{text}</div>
                 {imageId !== '' && <S.Image src={imageId} />}
@@ -144,31 +130,17 @@ const Tweet = ({
                         <S.IconWrapper>
                             {isLiked ? (
                                 <>
-                                    <AiFillHeart
-                                        size="100%"
-                                        color="#8d0225"
-                                        style={{
-                                            width: '25px',
-                                        }}
+                                    <S.FullHeartIcon
                                         onClick={onTweetLike}
+                                        size="100%"
                                     />
-                                    <div
-                                        style={{
-                                            color: '#8d0225',
-                                        }}
-                                    >
-                                        {likes}
-                                    </div>
+                                    <S.LikeCounter>{likes}</S.LikeCounter>
                                 </>
                             ) : (
                                 <>
-                                    <AiOutlineHeart
-                                        size="100%"
-                                        color="#585858"
-                                        style={{
-                                            width: '25px',
-                                        }}
+                                    <S.EmptyHeartIcon
                                         onClick={onTweetLike}
+                                        size="100%"
                                     />
                                     <div>{likes}</div>
                                 </>
@@ -176,20 +148,14 @@ const Tweet = ({
                         </S.IconWrapper>
 
                         <S.IconWrapper>
-                            <HiOutlineChat
+                            <S.RetweetIcon
                                 size="100%"
-                                color="#585858"
-                                style={{ width: '25px' }}
                                 onClick={onReplyModeUpdate}
                             />
                             <div>{retweets}</div>
                         </S.IconWrapper>
                         <S.IconWrapper>
-                            <ImStatsBars
-                                size="100%"
-                                color="#585858"
-                                style={{ width: '25px' }}
-                            />
+                            <S.ViewsIcon size="100%" />
                             <div>{views}</div>
                         </S.IconWrapper>
                     </S.IconsWrapper>

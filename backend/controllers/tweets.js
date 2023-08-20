@@ -164,3 +164,13 @@ export const getLikes = async (req, res) => {
     const result = likedTweets.map((el) => el.tweetId);
     return res.status(200).send({ result });
 };
+
+export const getReplies = async (req, res) => {
+    const { tweetId } = req.body;
+
+    const result = await tweets
+        .find({ parentId: tweetId })
+        .sort({ _id: -1 })
+        .toArray();
+    return res.status(200).send({ result });
+};

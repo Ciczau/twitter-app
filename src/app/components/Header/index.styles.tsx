@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Tooltip } from '@nextui-org/react';
 
 export const Wrapper = styled.div`
     height: 100vh;
@@ -65,4 +66,13 @@ export const Avatar = styled.img`
     width: 45px;
     border-radius: 50%;
     object-fit: cover;
+`;
+export const ToolTip = styled(Tooltip)`
+    display: flex;
+    align-items: center;
+    justify-content: ${(props) =>
+        props.width > 767 ? 'space-around' : 'center'};
+    padding: 6px;
+    width: 100%;
+    z-index: 99999999999;
 `;

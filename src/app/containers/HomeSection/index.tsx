@@ -34,7 +34,9 @@ const HomeSection = ({ user }) => {
             <Tweets
                 nick={userData?.nick}
                 avatar={userData?.avatarId}
+                profile={null}
                 type="home"
+                postTweet={null}
             />
         </S.Wrapper>
     );

@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BiSolidImageAdd } from 'react-icons/bi';
-import { FaRegSmile } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
-import axios from 'axios';
 
 import Tweet, { TweetType } from 'components/Tweet';
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -15,13 +12,14 @@ const TweetCreate = ({
     placeholder,
     avatar,
     handleFile,
+    reply,
 }) => {
     const [image, setImage] = useState<string>('');
     const handleImage = (e) => {
         setImage(URL.createObjectURL(e.target.files[0]));
     };
     return (
-        <>
+        <S.TweetCreatorWrapper reply={reply}>
             <S.Avatar src={avatar} />
             <S.TweetCreator>
                 <S.Input
@@ -33,18 +31,13 @@ const TweetCreate = ({
                     value={text}
                 />
                 {image !== '' && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                        }}
-                    >
+                    <S.ImageWrapper>
                         <S.Image src={image} />
                         <S.DeleteImageButton
                             size="100%"
                             onClick={() => setImage('')}
                         />
-                    </div>
+                    </S.ImageWrapper>
                 )}
                 <S.SubmitBar>
                     <div>
@@ -59,17 +52,9 @@ const TweetCreate = ({
                             }}
                         />
                         <label htmlFor="imageInput">
-                            <BiSolidImageAdd
-                                size="100%"
-                                color="#1b60a0"
-                                style={{ width: '25px' }}
-                            />
+                            <S.AddImageIcon size="100%" />
                         </label>
-                        <FaRegSmile
-                            size="100%"
-                            color="#1b60a0"
-                            style={{ width: '20px', marginLeft: '5px' }}
-                        />
+                        <S.EmojiListIcon size="100%" />
                     </div>
                     <S.SendButton
                         onClick={async () => {
@@ -81,11 +66,13 @@ const TweetCreate = ({
                     </S.SendButton>
                 </S.SubmitBar>
             </S.TweetCreator>
-        </>
+        </S.TweetCreatorWrapper>
     );
 };
 
-const Tweets = ({ nick, type, avatar }) => {
+const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
+    const [post, setPost] = useState<TweetType>();
+
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
     const [parents, setParents] = useState<TweetType[]>([]);
@@ -120,12 +107,30 @@ const Tweets = ({ nick, type, avatar }) => {
             formData.append('text', text);
             formData.append('parentId', replyTarget?._id);
             formData.append('file', file);
-            const res = await axios.post(
-                'http://localhost:5000/tweet/create',
-                formData
-            );
+
+            const res = await instance({
+                url: '/tweet/create',
+                method: 'POST',
+                data: formData,
+            });
             if (res.status === 200) {
                 setTweets((prevTweets) => [res.data.newTweet, ...prevTweets]);
+                if (replyTarget === postTweet && post) {
+                    let temp = post;
+                    temp.retweets = temp.retweets + 1;
+                } else {
+                    setTweets((prevTweets) =>
+                        prevTweets.map((tweet) => {
+                            if (tweet._id === replyTarget._id) {
+                                return {
+                                    ...tweet,
+                                    retweets: tweet.retweets + 1,
+                                };
+                            }
+                            return tweet;
+                        })
+                    );
+                }
             }
         } catch (err) {
             console.log(err);
@@ -135,16 +140,26 @@ const Tweets = ({ nick, type, avatar }) => {
     const getTweets = async () => {
         let res;
         if (type === 'home') {
-            res = await axios.get('http://localhost:5000/tweet/get');
+            res = await instance({ url: '/tweet/get', method: 'GET' });
+        } else if (type === 'post-replies') {
+            res = await instance({
+                url: '/tweet/get/replies',
+                method: 'POST',
+                data: { tweetId: post?._id },
+            });
         } else {
-            res = await axios.post(`http://localhost:5000/user/${type}`, {
-                nick: nick,
+            res = await instance({
+                url: `/user/${type}`,
+                method: 'POST',
+                data: { nick: profile },
             });
         }
-        const likes = await axios.post('http://localhost:5000/tweet/likes', {
-            nick: nick,
+
+        const likes = await instance({
+            url: '/tweet/likes',
+            method: 'POST',
+            data: { nick: nick },
         });
-        console.log(res);
         setLikes(likes.data.result);
         setTweets(res.data.result);
     };
@@ -167,10 +182,14 @@ const Tweets = ({ nick, type, avatar }) => {
                 return tweet;
             })
         );
-        await axios.post('http://localhost:5000/tweet/like', {
-            nick: nick,
-            tweetId: tweetId,
-            mode: isTweetLiked,
+        if (type === 'post-replies' && post) {
+            let temp: TweetType = post;
+            temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
+        }
+        await instance({
+            url: '/tweet/like',
+            method: 'POST',
+            data: { nick: nick, tweetId: tweetId, mode: isTweetLiked },
         });
     };
 
@@ -178,26 +197,43 @@ const Tweets = ({ nick, type, avatar }) => {
         let parentTweets: Array<TweetType> = [];
         for (const tweet of tweets) {
             if (tweet.parentId) {
-                const res = await axios.post(
-                    'http://localhost:5000/tweet/getone',
-                    { tweetId: tweet.parentId }
-                );
+                const res = await instance({
+                    url: '/tweet/getone',
+                    method: 'POST',
+                    data: { tweetId: tweet.parentId },
+                });
                 parentTweets.push(res.data.result);
             }
+        }
+        if (postTweet) {
+            const response = await instance({
+                url: '/tweet/getone',
+                method: 'POST',
+                data: { tweetId: postTweet.parentId },
+            });
+            parentTweets.push(response.data.result);
         }
         setParents(parentTweets);
     };
     useEffect(() => {
         getTweets();
-    }, [nick]);
+    }, [nick, post]);
     useEffect(() => {
         getParents();
-    }, [tweets]);
+    }, [tweets, post]);
+    useEffect(() => {
+        setPost(postTweet);
+        setReplyTarget(postTweet);
+    }, [postTweet]);
+
     const handleReplyMode = (mode: boolean, target: string) => {
         setReplyMode(mode);
-        const targetTweet = tweets.filter((el) => el._id === target);
-        console.log(targetTweet);
-        setReplyTarget(targetTweet[0]);
+        if (type === 'post-replies') {
+            setReplyTarget(postTweet);
+        } else {
+            const targetTweet = tweets.filter((el) => el._id === target);
+            setReplyTarget(targetTweet[0]);
+        }
     };
     return (
         <>
@@ -208,10 +244,8 @@ const Tweets = ({ nick, type, avatar }) => {
                             onClick={() => handleReplyMode(false, '')}
                         />
                         <S.Reply>
-                            <IoMdClose
-                                color="white"
+                            <S.ReplyClose
                                 size="4%"
-                                style={{ marginBottom: '15px' }}
                                 onClick={() => handleReplyMode(false, '')}
                             />
                             <Tweet
@@ -237,40 +271,58 @@ const Tweets = ({ nick, type, avatar }) => {
                                         'Function not implemented.'
                                     );
                                 }}
+                                post={false}
                             />
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    padding: '15px',
-                                }}
-                            >
-                                <TweetCreate
-                                    text={text}
-                                    handleChange={handleChange}
-                                    handleFile={handleFile}
-                                    createTweet={createTweet}
-                                    placeholder="Post your reply!"
-                                    avatar={avatar}
-                                />
-                            </div>
+
+                            <TweetCreate
+                                text={text}
+                                handleChange={handleChange}
+                                handleFile={handleFile}
+                                createTweet={createTweet}
+                                placeholder="Post your reply!"
+                                avatar={avatar}
+                                reply={true}
+                            />
                         </S.Reply>
                     </S.ReplyWrapper>
                 </>
             )}
-            {type === 'home' && (
-                <S.TweetCreatorWrapper>
-                    <TweetCreate
-                        text={text}
-                        handleChange={handleChange}
-                        handleFile={handleFile}
-                        createTweet={createTweet}
-                        placeholder="What is happening?!"
-                        avatar={avatar}
-                    />
-                </S.TweetCreatorWrapper>
+            {type === 'post-replies' && post && (
+                <Tweet
+                    date={post?.date}
+                    nick={post?.nick}
+                    text={post?.text}
+                    likes={post?.likes}
+                    parentId={post?.parentId}
+                    imageId={post?.imageId}
+                    views={post?.views}
+                    retweets={post?.retweets}
+                    _id={post?._id}
+                    isLiked={likes.includes(post?._id)}
+                    isReply={false}
+                    parentTweet={parents[0]}
+                    onTweetLike={() => handleTweetLike(post?._id)}
+                    onReplyModeUpdate={() => handleReplyMode(true, post?._id)}
+                    post={true}
+                />
             )}
-            {tweets.map((tweet: TweetType, index) => {
+            {(type === 'home' || type === 'post-replies') && (
+                <TweetCreate
+                    text={text}
+                    handleChange={handleChange}
+                    handleFile={handleFile}
+                    createTweet={createTweet}
+                    placeholder={
+                        type === 'home'
+                            ? 'What is happening?!'
+                            : 'Post your reply!'
+                    }
+                    avatar={avatar}
+                    reply={false}
+                />
+            )}
+
+            {tweets?.map((tweet: TweetType, index) => {
                 const isLiked = likes.includes(tweet._id);
                 const parentTweet: TweetType[] = parents.filter(
                     (el) => el._id === tweet.parentId
@@ -293,6 +345,7 @@ const Tweets = ({ nick, type, avatar }) => {
                         onReplyModeUpdate={() =>
                             handleReplyMode(true, tweet._id)
                         }
+                        post={false}
                         key={index}
                     />
                 );

@@ -1,9 +1,10 @@
-import axios from 'axios';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { TbCameraPlus } from 'react-icons/tb';
+
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -27,16 +28,15 @@ const Settings = ({ nick, name, bio, avatar }) => {
         formData.append('name', userName);
         formData.append('nick', nick);
         formData.append('bio', userBio);
-        console.log(avatar);
-        const res = await axios.post(
-            'http://localhost:5000/user/edit',
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
+
+        await instance({
+            url: '/user/edit',
+            method: 'POST',
+            data: formData,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         router.push(`/${nick}`);
     };
     useEffect(() => {
@@ -46,78 +46,53 @@ const Settings = ({ nick, name, bio, avatar }) => {
     }, [name, bio, avatar]);
 
     return (
-        <>
-            <div
-                style={{
-                    position: 'fixed',
-                    display: 'flex',
-                    width: '100vw',
-                    height: '100vh',
-                    top: '20vh',
-                    left: 0,
-                    zIndex: '9999',
-                    justifyContent: 'center',
-                    alignItems: 'flex-start',
-                }}
-            >
-                <S.Background onClick={() => router.push(`/${nick}`)} />
-                <S.Wrapper>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            padding: '15px',
-                        }}
-                    >
-                        <IoMdClose
-                            color="white"
-                            size="4%"
-                            onClick={() => router.back()}
-                        />
-                        <div>Edit profile</div>
-                        <S.Button onClick={handleSave}>Save</S.Button>
-                    </div>
-                    <input
-                        id="avatar"
-                        type="file"
-                        hidden
-                        onChange={handleImage}
+        <S.Wrapper>
+            <S.Background onClick={() => router.push(`/${nick}`)} />
+            <S.SettingsWrapper>
+                <S.Header>
+                    <IoMdClose
+                        color="white"
+                        size="4%"
+                        onClick={() => router.back()}
                     />
-                    <S.AvatarWrapper src={userAvatar}>
-                        <S.IconWrapper htmlFor="avatar">
-                            <TbCameraPlus />
-                        </S.IconWrapper>
-                    </S.AvatarWrapper>
+                    <div>Edit profile</div>
+                    <S.Button onClick={handleSave}>Save</S.Button>
+                </S.Header>
+                <input id="avatar" type="file" hidden onChange={handleImage} />
+                <S.AvatarWrapper src={userAvatar}>
+                    <S.IconWrapper htmlFor="avatar">
+                        <TbCameraPlus />
+                    </S.IconWrapper>
+                </S.AvatarWrapper>
 
-                    <div style={{ width: '100%', display: 'flex' }}>
-                        <S.Input
-                            id="name"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                        />
-                        <S.Label
-                            htmlFor="name"
-                            isEmpty={userName === '' ? true : false}
-                        >
-                            Name
-                        </S.Label>
-                    </div>
-                    <div style={{ width: '100%', display: 'flex' }}>
-                        <S.Input
-                            id="bio"
-                            value={userBio}
-                            onChange={(e) => setUserBio(e.target.value)}
-                        />
-                        <S.Label
-                            htmlFor="bio"
-                            isEmpty={userBio === '' ? true : false}
-                        >
-                            Bio
-                        </S.Label>
-                    </div>
-                </S.Wrapper>
-            </div>
-        </>
+                <S.InputWrapper>
+                    <S.Input
+                        id="name"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                    />
+                    <S.Label
+                        htmlFor="name"
+                        isEmpty={userName === '' ? true : false}
+                    >
+                        Name
+                    </S.Label>
+                </S.InputWrapper>
+                <S.InputWrapper>
+                    <S.Input
+                        id="bio"
+                        value={userBio}
+                        onChange={(e) => setUserBio(e.target.value)}
+                    />
+                    <S.Label
+                        htmlFor="bio"
+                        isEmpty={userBio === '' ? true : false}
+                    >
+                        Bio
+                    </S.Label>
+                </S.InputWrapper>
+            </S.SettingsWrapper>
+        </S.Wrapper>
     );
 };
 

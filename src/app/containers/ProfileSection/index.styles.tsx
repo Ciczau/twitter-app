@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import styled from 'styled-components';
+import { BsArrowLeftShort } from 'react-icons/bs';
+
 export const Wrapper = styled.div`
     color: white;
 `;
@@ -61,6 +63,24 @@ export const AvatarBar = styled.div`
 export const Description = styled.div`
     padding: 15px;
     color: gray;
+    b {
+        color: white;
+    }
+`;
+
+export const HeaderInfoWrapper = styled.div`
+    margin-left: 15px;
+    line-height: 22px;
+`;
+
+export const HeaderUserName = styled.div`
+    font-size: 20px;
+    font-weight: 700;
+`;
+
+export const HeaderTweetCount = styled.div`
+    font-size: 13px;
+    color: gray;
 `;
 
 export const NavBar = styled.div`
@@ -102,4 +122,22 @@ export const LinkWrapper = styled(Link)`
     &:hover {
         text-decoration: underline;
     }
+`;
+
+export const NameWrapper = styled.div`
+    line-height: 19px;
+    margin-bottom: 15px;
+`;
+
+export const UserName = styled.div`
+    color: white;
+    font-weight: 700;
+`;
+
+export const UserBio = styled.div`
+    color: white;
+`;
+
+export const LeftArrowIcon = styled(BsArrowLeftShort)`
+    width: 30px;
 `;

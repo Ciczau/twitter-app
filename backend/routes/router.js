@@ -11,6 +11,7 @@ import {
 } from '../controllers/users.js';
 import {
     getLikes,
+    getReplies,
     getSingleTweet,
     getTweets,
     getUserLikes,
@@ -52,6 +53,7 @@ router.post('/tweet/like', tweetLike);
 router.post('/tweet/likes', getLikes);
 
 router.get('/tweet/get', getTweets);
+router.post('/tweet/get/replies', getReplies);
 router.post('/tweet/getone', getSingleTweet);
 
 router.post('/user/tweets', getUserTweets);

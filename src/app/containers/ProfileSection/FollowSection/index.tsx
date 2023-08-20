@@ -1,9 +1,14 @@
-import { BsArrowLeftShort } from 'react-icons/bs';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 
 import { User } from 'components/BodyContent';
+import {
+    HeaderInfoWrapper,
+    HeaderTweetCount,
+    HeaderUserName,
+    LeftArrowIcon,
+} from '../index.styles';
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -12,8 +17,8 @@ const FollowSection = ({ user }) => {
     const pathname = router.pathname;
     const [userData, setUserData] = useState<User>();
     const [users, setUsers] = useState<User[]>();
-    const [choice, setChoice] = useState<number>(
-        pathname === '/[profile]/followers' ? 0 : 1
+    const [activeTab, setActiveTab] = useState<'followers' | 'following'>(
+        pathname === '/[profile]/followers' ? 'followers' : 'following'
     );
 
     useEffect(() => {
@@ -22,18 +27,18 @@ const FollowSection = ({ user }) => {
 
     const getUsers = async () => {
         try {
-            const path = choice === 0 ? 'followers' : 'following';
-            const res = await axios.post(
-                `http://localhost:5000/follow/${path}`,
-                { user: userData?.nick }
-            );
+            const res = await instance({
+                url: `/follow/${activeTab}`,
+                method: 'POST',
+                data: { user: userData?.nick },
+            });
             if (res.status === 200) {
                 const userList = res.data.list;
-
-                const followerList = await axios.post(
-                    'http://localhost:5000/users',
-                    { list: userList }
-                );
+                const followerList = await instance({
+                    url: '/users',
+                    method: 'POST',
+                    data: { list: userList },
+                });
                 setUsers(followerList.data.users);
             }
         } catch (err) {
@@ -46,36 +51,31 @@ const FollowSection = ({ user }) => {
     return (
         <S.Wrapper>
             <S.Header>
-                <BsArrowLeftShort
+                <LeftArrowIcon
                     size="100%"
-                    style={{ width: '30px' }}
                     onClick={() => router.push('/home')}
                 />
-                <div style={{ marginLeft: '15px', lineHeight: '22px' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
-                        {userData?.name}
-                    </div>
+                <HeaderInfoWrapper>
+                    <HeaderUserName>{userData?.name}</HeaderUserName>
                     {userData?.nick !== '' && (
-                        <div style={{ fontSize: '13px', color: 'gray' }}>
-                            @{userData?.nick}
-                        </div>
+                        <HeaderTweetCount>@{userData?.nick}</HeaderTweetCount>
                     )}
-                </div>
+                </HeaderInfoWrapper>
             </S.Header>
             <S.Menu>
                 <S.MenuItem
-                    active={choice === 0 ? true : false}
+                    active={activeTab === 'followers' ? true : false}
                     onClick={() => {
-                        setChoice(0);
+                        setActiveTab('followers');
                         router.push(`/${userData?.nick}/followers`);
                     }}
                 >
                     Followers
                 </S.MenuItem>
                 <S.MenuItem
-                    active={choice === 1 ? true : false}
+                    active={activeTab === 'following' ? true : false}
                     onClick={() => {
-                        setChoice(0);
+                        setActiveTab('following');
                         router.push(`/${userData?.nick}/following`);
                     }}
                 >
@@ -85,20 +85,16 @@ const FollowSection = ({ user }) => {
             <S.UsersWrapper>
                 {users?.map((user, index) => {
                     return (
-                        <S.User>
+                        <S.User key={index}>
                             <S.Avatar
                                 src={`https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`}
                             />
                             <S.UserDescription
                                 onClick={() => router.push(`/${user.nick}`)}
                             >
-                                <div style={{ fontWeight: 'bold' }}>
-                                    {user.name}
-                                </div>
-                                <div style={{ color: 'gray' }}>
-                                    @{user.nick}
-                                </div>
-                                <div>{user.bio}</div>
+                                <S.UserName>{user.name}</S.UserName>
+                                <div>@{user.nick}</div>
+                                <S.UserBio>{user.bio}</S.UserBio>
                             </S.UserDescription>
                             <S.FollowButton>Follow</S.FollowButton>
                         </S.User>

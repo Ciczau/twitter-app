@@ -1,6 +1,27 @@
 import styled from 'styled-components';
 import css from 'styled-jsx/css';
 
+export const Wrapper = styled.section`
+    position: fixed;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    top: 20vh;
+    left: 0;
+    z-index: 9999;
+    justify-content: center;
+    align-items: flex-start;
+`;
+
+export const Header = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+`;
+export const InputWrapper = styled.div`
+    width: 100%;
+    display: flex;
+`;
 export const Background = styled.div`
     position: fixed;
     width: 100vw;
@@ -11,7 +32,7 @@ export const Background = styled.div`
     background-color: #4546575a;
 `;
 
-export const Wrapper = styled.div`
+export const SettingsWrapper = styled.div`
     width: 600px;
     max-width: 90vw;
     position: relative;

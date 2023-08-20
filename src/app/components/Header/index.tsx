@@ -1,11 +1,11 @@
 import { useRouter } from 'next/router';
-import { Tooltip } from '@nextui-org/react';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 
 import { font } from 'components/BodyContent';
 import { menuItems } from 'components/MenuItems';
+import instance from 'api/instance';
 
 import * as S from './index.styles';
 
@@ -28,8 +28,10 @@ const Header = ({ user }) => {
         };
     }, []);
     const handleLogout = async () => {
-        const res = await axios.post('http://localhost:5000/user/logout', {
-            nick: user.nick,
+        await instance({
+            url: '/user/logout',
+            method: 'POST',
+            data: { nick: user.nick },
         });
         deleteCookie('refreshToken');
         router.push('/x');
@@ -53,7 +55,7 @@ const Header = ({ user }) => {
                 })}
             </S.Header>
             <S.HeaderElement>
-                <Tooltip
+                <S.ToolTip
                     trigger="click"
                     content={
                         <div className={font.className} onClick={handleLogout}>
@@ -63,19 +65,11 @@ const Header = ({ user }) => {
                     placement="top"
                     hideArrow={false}
                     color={'primary'}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: width > 767 ? 'space-around' : 'center',
-                        padding: '6px',
-
-                        width: '100%',
-                        zIndex: '9999999999',
-                    }}
+                    width={width}
                 >
                     <S.Avatar src={user.avatarId} />
                     {width > 767 && <div>{user.nick}</div>}
-                </Tooltip>
+                </S.ToolTip>
             </S.HeaderElement>
         </S.Wrapper>
     );

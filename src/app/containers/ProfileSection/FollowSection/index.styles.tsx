@@ -53,9 +53,18 @@ export const UserDescription = styled.div`
     display: flex;
     width: 70%;
     cursor: pointer;
+    color: gray;
     line-height: 20px;
     justify-content: center;
     flex-direction: column;
+`;
+
+export const UserName = styled.div`
+    font-weight: 700;
+    color: white;
+`;
+export const UserBio = styled.div`
+    color: white;
 `;
 
 export const FollowButton = styled.button`

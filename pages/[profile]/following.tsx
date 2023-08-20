@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 
 import BodyContent, { User } from 'components/BodyContent';
 import FollowSection from 'containers/ProfileSection/FollowSection';
+import instance from 'api/instance';
 
 const Home = () => {
     const router = useRouter();
@@ -14,8 +14,10 @@ const Home = () => {
 
     const getUserByProfile = async () => {
         try {
-            const res = await axios.post('http://localhost:5000/user', {
-                nick: router.query.profile,
+            const res = await instance({
+                url: '/user',
+                method: 'POST',
+                data: { nick: router.query.profile },
             });
             if (res.status === 200) {
                 const nick = profile;

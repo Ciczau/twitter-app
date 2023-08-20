@@ -50,3 +50,26 @@ export const SubmitButton = styled.button`
     border-radius: 15px;
     border: 0;
 `;
+export const FormWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    p {
+        font-size: 25px;
+    }
+`;
+export const BottomTextWrapper = styled.div`
+    color: white;
+    display: flex;
+    font-size: 20px;
+    cursor: pointer;
+    button {
+        margin-left: 5px;
+        color: #128dd4;
+        background-color: transparent;
+        outline: 0;
+        border: 0;
+        font-family: inherit;
+        font-size: 20px;
+    }
+`;
