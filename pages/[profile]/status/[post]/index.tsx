@@ -5,7 +5,7 @@ import Tweets from 'components/Tweets';
 import PostSection from 'containers/PostSection';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-const Home = () => {
+const Home = ({ type = 'normal' }) => {
     const [user, setUser] = useState<User>();
     const [userProfile, setUserProfile] = useState<User>();
     const [tweet, setTweet] = useState<TweetType>();
@@ -29,6 +29,7 @@ const Home = () => {
         }
     };
     const getUserByProfile = async () => {
+        console.log(tweet);
         try {
             const res = await instance({
                 url: '/user',
@@ -59,12 +60,15 @@ const Home = () => {
     }, [post]);
     useEffect(() => {
         getUserByProfile();
+        console.log(tweet);
     }, [tweet]);
     return (
         <BodyContent
             child={
                 <PostSection
                     user={user}
+                    type={type}
+                    photo={tweet?.imageId}
                     child={
                         <Tweets
                             nick={user?.nick}
@@ -72,6 +76,7 @@ const Home = () => {
                             type="post-replies"
                             avatar={userProfile?.avatarId}
                             postTweet={tweet}
+                            photoMode={type === 'photo' ? true : false}
                         />
                     }
                 />

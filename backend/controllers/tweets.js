@@ -29,8 +29,10 @@ export const postTweet = async (req, res) => {
         const { file } = req;
         const { nick, text, parentId } = req.body;
         let reply = 0;
+        console.log('cipa');
         if (parentId) {
             reply = 1;
+            console.log(parentId);
             const id = new ObjectId(parentId);
             const parentTweet = await tweets.findOne({ _id: id });
             await tweets.updateOne(
@@ -39,6 +41,7 @@ export const postTweet = async (req, res) => {
             );
         }
         const imageId = generateRandomCode();
+        console.log(reply);
         if (file) {
             const uploadResult = await cloudinary.uploader.upload(file.path, {
                 public_id: imageId,
@@ -84,6 +87,8 @@ export const getTweets = async (req, res) => {
 
 export const getSingleTweet = async (req, res) => {
     const { tweetId } = req.body;
+    console.log(tweetId);
+    if (!tweetId) return res.status(404).send();
     const _id = new ObjectId(tweetId);
     const result = await tweets.findOne({ _id: _id });
     return res.status(200).send({ result });

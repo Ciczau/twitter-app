@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import axios from 'axios';
 
 import { font } from 'components/BodyContent';
 import { menuItems } from 'components/MenuItems';

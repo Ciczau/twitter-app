@@ -139,5 +139,6 @@ export const UserBio = styled.div`
 `;
 
 export const LeftArrowIcon = styled(BsArrowLeftShort)`
+    cursor: pointer;
     width: 30px;
 `;

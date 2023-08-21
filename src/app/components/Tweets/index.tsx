@@ -70,11 +70,12 @@ const TweetCreate = ({
     );
 };
 
-const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
+const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
     const [post, setPost] = useState<TweetType>();
 
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
+    const [postParent, setPostParent] = useState<TweetType>();
     const [parents, setParents] = useState<TweetType[]>([]);
     const [likes, setLikes] = useState<Array<string>>([]);
     const [file, setFile] = useState<string>('');
@@ -105,13 +106,16 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
             const formData = new FormData();
             formData.append('nick', nick);
             formData.append('text', text);
-            formData.append('parentId', replyTarget?._id);
+            formData.append('parentId', replyTarget._id);
             formData.append('file', file);
 
             const res = await instance({
                 url: '/tweet/create',
                 method: 'POST',
                 data: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
             if (res.status === 200) {
                 setTweets((prevTweets) => [res.data.newTweet, ...prevTweets]);
@@ -139,6 +143,7 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
 
     const getTweets = async () => {
         let res;
+
         if (type === 'home') {
             res = await instance({ url: '/tweet/get', method: 'GET' });
         } else if (type === 'post-replies') {
@@ -165,7 +170,9 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
     };
 
     const handleTweetLike = async (tweetId: string) => {
+        console.log(tweetId);
         const isTweetLiked = likes.includes(tweetId);
+        console.log(likes);
         if (isTweetLiked) {
             setLikes(likes.filter((el) => el !== tweetId));
         } else {
@@ -182,9 +189,20 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
                 return tweet;
             })
         );
-        if (type === 'post-replies' && post) {
+        if (type === 'post-replies' && post && post._id === tweetId) {
             let temp: TweetType = post;
             temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
+        }
+        if (
+            type === 'post-replies' &&
+            postParent &&
+            postParent._id === tweetId
+        ) {
+            let temp: TweetType = postParent;
+            console.log(temp);
+            temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
+            console.log(temp);
+            setPostParent(temp);
         }
         await instance({
             url: '/tweet/like',
@@ -195,6 +213,7 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
 
     const getParents = async () => {
         let parentTweets: Array<TweetType> = [];
+
         for (const tweet of tweets) {
             if (tweet.parentId) {
                 const res = await instance({
@@ -205,25 +224,36 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
                 parentTweets.push(res.data.result);
             }
         }
-        if (postTweet) {
-            const response = await instance({
-                url: '/tweet/getone',
-                method: 'POST',
-                data: { tweetId: postTweet.parentId },
-            });
-            parentTweets.push(response.data.result);
+        if (post && type === 'post-replies') {
+            if (post.parentId) {
+                const response = await instance({
+                    url: '/tweet/getone',
+                    method: 'POST',
+                    data: { tweetId: post?.parentId },
+                });
+                parentTweets.push(response.data.result);
+            }
         }
         setParents(parentTweets);
     };
     useEffect(() => {
         getTweets();
-    }, [nick, post]);
+    }, [nick, profile, post]);
     useEffect(() => {
         getParents();
+        if (!postParent) {
+            getParent();
+        }
     }, [tweets, post]);
     useEffect(() => {
-        setPost(postTweet);
-        setReplyTarget(postTweet);
+        getParent();
+        console.log(postParent);
+    }, [post]);
+    useEffect(() => {
+        if (type === 'post-replies') {
+            setReplyTarget(postTweet);
+            setPost(postTweet);
+        }
     }, [postTweet]);
 
     const handleReplyMode = (mode: boolean, target: string) => {
@@ -235,6 +265,13 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
             setReplyTarget(targetTweet[0]);
         }
     };
+    const getParent = () => {
+        const parent: TweetType[] = parents.filter(
+            (el) => el._id === post?.parentId
+        );
+        setPostParent(parent[0]);
+    };
+
     return (
         <>
             {replyMode && (
@@ -272,6 +309,7 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
                                     );
                                 }}
                                 post={false}
+                                photoMode={false}
                             />
 
                             <TweetCreate
@@ -288,23 +326,50 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
                 </>
             )}
             {type === 'post-replies' && post && (
-                <Tweet
-                    date={post?.date}
-                    nick={post?.nick}
-                    text={post?.text}
-                    likes={post?.likes}
-                    parentId={post?.parentId}
-                    imageId={post?.imageId}
-                    views={post?.views}
-                    retweets={post?.retweets}
-                    _id={post?._id}
-                    isLiked={likes.includes(post?._id)}
-                    isReply={false}
-                    parentTweet={parents[0]}
-                    onTweetLike={() => handleTweetLike(post?._id)}
-                    onReplyModeUpdate={() => handleReplyMode(true, post?._id)}
-                    post={true}
-                />
+                <>
+                    {postParent && (
+                        <Tweet
+                            date={postParent.date}
+                            nick={postParent.nick}
+                            text={postParent.text}
+                            _id={postParent._id}
+                            imageId={postParent.imageId}
+                            likes={postParent.likes}
+                            parentId={postParent.parentId}
+                            views={postParent.views}
+                            retweets={postParent.retweets}
+                            parentTweet={null}
+                            isLiked={likes.includes(postParent._id)}
+                            isReply={true}
+                            onTweetLike={() => handleTweetLike(postParent._id)}
+                            onReplyModeUpdate={() =>
+                                handleReplyMode(true, postParent._id)
+                            }
+                            post={true}
+                            photoMode={photoMode}
+                        />
+                    )}
+                    <Tweet
+                        date={post?.date}
+                        nick={post?.nick}
+                        text={post?.text}
+                        likes={post?.likes}
+                        parentId={post?.parentId}
+                        imageId={post?.imageId}
+                        views={post?.views}
+                        retweets={post?.retweets}
+                        _id={post?._id}
+                        isLiked={likes.includes(post?._id)}
+                        isReply={false}
+                        parentTweet={postParent ? postParent : null}
+                        onTweetLike={() => handleTweetLike(post?._id)}
+                        onReplyModeUpdate={() =>
+                            handleReplyMode(true, post?._id)
+                        }
+                        post={true}
+                        photoMode={photoMode}
+                    />
+                </>
             )}
             {(type === 'home' || type === 'post-replies') && (
                 <TweetCreate
@@ -347,6 +412,7 @@ const Tweets = ({ nick, profile, type, avatar, postTweet }) => {
                         }
                         post={false}
                         key={index}
+                        photoMode={false}
                     />
                 );
             })}

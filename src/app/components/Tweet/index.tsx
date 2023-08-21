@@ -24,6 +24,7 @@ interface Props extends TweetType {
     isLiked: boolean;
     isReply: boolean;
     post: boolean;
+    photoMode: boolean;
 }
 
 function formatTimeDifference(date: Date): string {
@@ -52,6 +53,37 @@ function formatTimeDifference(date: Date): string {
     }
 }
 
+function formatDate(date) {
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+    ];
+    const month = monthNames[date.getUTCMonth()];
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+
+    const formattedTime = `${hours % 12 === 0 ? 12 : hours % 12}:${
+        minutes < 10 ? '0' : ''
+    }${minutes} ${ampm}`;
+    const formattedDate = `${month} ${day}, ${year}`;
+
+    return `${formattedTime} · ${formattedDate}`;
+}
+
 const Tweet = ({
     date,
     nick,
@@ -68,6 +100,7 @@ const Tweet = ({
     isLiked,
     isReply,
     post,
+    photoMode,
 }: Props) => {
     const [avatar, setAvatar] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -89,7 +122,12 @@ const Tweet = ({
         getUser();
     }, [nick]);
 
-    const formattedDate = date ? formatTimeDifference(dateObject) : 0;
+    const formattedDate = date
+        ? !post || (post && isReply)
+            ? formatTimeDifference(dateObject)
+            : formatDate(dateObject)
+        : 0;
+
     return (
         <S.Tweet isReply={isReply}>
             <S.AvatarWrapper>
@@ -97,25 +135,29 @@ const Tweet = ({
                 {isReply && <S.VerticalLine />}
             </S.AvatarWrapper>
             <S.TweetContent>
-                <S.TweetHeader>
+                <S.TweetHeader post={post && !isReply ? true : false}>
                     <S.User>{name} </S.User>
-                    <S.UserDate>
+                    <S.UserDate post={post && !isReply ? true : false}>
                         <div onClick={() => router.push(`/${nick}`)}>
                             @{nick}
                         </div>
-                        <S.Dot>&middot;</S.Dot>
-                        <div
-                            onClick={() =>
-                                router.push(`/${nick}/status/${_id}`)
-                            }
-                        >
-                            {' '}
-                            {formattedDate}
-                        </div>
+                        {(!post || (post && isReply)) && (
+                            <>
+                                <S.Dot>&middot;</S.Dot>
+                                <div
+                                    onClick={() =>
+                                        router.push(`/${nick}/status/${_id}`)
+                                    }
+                                >
+                                    {' '}
+                                    {formattedDate}
+                                </div>
+                            </>
+                        )}
                     </S.UserDate>
                 </S.TweetHeader>
 
-                {parentId && !isReply && (
+                {parentId && !isReply && !post && (
                     <S.ReplyingInfo>
                         Replying to&nbsp;
                         <S.LinkWrapper href={`/${parentTweet?.nick}`}>
@@ -123,9 +165,29 @@ const Tweet = ({
                         </S.LinkWrapper>
                     </S.ReplyingInfo>
                 )}
-                <div>{text}</div>
-                {imageId !== '' && <S.Image src={imageId} />}
-                {!isReply && (
+                <S.Text>{text}</S.Text>
+                {imageId !== '' && photoMode !== true && (
+                    <S.ImageWrapper>
+                        <S.Image
+                            src={imageId}
+                            onClick={() =>
+                                router.push(`/${nick}/status/${_id}/photo`)
+                            }
+                        />
+                    </S.ImageWrapper>
+                )}
+                {post && !isReply && (
+                    <>
+                        <S.UserDate post={post}>
+                            <div>{formattedDate}</div>
+                            <S.Dot>&middot;</S.Dot>
+                            <p>{views}</p> <div>Views</div>
+                        </S.UserDate>
+                        <S.HorizontalLine />
+                    </>
+                )}
+
+                {((!isReply && !post) || (isReply && post)) && (
                     <S.IconsWrapper>
                         <S.IconWrapper>
                             {isLiked ? (
@@ -159,6 +221,34 @@ const Tweet = ({
                             <div>{views}</div>
                         </S.IconWrapper>
                     </S.IconsWrapper>
+                )}
+                {post && !isReply && (
+                    <>
+                        <S.StatsBar>
+                            <S.WhiteColor>{retweets}</S.WhiteColor>
+                            <div>Retweets</div>
+                            <S.WhiteColor>{likes}</S.WhiteColor>
+                            <div>Likes</div>
+                        </S.StatsBar>
+                        <S.HorizontalLine />
+                        <S.IconsBar>
+                            {isLiked ? (
+                                <S.FullHeartIcon
+                                    onClick={onTweetLike}
+                                    size="100%"
+                                />
+                            ) : (
+                                <S.EmptyHeartIcon
+                                    onClick={onTweetLike}
+                                    size="100%"
+                                />
+                            )}
+                            <S.RetweetIcon
+                                size="100%"
+                                onClick={onReplyModeUpdate}
+                            />
+                        </S.IconsBar>
+                    </>
                 )}
             </S.TweetContent>
         </S.Tweet>

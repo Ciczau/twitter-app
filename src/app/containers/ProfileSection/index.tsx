@@ -26,7 +26,7 @@ const ProfileSection = ({ user, profile, type, child }) => {
         url: string
     ) => {
         setActiveTab(activeTab);
-        router.replace(`/${profile.nick}${url}`);
+        router.replace(`/${profile.nick}/${url}`);
     };
 
     const checkIfFollowing = async () => {
@@ -68,7 +68,7 @@ const ProfileSection = ({ user, profile, type, child }) => {
                 <S.Header>
                     <S.LeftArrowIcon
                         size="100%"
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.back()}
                     />
                     <S.HeaderInfoWrapper>
                         <S.HeaderUserName>{userData?.name}</S.HeaderUserName>
@@ -162,6 +162,7 @@ const ProfileSection = ({ user, profile, type, child }) => {
                             avatar={userData?.avatarId}
                             type={type}
                             postTweet={null}
+                            photoMode={false}
                         />
                     </>
                 ) : (
