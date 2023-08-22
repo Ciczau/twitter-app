@@ -46,6 +46,7 @@ const Header = ({ user }) => {
                         <S.HeaderElement
                             key={index}
                             onClick={() => handleRedirect(link)}
+                            isLogo={item.name === '' ? true : false}
                         >
                             <div>{item.icon}</div>
                             {width > 767 && <div>{item.name}</div>}

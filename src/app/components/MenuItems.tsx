@@ -5,6 +5,7 @@ import {
     FaRegEnvelope,
     FaRegListAlt,
     FaRegBookmark,
+    FaTwitter,
 } from 'react-icons/fa';
 import { LiaUserFriendsSolid } from 'react-icons/lia';
 import { CgProfile } from 'react-icons/cg';
@@ -22,6 +23,19 @@ const IconWrapper = styled.div`
 `;
 
 export const menuItems = [
+    {
+        icon: (
+            <IconWrapper>
+                <FaTwitter
+                    size="100%"
+                    style={{ width: '25px' }}
+                    color="white"
+                />
+            </IconWrapper>
+        ),
+        link: '/',
+        name: '',
+    },
     {
         icon: (
             <IconWrapper>

@@ -67,8 +67,9 @@ export const IconsWrapper = styled.div`
 export const IconWrapper = styled.div`
     color: #585858;
     display: flex;
-    width: 15%;
+    width: 13%;
     font-weight: bold;
+
     cursor: pointer;
     justify-content: space-between;
     align-items: center;

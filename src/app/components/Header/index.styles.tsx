@@ -35,7 +35,7 @@ export const HeaderElement = styled.div`
 
     cursor: pointer;
     border-radius: 50px;
-    padding: 0px 10px 0px 0px;
+    padding: ${(props) => (props.isLogo ? '0' : '0px 10px 0px 0px')};
     color: white;
 
     height: auto;
