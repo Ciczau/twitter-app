@@ -46,18 +46,14 @@ const Home = ({ type = 'tweets' }) => {
         getUserByProfile();
     }, [profile]);
     return (
-        <BodyContent
-            child={
-                <ProfileSection
-                    user={user}
-                    profile={userProfile}
-                    type={type}
-                    child={null}
-                />
-            }
-            auth={false}
-            nickName={getUser}
-        />
+        <BodyContent child={null} auth={false} nickName={getUser}>
+            <ProfileSection
+                user={user}
+                profile={userProfile}
+                type={type}
+                child={null}
+            />
+        </BodyContent>
     );
 };
 export default Home;

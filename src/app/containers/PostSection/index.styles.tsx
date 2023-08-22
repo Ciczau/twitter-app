@@ -13,7 +13,7 @@ export const PhotoWrapper = styled.div`
     z-index: 99999999;
     top: 0;
     display: flex;
-    background-color: #000000f0;
+    background-color: #0000003e;
     justify-content: center;
     align-items: center;
     left: 0;

@@ -63,27 +63,23 @@ const Home = ({ type = 'normal' }) => {
         console.log(tweet);
     }, [tweet]);
     return (
-        <BodyContent
-            child={
-                <PostSection
-                    user={user}
-                    type={type}
-                    photo={tweet?.imageId}
-                    child={
-                        <Tweets
-                            nick={user?.nick}
-                            profile={userProfile?.nick}
-                            type="post-replies"
-                            avatar={userProfile?.avatarId}
-                            postTweet={tweet}
-                            photoMode={type === 'photo' ? true : false}
-                        />
-                    }
-                />
-            }
-            auth={false}
-            nickName={getUser}
-        />
+        <BodyContent child={null} auth={false} nickName={getUser}>
+            <PostSection
+                user={user}
+                type={type}
+                photo={tweet?.imageId}
+                child={
+                    <Tweets
+                        nick={user?.nick}
+                        profile={userProfile?.nick}
+                        type="post-replies"
+                        avatar={userProfile?.avatarId}
+                        postTweet={tweet}
+                        photoMode={type === 'photo' ? true : false}
+                    />
+                }
+            />
+        </BodyContent>
     );
 };
 

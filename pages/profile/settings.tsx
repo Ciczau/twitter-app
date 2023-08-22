@@ -13,25 +13,21 @@ const Home = ({ type = 'tweets' }) => {
     };
 
     return (
-        <BodyContent
-            child={
-                <ProfileSection
-                    user={user}
-                    profile={user}
-                    type={type}
-                    child={
-                        <Settings
-                            nick={user?.nick}
-                            name={user?.name}
-                            avatar={user?.avatarId}
-                            bio={user?.bio}
-                        />
-                    }
-                />
-            }
-            auth={false}
-            nickName={getUser}
-        />
+        <BodyContent child={null} auth={false} nickName={getUser}>
+            <ProfileSection
+                user={user}
+                profile={user}
+                type={type}
+                child={
+                    <Settings
+                        nick={user?.nick}
+                        name={user?.name}
+                        avatar={user?.avatarId}
+                        bio={user?.bio}
+                    />
+                }
+            />
+        </BodyContent>
     );
 };
 export default Home;

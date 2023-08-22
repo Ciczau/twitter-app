@@ -51,7 +51,7 @@ export interface User {
     following: number;
 }
 
-export default function BodyContent({ child, auth, nickName }) {
+export default function BodyContent({ child, auth, nickName, children }) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
     const [user, setUser] = useState<User>({
@@ -104,12 +104,12 @@ export default function BodyContent({ child, auth, nickName }) {
                     {!auth && (
                         <Wrapper>
                             <Header user={user} />
-                            <MainWrapper>{child}</MainWrapper>
+                            <MainWrapper>{children}</MainWrapper>
                         </Wrapper>
                     )}
                 </>
             ) : (
-                <>{auth && <>{child}</>}</>
+                <>{auth && <>{children}</>}</>
             )}
         </div>
     );

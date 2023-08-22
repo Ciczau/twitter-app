@@ -10,11 +10,9 @@ const Home: NextPage = () => {
         setUser(data);
     };
     return (
-        <BodyContent
-            child={<HomeSection user={user} />}
-            auth={false}
-            nickName={getUser}
-        />
+        <BodyContent child={null} auth={false} nickName={getUser}>
+            <HomeSection user={user} />
+        </BodyContent>
     );
 };
 export default Home;
