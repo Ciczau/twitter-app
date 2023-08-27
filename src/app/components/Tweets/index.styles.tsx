@@ -136,6 +136,7 @@ export const Image = styled.img`
 
 export const ImageWrapper = styled.div`
     display: flex;
+    position: relative;
     justify-content: flex-end;
 `;
 

@@ -68,3 +68,8 @@ export const Button = styled.button`
         background-color: #4d4d4d36;
     }
 `;
+export const Warning = styled.div`
+    width: 100%;
+    padding: 10% 20%;
+    font-size: 40px;
+`;

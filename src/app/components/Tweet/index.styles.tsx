@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { HiOutlineChat } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa';
+import { BsChat } from 'react-icons/bs';
 
 export const Avatar = styled.img`
     width: 40px;
@@ -64,16 +65,15 @@ export const IconsWrapper = styled.div`
     justify-content: space-between;
     margin-top: 10px;
 `;
-
 export const IconWrapper = styled.div`
-    color: #585858;
+    height: 30px;
+    width: 30px;
+    margin: 0 4px;
+    border-radius: 50%;
     display: flex;
-    width: 13%;
-    font-weight: bold;
-
-    cursor: pointer;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    transition: all 0.3s ease;
 `;
 
 export const LinkWrapper = styled(Link)`
@@ -119,41 +119,85 @@ export const ReplyingInfo = styled.div`
 export const EmptyHeartIcon = styled(AiOutlineHeart)`
     color: #585858;
     cursor: pointer;
-    width: 25px;
+    width: 20px;
 `;
 
 export const FullHeartIcon = styled(AiFillHeart)`
-    color: #8d0225;
+    color: #ad156e;
     cursor: pointer;
-    width: 25px;
+    width: 18px;
 `;
 
-export const RetweetIcon = styled(HiOutlineChat)`
-    width: 25px;
+export const RetweetIcon = styled(FaRegComment)`
+    width: 16px;
     cursor: pointer;
     color: #585858;
 `;
 
 export const ViewsIcon = styled(ImStatsBars)`
-    width: 25px;
+    width: 16px;
     cursor: pointer;
     color: #585858;
 `;
 
 export const BookmarkIcon = styled(FaRegBookmark)`
-    width: 15px;
+    width: 13px;
     cursor: pointer;
     color: #585858;
 `;
 export const BookmarkIconChecked = styled(FaBookmark)`
-    width: 15px;
+    width: 13px;
     cursor: pointer;
     color: #2185e2;
 `;
-
-export const LikeCounter = styled.div`
-    color: #8d0225;
+export const IconContainer = styled.div`
+    color: #585858;
+    display: flex;
+    width: 60px;
+    font-weight: bold;
+    cursor: pointer;
+    align-items: flex-end;
+    transition: all 0.3s ease;
+    &:hover {
+        color: ${(props) => props.type === 'like' && '#ad156e'};
+        color: ${(props) => props.type === 'retweet' && '#065b94'};
+        color: ${(props) => props.type === 'view' && '#065b94'};
+        color: ${(props) => props.type === 'bookmark' && '#065b94'};
+    }
+    &:hover ${IconWrapper} {
+        background-color: ${(props) => props.type === 'like' && '#ad156e47'};
+        background-color: ${(props) => props.type === 'retweet' && '#065b9445'};
+        background-color: ${(props) => props.type === 'view' && '#065b9445'};
+        background-color: ${(props) =>
+            props.type === 'bookmark' && '#065b9445'};
+    }
+    &:hover ${EmptyHeartIcon} {
+        color: #ad156e;
+    }
+    &:hover ${ViewsIcon} {
+        color: #065b94;
+    }
+    &:hover ${RetweetIcon} {
+        color: #065b94;
+    }
+    &:hover ${BookmarkIcon} {
+        color: #065b94;
+    }
 `;
+export const Counter = styled.div`
+    color: ${(props) => props.isLiked && '#ad156e'};
+    font-size: 13px;
+    padding-bottom: 2px;
+`;
+
+export const RetweetsCounter = styled.div`
+    font-size: 12px;
+`;
+
+export const ViewsCounter = styled.div`
+    font-size: 12px;
+`;
+
 export const HorizontalLine = styled.div`
     width: 100%;
     height: 1px;

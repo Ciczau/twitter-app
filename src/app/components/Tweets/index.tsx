@@ -104,6 +104,7 @@ const Tweets = ({
         parentId: '',
         views: 0,
         retweets: 0,
+        bookmarks: 0,
     });
     const handleChange = (e) => {
         setText(e.target.value);
@@ -114,13 +115,17 @@ const Tweets = ({
     };
 
     const createTweet = async () => {
-        handleReplyMode(false, '');
         setText('');
+        setFile('');
         try {
+            let parentId: string = replyTarget?._id;
+            if (replyMode === false && post) {
+                parentId = post._id;
+            }
             const formData = new FormData();
             formData.append('nick', nick);
             formData.append('text', text);
-            formData.append('parentId', replyTarget._id);
+            formData.append('parentId', parentId);
             formData.append('file', file);
 
             const res = await instance({
@@ -131,6 +136,8 @@ const Tweets = ({
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            handleReplyMode(false);
+
             if (res.status === 200) {
                 setTweets((prevTweets) => [res.data.newTweet, ...prevTweets]);
                 if (replyTarget === postTweet && post) {
@@ -196,7 +203,10 @@ const Tweets = ({
             method: 'POST',
             data: { nick: nick },
         });
-        if (bookmarks.data.result.length === 0) {
+        if (
+            bookmarks.data.result.length === 0 ||
+            res.data.result.length === 0
+        ) {
             isEmpty(true);
         } else {
             isEmpty(false);
@@ -250,6 +260,30 @@ const Tweets = ({
         } else {
             setBookmarks([...bookmarks, tweetId]);
         }
+        setTweets((prevTweets) =>
+            prevTweets.map((tweet) => {
+                if (tweet._id === tweetId) {
+                    return {
+                        ...tweet,
+                        bookmarks: tweet.bookmarks + (isBookmark ? -1 : 1),
+                    };
+                }
+                return tweet;
+            })
+        );
+        if (type === 'post-replies' && post && post._id === tweetId) {
+            let temp: TweetType = post;
+            temp.bookmarks = temp.bookmarks + (isBookmark ? -1 : 1);
+        }
+        if (
+            type === 'post-replies' &&
+            postParent &&
+            postParent._id === tweetId
+        ) {
+            let temp: TweetType = postParent;
+            temp.bookmarks = temp.bookmarks + (isBookmark ? -1 : 1);
+            setPostParent(temp);
+        }
         await instance({
             url: '/tweet/bookmark',
             method: 'POST',
@@ -301,14 +335,24 @@ const Tweets = ({
         }
     }, [postTweet]);
 
-    const handleReplyMode = (mode: boolean, target: string) => {
-        setReplyMode(mode);
-        if (type === 'post-replies') {
-            setReplyTarget(postTweet);
-        } else {
-            const targetTweet = tweets.filter((el) => el._id === target);
-            setReplyTarget(targetTweet[0]);
+    const handleReplyMode = (
+        mode: boolean,
+        target: TweetType = {
+            date: '',
+            nick: '',
+            text: '',
+            imageId: '',
+            _id: '',
+            likes: 0,
+            parentId: '',
+            views: 0,
+            retweets: 0,
+            bookmarks: 0,
         }
+    ) => {
+        setReplyMode(mode);
+        setText('');
+        setReplyTarget(target);
     };
     const getParent = () => {
         const parent: TweetType[] = parents.filter(
@@ -323,12 +367,12 @@ const Tweets = ({
                 <>
                     <S.ReplyWrapper>
                         <S.ReplyBackground
-                            onClick={() => handleReplyMode(false, '')}
+                            onClick={() => handleReplyMode(false)}
                         />
                         <S.Reply>
                             <S.ReplyClose
                                 size="4%"
-                                onClick={() => handleReplyMode(false, '')}
+                                onClick={() => handleReplyMode(false)}
                             />
                             <Tweet
                                 date={replyTarget?.date}
@@ -340,6 +384,7 @@ const Tweets = ({
                                 parentId={replyTarget?.parentId}
                                 views={replyTarget?.views}
                                 retweets={replyTarget?.retweets}
+                                bookmarks={replyTarget.bookmarks}
                                 parentTweet={null}
                                 isLiked={false}
                                 bookmark={false}
@@ -376,13 +421,14 @@ const Tweets = ({
                             parentId={postParent.parentId}
                             views={postParent.views}
                             retweets={postParent.retweets}
+                            bookmarks={postParent.bookmarks}
                             parentTweet={null}
                             isLiked={likes.includes(postParent._id)}
                             bookmark={bookmarks.includes(postParent._id)}
                             isReply={true}
                             onTweetLike={() => handleTweetLike(postParent._id)}
                             onReplyModeUpdate={() =>
-                                handleReplyMode(true, postParent._id)
+                                handleReplyMode(true, postParent)
                             }
                             onBookmarkChange={() =>
                                 handleBookmark(postParent._id)
@@ -404,15 +450,14 @@ const Tweets = ({
                         imageId={post.imageId}
                         views={post.views}
                         retweets={post.retweets}
+                        bookmarks={post.bookmarks}
                         _id={post._id}
                         isLiked={likes.includes(post._id)}
                         bookmark={bookmarks.includes(post._id)}
                         isReply={false}
                         parentTweet={null}
                         onTweetLike={() => handleTweetLike(post._id)}
-                        onReplyModeUpdate={() =>
-                            handleReplyMode(true, post._id)
-                        }
+                        onReplyModeUpdate={() => handleReplyMode(true, post)}
                         onBookmarkChange={() => handleBookmark(post._id)}
                         post={true}
                         photoMode={photoMode}
@@ -425,7 +470,7 @@ const Tweets = ({
             )}
             {(type === 'home' || type === 'post-replies') && (
                 <TweetCreate
-                    text={text}
+                    text={replyMode ? '' : text}
                     handleChange={handleChange}
                     handleFile={handleFile}
                     createTweet={createTweet}
@@ -453,15 +498,14 @@ const Tweets = ({
                         imageId={tweet.imageId}
                         views={tweet.views}
                         retweets={tweet.retweets}
+                        bookmarks={tweet.bookmarks}
                         _id={tweet._id}
                         isLiked={likes.includes(tweet._id)}
                         bookmark={bookmarks.includes(tweet._id)}
                         isReply={false}
                         parentTweet={parentTweet[0]}
                         onTweetLike={() => handleTweetLike(tweet._id)}
-                        onReplyModeUpdate={() =>
-                            handleReplyMode(true, tweet._id)
-                        }
+                        onReplyModeUpdate={() => handleReplyMode(true, tweet)}
                         onBookmarkChange={() => handleBookmark(tweet._id)}
                         post={false}
                         key={index}

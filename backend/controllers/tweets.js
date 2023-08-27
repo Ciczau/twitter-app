@@ -61,6 +61,8 @@ export const postTweet = async (req, res) => {
             date: date,
             likes: 0,
             retweets: 0,
+            bookmarks: 0,
+            reposts: 0,
             reply: reply,
             parentId: parentId,
             imageId: file
@@ -83,6 +85,7 @@ export const postTweet = async (req, res) => {
 
 export const getTweets = async (req, res) => {
     const result = await tweets.find({}).sort({ _id: -1 }).toArray();
+    await tweets.updateMany({}, { $inc: { views: 1 } });
     return res.status(200).send({ result });
 };
 
@@ -192,6 +195,14 @@ export const handleBookmark = async (req, res) => {
     } else {
         await bookmarks.deleteOne({ tweetId: tweetId, userId: nick });
     }
+    const tweet = await tweets.findOne({ _id: id });
+    const bookmark = tweet.bookmarks + (mode ? -1 : 1);
+    await tweets.updateOne(
+        { _id: id },
+        {
+            $set: { bookmarks: bookmark },
+        }
+    );
     return res.status(200).send({ msg: 'Success' });
 };
 

@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react';
 import { User } from 'components/BodyContent';
 import instance from 'api/instance';
 
-const Users = ({ user, activeTab = '', type, searchKey = '' }) => {
+const Users = ({
+    user,
+    activeTab = '',
+    type,
+    searchKey = '',
+    isEmpty = (data: boolean) => {},
+}) => {
     const router = useRouter();
 
     const [userData, setUserData] = useState<User>();
@@ -37,7 +43,13 @@ const Users = ({ user, activeTab = '', type, searchKey = '' }) => {
                     method: 'POST',
                     data: { key: searchKey },
                 });
+                console.log(res.data.result);
                 if (res.status === 200) {
+                    if (res.data.result.length === 0) {
+                        isEmpty(true);
+                    } else {
+                        isEmpty(false);
+                    }
                     setUsers(res.data.result);
                 }
             }

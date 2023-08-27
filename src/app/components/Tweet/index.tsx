@@ -18,6 +18,7 @@ export interface TweetType {
     imageId: string;
     views: number;
     retweets: number;
+    bookmarks: number;
 }
 
 interface Props extends TweetType {
@@ -103,6 +104,7 @@ const Tweet = ({
     imageId,
     views,
     retweets,
+    bookmarks,
     onTweetLike = () => {},
     onReplyModeUpdate = () => {},
     onBookmarkChange = () => {},
@@ -297,37 +299,44 @@ const Tweet = ({
 
                     {((!isReply && !post) || (isReply && post)) && (
                         <S.IconsWrapper>
-                            <S.IconWrapper>
+                            <S.IconContainer type="like">
                                 {isLiked ? (
                                     <>
-                                        <S.FullHeartIcon
-                                            onClick={onTweetLike}
-                                            size="100%"
-                                        />
-                                        <S.LikeCounter>{likes}</S.LikeCounter>
+                                        <S.IconWrapper type="like">
+                                            <S.FullHeartIcon
+                                                onClick={onTweetLike}
+                                                size="100%"
+                                            />
+                                        </S.IconWrapper>
                                     </>
                                 ) : (
                                     <>
-                                        <S.EmptyHeartIcon
-                                            onClick={onTweetLike}
-                                            size="100%"
-                                        />
-                                        <div>{likes}</div>
+                                        <S.IconWrapper type="like">
+                                            <S.EmptyHeartIcon
+                                                onClick={onTweetLike}
+                                                size="100%"
+                                            />
+                                        </S.IconWrapper>
                                     </>
                                 )}
-                            </S.IconWrapper>
+                                <S.Counter isLiked={isLiked}>{likes}</S.Counter>
+                            </S.IconContainer>
 
-                            <S.IconWrapper>
-                                <S.RetweetIcon
-                                    size="100%"
-                                    onClick={onReplyModeUpdate}
-                                />
-                                <div>{retweets}</div>
-                            </S.IconWrapper>
-                            <S.IconWrapper>
-                                <S.ViewsIcon size="100%" />
-                                <div>{views}</div>
-                            </S.IconWrapper>
+                            <S.IconContainer type="retweet">
+                                <S.IconWrapper type="retweet">
+                                    <S.RetweetIcon
+                                        size="100%"
+                                        onClick={onReplyModeUpdate}
+                                    />
+                                </S.IconWrapper>
+                                <S.Counter>{retweets}</S.Counter>
+                            </S.IconContainer>
+                            <S.IconContainer type="view">
+                                <S.IconWrapper type="view">
+                                    <S.ViewsIcon size="70%" />
+                                </S.IconWrapper>
+                                <S.Counter>{views}</S.Counter>
+                            </S.IconContainer>
                         </S.IconsWrapper>
                     )}
                     {post && !isReply && (
@@ -337,35 +346,54 @@ const Tweet = ({
                                 <div>Retweets</div>
                                 <S.WhiteColor>{likes}</S.WhiteColor>
                                 <div>Likes</div>
+                                <S.WhiteColor>{bookmarks}</S.WhiteColor>
+                                <div>Bookmarks</div>
                             </S.StatsBar>
                             <S.HorizontalLine />
                             <S.IconsBar>
-                                {isLiked ? (
-                                    <S.FullHeartIcon
-                                        onClick={onTweetLike}
-                                        size="100%"
-                                    />
-                                ) : (
-                                    <S.EmptyHeartIcon
-                                        onClick={onTweetLike}
-                                        size="100%"
-                                    />
-                                )}
-                                <S.RetweetIcon
-                                    size="100%"
-                                    onClick={onReplyModeUpdate}
-                                />
-                                {bookmark ? (
-                                    <S.BookmarkIconChecked
-                                        size="100%"
-                                        onClick={onBookmarkChange}
-                                    />
-                                ) : (
-                                    <S.BookmarkIcon
-                                        size="100%"
-                                        onClick={onBookmarkChange}
-                                    />
-                                )}
+                                <S.IconContainer type="like">
+                                    {isLiked ? (
+                                        <S.IconWrapper type="like">
+                                            <S.FullHeartIcon
+                                                onClick={onTweetLike}
+                                                size="100%"
+                                            />
+                                        </S.IconWrapper>
+                                    ) : (
+                                        <S.IconWrapper type="like">
+                                            <S.EmptyHeartIcon
+                                                onClick={onTweetLike}
+                                                size="100%"
+                                            />
+                                        </S.IconWrapper>
+                                    )}
+                                </S.IconContainer>
+                                <S.IconContainer type="retweet">
+                                    <S.IconWrapper type="retweet">
+                                        <S.RetweetIcon
+                                            size="100%"
+                                            onClick={onReplyModeUpdate}
+                                        />
+                                    </S.IconWrapper>
+                                </S.IconContainer>
+                                <S.IconContainer type="bookmark">
+                                    {bookmark ? (
+                                        <S.IconWrapper type="bookmark">
+                                            <S.BookmarkIconChecked
+                                                size="100%"
+                                                onClick={onBookmarkChange}
+                                            />
+                                        </S.IconWrapper>
+                                    ) : (
+                                        <S.IconWrapper type="bookmark">
+                                            {' '}
+                                            <S.BookmarkIcon
+                                                size="100%"
+                                                onClick={onBookmarkChange}
+                                            />
+                                        </S.IconWrapper>
+                                    )}
+                                </S.IconContainer>
                             </S.IconsBar>
                         </>
                     )}

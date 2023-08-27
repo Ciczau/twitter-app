@@ -10,9 +10,12 @@ const ExploreSection = ({ user }) => {
     const [searchKey, setSearchKey] = useState<string>('');
     const [userData, setUserData] = useState<User>();
     const [activeTab, setActiveTab] = useState<'tweets' | 'users'>('tweets');
-
+    const [emptyTweetList, setEmptyTweetList] = useState<boolean>(false);
+    const [emptyUserList, setEmptyUserList] = useState<boolean>(false);
     const handleChange = (e) => {
         if (e.key === 'Enter') {
+            setEmptyTweetList(false);
+            setEmptyUserList(false);
             setSearchKey(e.target.value);
             console.log(e.target.value);
         }
@@ -52,22 +55,40 @@ const ExploreSection = ({ user }) => {
             {searchKey !== '' && (
                 <>
                     {activeTab === 'tweets' ? (
-                        <Tweets
-                            nick={userData?.nick}
-                            avatar={userData?.avatarId}
-                            profile={null}
-                            type="search"
-                            postTweet={null}
-                            photoMode={false}
-                            searchKey={searchKey}
-                            user={user}
-                        />
+                        <>
+                            {emptyTweetList ? (
+                                <S.Warning>
+                                    No result for "{searchKey}"
+                                </S.Warning>
+                            ) : (
+                                <Tweets
+                                    nick={userData?.nick}
+                                    avatar={userData?.avatarId}
+                                    profile={null}
+                                    type="search"
+                                    postTweet={null}
+                                    photoMode={false}
+                                    searchKey={searchKey}
+                                    user={user}
+                                    isEmpty={(data) => setEmptyTweetList(data)}
+                                />
+                            )}
+                        </>
                     ) : (
-                        <Users
-                            user={userData}
-                            type="search"
-                            searchKey={searchKey}
-                        />
+                        <>
+                            {emptyUserList ? (
+                                <S.Warning>
+                                    No result for "{searchKey}"
+                                </S.Warning>
+                            ) : (
+                                <Users
+                                    user={userData}
+                                    type="search"
+                                    searchKey={searchKey}
+                                    isEmpty={(data) => setEmptyUserList(data)}
+                                />
+                            )}
+                        </>
                     )}
                 </>
             )}
