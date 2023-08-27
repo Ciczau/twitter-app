@@ -1,11 +1,13 @@
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+
 import instance from 'api/instance';
 import BodyContent, { User } from 'components/BodyContent';
 import { TweetType } from 'components/Tweet';
 import Tweets from 'components/Tweets';
 import PostSection from 'containers/PostSection';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-const Home = ({ type = 'normal' }) => {
+
+const Home = () => {
     const [user, setUser] = useState<User>();
     const [userProfile, setUserProfile] = useState<User>();
     const [tweet, setTweet] = useState<TweetType>();
@@ -13,23 +15,20 @@ const Home = ({ type = 'normal' }) => {
         setUser(data);
     };
     const router = useRouter();
-    const { post } = router.query;
+    const { post, profile } = router.query;
     const getPost = async () => {
-        console.log(post);
         try {
             const res = await instance({
                 url: '/tweet/getone',
                 method: 'POST',
                 data: { tweetId: post },
             });
-            console.log(res);
             setTweet(res.data.result);
         } catch (err) {
             console.error(err);
         }
     };
     const getUserByProfile = async () => {
-        console.log(tweet);
         try {
             const res = await instance({
                 url: '/user',
@@ -60,23 +59,29 @@ const Home = ({ type = 'normal' }) => {
     }, [post]);
     useEffect(() => {
         getUserByProfile();
-        console.log(tweet);
     }, [tweet]);
     return (
         <BodyContent child={null} auth={false} nickName={getUser}>
             <PostSection
                 user={user}
-                type={type}
+                type="normal"
                 photo={tweet?.imageId}
+                handleModal={null}
                 child={
-                    <Tweets
-                        nick={user?.nick}
-                        profile={userProfile?.nick}
-                        type="post-replies"
-                        avatar={userProfile?.avatarId}
-                        postTweet={tweet}
-                        photoMode={type === 'photo' ? true : false}
-                    />
+                    typeof post === 'string' &&
+                    typeof profile === 'string' && (
+                        <Tweets
+                            nick={user?.nick}
+                            profile={userProfile?.nick}
+                            type="post-replies"
+                            avatar={userProfile?.avatarId}
+                            postTweet={tweet}
+                            photoMode={false}
+                            user={user}
+                            postQuery={post}
+                            profileQuery={profile}
+                        />
+                    )
                 }
             />
         </BodyContent>

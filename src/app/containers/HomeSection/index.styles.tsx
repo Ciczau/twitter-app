@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 export const Wrapper = styled.div`
     display: flex;
-    width: 100%;
+    width: 600px;
+    max-width: 85vw;
     color: white;
-
+    overflow: hidden;
     flex-direction: column;
 `;
 

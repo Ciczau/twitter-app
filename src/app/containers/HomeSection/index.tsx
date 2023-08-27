@@ -37,6 +37,8 @@ const HomeSection = ({ user }) => {
                 profile={null}
                 type="home"
                 postTweet={null}
+                photoMode={false}
+                user={user}
             />
         </S.Wrapper>
     );

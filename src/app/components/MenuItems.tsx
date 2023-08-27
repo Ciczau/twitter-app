@@ -10,6 +10,7 @@ import {
 import { LiaUserFriendsSolid } from 'react-icons/lia';
 import { CgProfile } from 'react-icons/cg';
 import styled from 'styled-components';
+import { IoIosSearch } from 'react-icons/io';
 
 const IconWrapper = styled.div`
     width: 50px;
@@ -48,7 +49,11 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaSearch size="100%" style={{ width: '25px' }} color="white" />
+                <IoIosSearch
+                    size="100%"
+                    style={{ width: '25px' }}
+                    color="white"
+                />
             </IconWrapper>
         ),
         link: '/explore',
@@ -99,7 +104,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: '/bookmarks',
+        link: '/i/bookmarks',
         name: 'Bookmarks',
     },
     {

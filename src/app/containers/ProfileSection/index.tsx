@@ -7,7 +7,7 @@ import instance from 'api/instance';
 
 import * as S from './index.styles';
 
-const ProfileSection = ({ user, profile, type, child }) => {
+const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
     const router = useRouter();
     const pathname = router.pathname;
     const [activeTab, setActiveTab] = useState<'tweets' | 'replies' | 'likes'>(
@@ -35,7 +35,6 @@ const ProfileSection = ({ user, profile, type, child }) => {
             method: 'POST',
             data: { follower: clientData?.nick, following: userData?.nick },
         });
-        console.log(res.data.result);
         setFollowing(res.data.result);
     };
 
@@ -59,81 +58,88 @@ const ProfileSection = ({ user, profile, type, child }) => {
         setUserData(profile);
         setClientData(user);
         checkIfFollowing();
-    }, [profile, user, userData, clientData]);
+        console.log(profileQuery);
+    }, [profile, user, userData, clientData, profileQuery]);
 
     return (
         <>
             {child}
             <S.Wrapper>
-                <S.Header>
-                    <S.LeftArrowIcon
-                        size="100%"
-                        onClick={() => router.back()}
-                    />
-                    <S.HeaderInfoWrapper>
-                        <S.HeaderUserName>{userData?.name}</S.HeaderUserName>
-                        {userData?.nick !== '' && (
-                            <S.HeaderTweetCount>
-                                {userData?.tweets} Tweet
-                                {userData?.tweets !== 1 && <>s</>}
-                            </S.HeaderTweetCount>
-                        )}
-                    </S.HeaderInfoWrapper>
-                </S.Header>
-                <S.ProfileHeader />
-                <S.AvatarBar>
-                    <S.Avatar src={userData?.avatarId} />
-                    {userData?.nick !== '' && (
-                        <>
-                            {userData?.nick === clientData?.nick ? (
-                                <S.SetUpProfileButton
-                                    onClick={() =>
-                                        router.push('/profile/settings')
-                                    }
-                                >
-                                    Edit profile
-                                </S.SetUpProfileButton>
-                            ) : (
-                                <S.FollowButton
-                                    isFollowing={isFollowing}
-                                    onClick={handleFollow}
-                                >
-                                    Follow{isFollowing && <>ing</>}
-                                </S.FollowButton>
-                            )}
-                        </>
-                    )}
-                </S.AvatarBar>
-                <S.Description>
-                    <S.NameWrapper>
-                        <S.UserName>{userData?.name}</S.UserName>
-                        <div>@{userData?.nick}</div>
-                    </S.NameWrapper>
-                    {userData?.nick !== '' && (
-                        <>
-                            <S.UserBio>{userData?.bio}</S.UserBio>
-                            <div>
-                                <S.LinkWrapper
-                                    href={`/${userData?.nick}/following`}
-                                >
-                                    <b>{userData?.following}</b> Following
-                                </S.LinkWrapper>
-                                <S.LinkWrapper
-                                    href={`/${userData?.nick}/followers`}
-                                >
-                                    <b>
-                                        &nbsp;
-                                        {userData?.followers}
-                                    </b>{' '}
-                                    Follower
-                                    {userData?.followers !== 1 && <>s</>}
-                                </S.LinkWrapper>
-                            </div>
-                        </>
-                    )}
-                </S.Description>
-                {userData?.nick !== '' ? (
+                {userData ? (
                     <>
+                        <S.Header>
+                            <S.LeftArrowIcon
+                                size="100%"
+                                onClick={() => router.back()}
+                            />
+                            <S.HeaderInfoWrapper>
+                                <S.HeaderUserName>
+                                    {userData?.name}
+                                </S.HeaderUserName>
+                                {userData?.nick !== '' && (
+                                    <S.HeaderTweetCount>
+                                        {userData?.tweets} Tweet
+                                        {userData?.tweets !== 1 && <>s</>}
+                                    </S.HeaderTweetCount>
+                                )}
+                            </S.HeaderInfoWrapper>
+                        </S.Header>
+                        <S.ProfileHeader />
+                        <S.AvatarBar>
+                            <S.Avatar src={userData?.avatarId} />
+                            {userData?.nick !== '' && (
+                                <>
+                                    {userData?.nick === clientData?.nick ? (
+                                        <S.SetUpProfileButton
+                                            onClick={() =>
+                                                router.push('/profile/settings')
+                                            }
+                                        >
+                                            Edit profile
+                                        </S.SetUpProfileButton>
+                                    ) : (
+                                        <S.FollowButton
+                                            isFollowing={isFollowing}
+                                            onClick={handleFollow}
+                                        >
+                                            Follow{isFollowing && <>ing</>}
+                                        </S.FollowButton>
+                                    )}
+                                </>
+                            )}
+                        </S.AvatarBar>
+                        <S.Description>
+                            <S.NameWrapper>
+                                <S.UserName>{userData?.name}</S.UserName>
+                                <div>@{userData?.nick}</div>
+                            </S.NameWrapper>
+                            {userData?.nick !== '' && (
+                                <>
+                                    <S.UserBio>{userData?.bio}</S.UserBio>
+                                    <div>
+                                        <S.LinkWrapper
+                                            href={`/${userData?.nick}/following`}
+                                        >
+                                            <b>{userData?.following}</b>{' '}
+                                            Following
+                                        </S.LinkWrapper>
+                                        <S.LinkWrapper
+                                            href={`/${userData?.nick}/followers`}
+                                        >
+                                            <b>
+                                                &nbsp;
+                                                {userData?.followers}
+                                            </b>{' '}
+                                            Follower
+                                            {userData?.followers !== 1 && (
+                                                <>s</>
+                                            )}
+                                        </S.LinkWrapper>
+                                    </div>
+                                </>
+                            )}
+                        </S.Description>
+
                         <S.NavBar>
                             <S.Button
                                 active={activeTab === 'tweets' ? true : false}
@@ -163,10 +169,18 @@ const ProfileSection = ({ user, profile, type, child }) => {
                             type={type}
                             postTweet={null}
                             photoMode={false}
+                            user={user}
+                            profileQuery={profileQuery}
                         />
                     </>
                 ) : (
-                    <S.Warning>This user doesn't exists!</S.Warning>
+                    <>
+                        <S.LeftArrowIcon
+                            size="100%"
+                            onClick={() => router.back()}
+                        />
+                        <S.Warning>This user doesn't exists!</S.Warning>{' '}
+                    </>
                 )}
             </S.Wrapper>
         </>

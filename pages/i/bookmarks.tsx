@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 import BodyContent, { User } from 'components/BodyContent';
 import HomeSection from 'containers/HomeSection';
+import BookmarkSection from 'containers/BookmarkSection';
 
 const Home: NextPage = () => {
     const [user, setUser] = useState<User>();
@@ -16,7 +17,7 @@ const Home: NextPage = () => {
     console.log(router.pathname);
     return (
         <BodyContent child={null} auth={false} nickName={getUser}>
-            <HomeSection user={user} />
+            <BookmarkSection user={user} />
         </BodyContent>
     );
 };

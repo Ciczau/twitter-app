@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { useRouter } from 'next/router';
 
-const PostSection = ({ user, child, type, photo }) => {
+const PostSection = ({ user, child, type, photo, handleModal }) => {
     const router = useRouter();
 
     const [width, setWidth] = useState<number>(0);
@@ -18,10 +18,7 @@ const PostSection = ({ user, child, type, photo }) => {
             {type === 'photo' && (
                 <>
                     <S.IconWrapper>
-                        <S.CloseIcon
-                            size="100%"
-                            onClick={() => router.back()}
-                        />
+                        <S.CloseIcon size="100%" onClick={handleModal} />
                     </S.IconWrapper>
                     <S.PhotoWrapper>
                         <S.Photo src={photo} />

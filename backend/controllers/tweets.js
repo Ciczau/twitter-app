@@ -24,6 +24,7 @@ export function generateRandomCode() {
 const tweets = db.collection('tweets');
 const likes = db.collection('likes');
 const users = db.collection('users');
+const bookmarks = db.collection('bookmarks');
 export const postTweet = async (req, res) => {
     try {
         const { file } = req;
@@ -132,7 +133,21 @@ export const getUserLikes = async (req, res) => {
 
     return res.status(200).send({ result });
 };
+export const getUserBookmarks = async (req, res) => {
+    const { nick } = req.body;
+    const bookmarkList = await bookmarks.find({ userId: nick }).toArray();
+    console.log(nick);
+    const bookmarkTab = bookmarkList.map((el) => {
+        return new ObjectId(el.tweetId);
+    });
+    let result = [];
+    for (let i = bookmarkTab.length - 1; i >= 0; i--) {
+        const record = await tweets.findOne({ _id: bookmarkTab[i] });
+        result.push(record);
+    }
 
+    return res.status(200).send({ result });
+};
 export const tweetLike = async (req, res) => {
     const { tweetId, nick, mode } = req.body;
     console.log(tweetId);
@@ -162,11 +177,36 @@ export const tweetLike = async (req, res) => {
     return res.status(200).send({ msg: 'Success' });
 };
 
+export const handleBookmark = async (req, res) => {
+    const { tweetId, nick, mode } = req.body;
+    console.log(tweetId);
+    if (!tweetId || !nick) return res.status(400).send({ msg: 'Error' });
+    const id = new ObjectId(tweetId);
+    if (!mode) {
+        const date = new Date();
+        await bookmarks.insertOne({
+            tweetId: tweetId,
+            userId: nick,
+            date: date,
+        });
+    } else {
+        await bookmarks.deleteOne({ tweetId: tweetId, userId: nick });
+    }
+    return res.status(200).send({ msg: 'Success' });
+};
+
 export const getLikes = async (req, res) => {
     const { nick } = req.body;
     console.log(nick);
     const likedTweets = await likes.find({ userId: nick }).toArray();
     const result = likedTweets.map((el) => el.tweetId);
+    return res.status(200).send({ result });
+};
+
+export const getBookmarks = async (req, res) => {
+    const { nick } = req.body;
+    const bookmarkTweets = await bookmarks.find({ userId: nick }).toArray();
+    const result = bookmarkTweets.map((el) => el.tweetId);
     return res.status(200).send({ result });
 };
 
@@ -177,5 +217,15 @@ export const getReplies = async (req, res) => {
         .find({ parentId: tweetId })
         .sort({ _id: -1 })
         .toArray();
+    return res.status(200).send({ result });
+};
+
+export const getTweetsByKey = async (req, res) => {
+    const { key } = req.body;
+
+    const result = await tweets
+        .find({ text: { $regex: key, $options: 'i' } })
+        .toArray();
+
     return res.status(200).send({ result });
 };

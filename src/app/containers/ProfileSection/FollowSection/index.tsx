@@ -11,6 +11,7 @@ import {
 import instance from 'api/instance';
 
 import * as S from './index.styles';
+import Users from 'components/Users';
 
 const FollowSection = ({ user }) => {
     const router = useRouter();
@@ -25,29 +26,6 @@ const FollowSection = ({ user }) => {
         setUserData(user);
     }, [user]);
 
-    const getUsers = async () => {
-        try {
-            const res = await instance({
-                url: `/follow/${activeTab}`,
-                method: 'POST',
-                data: { user: userData?.nick },
-            });
-            if (res.status === 200) {
-                const userList = res.data.list;
-                const followerList = await instance({
-                    url: '/users',
-                    method: 'POST',
-                    data: { list: userList },
-                });
-                setUsers(followerList.data.users);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-    useEffect(() => {
-        getUsers();
-    }, [userData]);
     return (
         <S.Wrapper>
             <S.Header>
@@ -82,25 +60,7 @@ const FollowSection = ({ user }) => {
                     Following
                 </S.MenuItem>
             </S.Menu>
-            <S.UsersWrapper>
-                {users?.map((user, index) => {
-                    return (
-                        <S.User key={index}>
-                            <S.Avatar
-                                src={`https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`}
-                            />
-                            <S.UserDescription
-                                onClick={() => router.push(`/${user.nick}`)}
-                            >
-                                <S.UserName>{user.name}</S.UserName>
-                                <div>@{user.nick}</div>
-                                <S.UserBio>{user.bio}</S.UserBio>
-                            </S.UserDescription>
-                            <S.FollowButton>Follow</S.FollowButton>
-                        </S.User>
-                    );
-                })}
-            </S.UsersWrapper>
+            <Users user={userData} activeTab={activeTab} type="followers" />
         </S.Wrapper>
     );
 };

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
 import { HiOutlineChat } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 
 export const Avatar = styled.img`
     width: 40px;
@@ -137,6 +138,17 @@ export const ViewsIcon = styled(ImStatsBars)`
     width: 25px;
     cursor: pointer;
     color: #585858;
+`;
+
+export const BookmarkIcon = styled(FaRegBookmark)`
+    width: 15px;
+    cursor: pointer;
+    color: #585858;
+`;
+export const BookmarkIconChecked = styled(FaBookmark)`
+    width: 15px;
+    cursor: pointer;
+    color: #2185e2;
 `;
 
 export const LikeCounter = styled.div`

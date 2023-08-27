@@ -70,14 +70,28 @@ const TweetCreate = ({
     );
 };
 
-const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
+const Tweets = ({
+    nick,
+    profile,
+    type,
+    avatar,
+    postTweet,
+    photoMode,
+    user,
+    postQuery = '',
+    profileQuery = '',
+    searchKey = '',
+    closeModal = (id: string) => {},
+    isEmpty = (data: boolean) => {},
+}) => {
     const [post, setPost] = useState<TweetType>();
 
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
-    const [postParent, setPostParent] = useState<TweetType>();
+    const [postParent, setPostParent] = useState<TweetType | null>(null);
     const [parents, setParents] = useState<TweetType[]>([]);
     const [likes, setLikes] = useState<Array<string>>([]);
+    const [bookmarks, setBookmarks] = useState<Array<string>>([]);
     const [file, setFile] = useState<string>('');
     const [replyMode, setReplyMode] = useState<boolean>(false);
     const [replyTarget, setReplyTarget] = useState<TweetType>({
@@ -152,6 +166,18 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
                 method: 'POST',
                 data: { tweetId: post?._id },
             });
+        } else if (type === 'search') {
+            res = await instance({
+                url: '/tweet/get/search',
+                method: 'POST',
+                data: { key: searchKey },
+            });
+        } else if (type === 'bookmarks') {
+            res = await instance({
+                url: '/user/bookmarks',
+                method: 'POST',
+                data: { nick: nick },
+            });
         } else {
             res = await instance({
                 url: `/user/${type}`,
@@ -165,14 +191,23 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
             method: 'POST',
             data: { nick: nick },
         });
+        const bookmarks = await instance({
+            url: '/tweet/bookmarks/get',
+            method: 'POST',
+            data: { nick: nick },
+        });
+        if (bookmarks.data.result.length === 0) {
+            isEmpty(true);
+        } else {
+            isEmpty(false);
+        }
+        setBookmarks(bookmarks.data.result);
         setLikes(likes.data.result);
         setTweets(res.data.result);
     };
 
     const handleTweetLike = async (tweetId: string) => {
-        console.log(tweetId);
         const isTweetLiked = likes.includes(tweetId);
-        console.log(likes);
         if (isTweetLiked) {
             setLikes(likes.filter((el) => el !== tweetId));
         } else {
@@ -199,15 +234,26 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
             postParent._id === tweetId
         ) {
             let temp: TweetType = postParent;
-            console.log(temp);
             temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
-            console.log(temp);
             setPostParent(temp);
         }
         await instance({
             url: '/tweet/like',
             method: 'POST',
             data: { nick: nick, tweetId: tweetId, mode: isTweetLiked },
+        });
+    };
+    const handleBookmark = async (tweetId: string) => {
+        const isBookmark = bookmarks.includes(tweetId);
+        if (isBookmark) {
+            setBookmarks(bookmarks.filter((el) => el !== tweetId));
+        } else {
+            setBookmarks([...bookmarks, tweetId]);
+        }
+        await instance({
+            url: '/tweet/bookmark',
+            method: 'POST',
+            data: { nick: nick, tweetId: tweetId, mode: isBookmark },
         });
     };
 
@@ -238,7 +284,7 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
     };
     useEffect(() => {
         getTweets();
-    }, [nick, profile, post]);
+    }, [nick, profile, post, searchKey]);
     useEffect(() => {
         getParents();
         if (!postParent) {
@@ -247,7 +293,6 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
     }, [tweets, post]);
     useEffect(() => {
         getParent();
-        console.log(postParent);
     }, [post]);
     useEffect(() => {
         if (type === 'post-replies') {
@@ -297,19 +342,12 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
                                 retweets={replyTarget?.retweets}
                                 parentTweet={null}
                                 isLiked={false}
+                                bookmark={false}
                                 isReply={true}
-                                onTweetLike={function (): void {
-                                    throw new Error(
-                                        'Function not implemented.'
-                                    );
-                                }}
-                                onReplyModeUpdate={function (): void {
-                                    throw new Error(
-                                        'Function not implemented.'
-                                    );
-                                }}
                                 post={false}
                                 photoMode={false}
+                                user={user}
+                                closeModal={closeModal}
                             />
 
                             <TweetCreate
@@ -340,34 +378,48 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
                             retweets={postParent.retweets}
                             parentTweet={null}
                             isLiked={likes.includes(postParent._id)}
+                            bookmark={bookmarks.includes(postParent._id)}
                             isReply={true}
                             onTweetLike={() => handleTweetLike(postParent._id)}
                             onReplyModeUpdate={() =>
                                 handleReplyMode(true, postParent._id)
                             }
+                            onBookmarkChange={() =>
+                                handleBookmark(postParent._id)
+                            }
                             post={true}
                             photoMode={photoMode}
+                            user={user}
+                            postQuery={postQuery}
+                            profileQuery={profileQuery}
+                            closeModal={closeModal}
                         />
                     )}
                     <Tweet
-                        date={post?.date}
-                        nick={post?.nick}
-                        text={post?.text}
-                        likes={post?.likes}
-                        parentId={post?.parentId}
-                        imageId={post?.imageId}
-                        views={post?.views}
-                        retweets={post?.retweets}
-                        _id={post?._id}
-                        isLiked={likes.includes(post?._id)}
+                        date={post.date}
+                        nick={post.nick}
+                        text={post.text}
+                        likes={post.likes}
+                        parentId={post.parentId}
+                        imageId={post.imageId}
+                        views={post.views}
+                        retweets={post.retweets}
+                        _id={post._id}
+                        isLiked={likes.includes(post._id)}
+                        bookmark={bookmarks.includes(post._id)}
                         isReply={false}
-                        parentTweet={postParent ? postParent : null}
-                        onTweetLike={() => handleTweetLike(post?._id)}
+                        parentTweet={null}
+                        onTweetLike={() => handleTweetLike(post._id)}
                         onReplyModeUpdate={() =>
-                            handleReplyMode(true, post?._id)
+                            handleReplyMode(true, post._id)
                         }
+                        onBookmarkChange={() => handleBookmark(post._id)}
                         post={true}
                         photoMode={photoMode}
+                        user={user}
+                        postQuery={postQuery}
+                        profileQuery={profileQuery}
+                        closeModal={closeModal}
                     />
                 </>
             )}
@@ -388,7 +440,6 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
             )}
 
             {tweets?.map((tweet: TweetType, index) => {
-                const isLiked = likes.includes(tweet._id);
                 const parentTweet: TweetType[] = parents.filter(
                     (el) => el._id === tweet.parentId
                 );
@@ -403,16 +454,22 @@ const Tweets = ({ nick, profile, type, avatar, postTweet, photoMode }) => {
                         views={tweet.views}
                         retweets={tweet.retweets}
                         _id={tweet._id}
-                        isLiked={isLiked}
+                        isLiked={likes.includes(tweet._id)}
+                        bookmark={bookmarks.includes(tweet._id)}
                         isReply={false}
                         parentTweet={parentTweet[0]}
                         onTweetLike={() => handleTweetLike(tweet._id)}
                         onReplyModeUpdate={() =>
                             handleReplyMode(true, tweet._id)
                         }
+                        onBookmarkChange={() => handleBookmark(tweet._id)}
                         post={false}
                         key={index}
                         photoMode={false}
+                        user={user}
+                        profileQuery={profileQuery}
+                        postQuery={postQuery}
+                        closeModal={closeModal}
                     />
                 );
             })}

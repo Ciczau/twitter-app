@@ -3,16 +3,16 @@ import { useRouter } from 'next/router';
 
 import { GlobalStyle } from 'components/BodyContent';
 
-const Post = () => {
+const Media = () => {
     const router = useRouter();
-    const { post, profile } = router.query;
+    const { chat } = router.query;
 
     useEffect(() => {
-        if (post && profile) {
-            router.push(`/${profile}/status/${post}`);
+        if (chat) {
+            router.push(`/messages/${chat}`);
         }
-    }, [post, profile]);
+    }, [chat]);
     return <GlobalStyle />;
 };
 
-export default Post;
+export default Media;

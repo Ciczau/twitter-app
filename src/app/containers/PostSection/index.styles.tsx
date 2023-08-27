@@ -5,15 +5,17 @@ import { IoMdClose } from 'react-icons/io';
 
 export const Wrapper = styled.div`
     color: white;
+    width: 600px;
+    max-width: 85vw;
 `;
 export const PhotoWrapper = styled.div`
     width: calc(100vw - 400px);
     height: 100vh;
     position: fixed;
-    z-index: 99999999;
+    z-index: 9999999;
     top: 0;
     display: flex;
-    background-color: #0000003e;
+    background-color: #000000ea;
     justify-content: center;
     align-items: center;
     left: 0;

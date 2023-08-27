@@ -1,37 +1,4 @@
 import styled from 'styled-components';
-
-export const Wrapper = styled.div`
-    color: white;
-    width: 600px;
-    max-width: 85vw;
-`;
-export const Header = styled.div`
-    display: flex;
-    width: 100%;
-
-    justify-content: flex-start;
-    align-items: center;
-    padding: 6px 15px;
-`;
-
-export const Menu = styled.div`
-    width: 100%;
-    display: flex;
-`;
-export const MenuItem = styled.div`
-    width: 50%;
-    text-align: center;
-    cursor: pointer;
-    padding: 15px;
-    color: ${(props) => props.active && '#2b70d6'};
-    border-bottom: 1px solid #c7c7c745;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    &:hover {
-        background-color: #8080804c;
-    }
-`;
-
 export const UsersWrapper = styled.div`
     display: flex;
     flex-direction: column;

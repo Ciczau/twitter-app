@@ -4,6 +4,8 @@ import { BsArrowLeftShort } from 'react-icons/bs';
 
 export const Wrapper = styled.div`
     color: white;
+    width: 600px;
+    max-width: 85vw;
 `;
 export const Header = styled.div`
     display: flex;

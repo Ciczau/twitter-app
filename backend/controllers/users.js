@@ -97,8 +97,7 @@ export const Logout = async (req, res) => {
 };
 
 export function generateRandomCode() {
-    const characters =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let code = '';
 
     for (let i = 0; i < 16; i++) {
@@ -121,7 +120,7 @@ export const EditProfile = async (req, res) => {
         );
 
         if (file) {
-            if (user.avatar !== 'default') {
+            if (user.avatar !== 'defaultAvatar') {
                 await cloudinary.uploader.destroy(user.avatarId);
             }
             const uploadResult = await cloudinary.uploader.upload(file.path, {
@@ -165,4 +164,18 @@ export const GetUsers = async (req, res) => {
         users.push(user);
     }
     return res.status(200).send({ users });
+};
+
+export const GetAllUsers = async (req, res) => {
+    const users = await Users.find({}).toArray();
+    return res.status(200).send({ users });
+};
+
+export const GetUsersByKey = async (req, res) => {
+    const { key } = req.body;
+    console.log(key);
+    const result = await Users.find({
+        nick: { $regex: key, $options: 'i' },
+    }).toArray();
+    return res.status(200).send({ result });
 };

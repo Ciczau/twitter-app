@@ -8,7 +8,7 @@ import instance from 'api/instance';
 
 const Home = ({ type = 'tweets' }) => {
     const router = useRouter();
-    const { profile } = router.query;
+    const { profile, previous } = router.query;
 
     const [user, setUser] = useState<User>();
     const [userProfile, setUserProfile] = useState<User>();
@@ -45,14 +45,18 @@ const Home = ({ type = 'tweets' }) => {
     useEffect(() => {
         getUserByProfile();
     }, [profile]);
+
     return (
         <BodyContent child={null} auth={false} nickName={getUser}>
-            <ProfileSection
-                user={user}
-                profile={userProfile}
-                type={type}
-                child={null}
-            />
+            {typeof profile === 'string' && (
+                <ProfileSection
+                    user={user}
+                    profile={userProfile}
+                    type={type}
+                    child={null}
+                    profileQuery={profile}
+                />
+            )}
         </BodyContent>
     );
 };

@@ -23,7 +23,7 @@ const Wrapper = styled.div`
 
 const MainWrapper = styled.section`
     height: auto;
-    width: 600px;
+
     max-width: 85vw;
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;
@@ -35,7 +35,6 @@ export const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        overflow: hidden;
         &::-webkit-scrollbar{
             width: 0;
         }

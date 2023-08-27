@@ -5,10 +5,12 @@ const Home = ({ child }) => {
     return (
         <div>
             <BodyContent
-                child={<LoginRegisterPage child={child} />}
+                child={null}
                 auth={true}
                 nickName={(data) => console.log(data)}
-            />
+            >
+                <LoginRegisterPage child={child} />
+            </BodyContent>
         </div>
     );
 };
