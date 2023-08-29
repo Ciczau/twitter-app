@@ -91,7 +91,7 @@ export const menuItems = [
                 />
             </IconWrapper>
         ),
-        link: '/lists',
+        link: '/i/lists',
         name: 'Lists',
     },
     {

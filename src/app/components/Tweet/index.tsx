@@ -18,15 +18,21 @@ export interface TweetType {
     imageId: string;
     views: number;
     retweets: number;
+    reposts: number;
     bookmarks: number;
+    repost?: { nick: string; date: string } | null;
+    repostBy?: Array<{ nick: string; date: string }> | null;
 }
 
 interface Props extends TweetType {
     onTweetLike?: () => void;
     onReplyModeUpdate?: () => void;
     onBookmarkChange?: () => void;
+    onTweetRepost?: () => void;
     parentTweet: TweetType | null;
     isLiked: boolean;
+
+    isReposted?: boolean;
     bookmark: boolean;
     isReply: boolean;
     post: boolean;
@@ -34,7 +40,7 @@ interface Props extends TweetType {
     user: User;
     postQuery?: string;
     profileQuery?: string;
-    closeModal: (id: string) => void;
+    closeModal?: (id: string) => void;
 }
 
 function formatTimeDifference(date: Date): string {
@@ -104,20 +110,25 @@ const Tweet = ({
     imageId,
     views,
     retweets,
+    reposts,
+    repostBy,
+    isReposted,
     bookmarks,
     onTweetLike = () => {},
     onReplyModeUpdate = () => {},
     onBookmarkChange = () => {},
+    onTweetRepost = () => {},
     parentTweet,
     isLiked,
     bookmark,
+    repost,
     isReply,
     post,
     photoMode,
     user,
     postQuery = '',
     profileQuery = '',
-    closeModal,
+    closeModal = () => {},
 }: Props) => {
     const [avatar, setAvatar] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -227,7 +238,7 @@ const Tweet = ({
                             profile={userProfile?.nick}
                             type="post-replies"
                             avatar={userProfile?.avatarId}
-                            postTweet={tweet}
+                            tweet={tweet}
                             photoMode={true}
                             user={user}
                             postQuery={postQuery}
@@ -241,10 +252,21 @@ const Tweet = ({
 
             <S.Tweet isReply={isReply}>
                 <S.AvatarWrapper>
+                    {repost && <S.RepostIcon size="100%" />}
                     <S.Avatar src={avatar} />
                     {isReply && <S.VerticalLine />}
                 </S.AvatarWrapper>
                 <S.TweetContent>
+                    {repost && (
+                        <div>
+                            {repost.nick === user.nick ? (
+                                <>You </>
+                            ) : (
+                                <>{repost.nick} </>
+                            )}
+                            reposted
+                        </div>
+                    )}
                     <S.TweetHeader post={post && !isReply ? true : false}>
                         <S.User>{name} </S.User>
                         <S.UserDate post={post && !isReply ? true : false}>
@@ -321,7 +343,20 @@ const Tweet = ({
                                 )}
                                 <S.Counter isLiked={isLiked}>{likes}</S.Counter>
                             </S.IconContainer>
-
+                            <S.IconContainer type="repost">
+                                <S.IconWrapper
+                                    type="repost"
+                                    onClick={onTweetRepost}
+                                >
+                                    <S.RepostIcon
+                                        size="100%"
+                                        isReposted={isReposted}
+                                    />
+                                </S.IconWrapper>
+                                <S.Counter isReposted={isReposted}>
+                                    {reposts}
+                                </S.Counter>
+                            </S.IconContainer>
                             <S.IconContainer type="retweet">
                                 <S.IconWrapper type="retweet">
                                     <S.RetweetIcon

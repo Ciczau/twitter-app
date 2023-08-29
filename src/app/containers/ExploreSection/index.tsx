@@ -66,7 +66,7 @@ const ExploreSection = ({ user }) => {
                                     avatar={userData?.avatarId}
                                     profile={null}
                                     type="search"
-                                    postTweet={null}
+                                    tweet={null}
                                     photoMode={false}
                                     searchKey={searchKey}
                                     user={user}

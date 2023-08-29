@@ -15,6 +15,9 @@ export const newChat = async (req, res) => {
     const { firstUser, secondUser } = req.body;
     const id = generateRandomCode();
     const userArray = [firstUser, secondUser];
+    const isChatAlreadyCreated = await chats.findOne({ userArray: userArray });
+    if (isChatAlreadyCreated)
+        return res.send({ chatId: isChatAlreadyCreated.id });
     await chats.insertOne({ id: id, userArray: userArray });
     db.createCollection(id);
 

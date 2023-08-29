@@ -3,6 +3,8 @@ import { db } from '../database/mongo.js';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import axios from 'axios';
+import { notifications } from './notifications.js';
+import { Users } from './users.js';
 cloudinary.config({
     cloud_name: 'df4tupotg',
     api_key: '626447796253867',
@@ -21,7 +23,7 @@ export function generateRandomCode() {
 
     return code;
 }
-const tweets = db.collection('tweets');
+export const tweets = db.collection('tweets');
 const likes = db.collection('likes');
 const users = db.collection('users');
 const bookmarks = db.collection('bookmarks');
@@ -30,7 +32,14 @@ export const postTweet = async (req, res) => {
         const { file } = req;
         const { nick, text, parentId } = req.body;
         let reply = 0;
-        console.log('cipa');
+        const user = await users.findOne({ nick: nick });
+        let notification = {
+            nick: '',
+            type: 'retweet',
+            date: '',
+            user: null,
+            content: null,
+        };
         if (parentId) {
             reply = 1;
             console.log(parentId);
@@ -40,6 +49,9 @@ export const postTweet = async (req, res) => {
                 { _id: id },
                 { $set: { retweets: parentTweet.retweets + 1 } }
             );
+            notification.nick = parentTweet.nick;
+            notification.user = user;
+            notification.user.avatarId = `https://res.cloudinary.com/df4tupotg/image/upload/${notification.user.avatarId}`;
         }
         const imageId = generateRandomCode();
         console.log(reply);
@@ -55,6 +67,8 @@ export const postTweet = async (req, res) => {
         }
         if (!nick || !text) return res.status(400).send({ msg: 'Error' });
         const date = new Date();
+        notification.date = date;
+        let array = [];
         await tweets.insertOne({
             nick: nick,
             text: text,
@@ -63,6 +77,7 @@ export const postTweet = async (req, res) => {
             retweets: 0,
             bookmarks: 0,
             reposts: 0,
+            repostBy: array,
             reply: reply,
             parentId: parentId,
             imageId: file
@@ -70,12 +85,22 @@ export const postTweet = async (req, res) => {
                 : '',
             views: 0,
         });
-        const user = await users.findOne({ nick: nick });
+
         await users.updateOne(
             { nick: nick },
             { $set: { tweets: user.tweets + 1 } }
         );
         const newTweet = await tweets.findOne({ nick: nick, date: date });
+        notification.content = newTweet;
+        if (reply === 1) {
+            await notifications.insertOne({
+                nick: notification.nick,
+                type: notification.type,
+                date: notification.date,
+                user: notification.user,
+                content: notification.content,
+            });
+        }
         return res.status(200).send({ msg: 'Success', newTweet });
     } catch (error) {
         console.error('Error:', error);
@@ -84,7 +109,21 @@ export const postTweet = async (req, res) => {
 };
 
 export const getTweets = async (req, res) => {
-    const result = await tweets.find({}).sort({ _id: -1 }).toArray();
+    const response = await tweets.find({}).sort({ _id: -1 }).toArray();
+    const result = [];
+    response.forEach((item) => {
+        result.push(item);
+        item.repostBy?.forEach((repost) => {
+            result.push({ ...item, repost: [repost] });
+        });
+    });
+    result.reverse().sort((a, b) => {
+        const aRepost = a.repostBy;
+        const bRepost = b.repostBy;
+        const aDate = aRepost?.date ? aRepost.date : a.date;
+        const bDate = bRepost?.date ? bRepost.date : b.date;
+        return new Date(bDate) - new Date(aDate);
+    });
     await tweets.updateMany({}, { $inc: { views: 1 } });
     return res.status(200).send({ result });
 };
@@ -100,11 +139,30 @@ export const getSingleTweet = async (req, res) => {
 
 export const getUserTweets = async (req, res) => {
     const { nick } = req.body;
-    const result = await tweets
-        .find({ nick: nick, reply: 0 })
+    const response = await tweets
+        .find({
+            $or: [{ nick: nick }, { repostBy: { $in: [nick] } }],
+            reply: 0,
+        })
         .sort({ _id: -1 })
         .toArray();
-    console.log(result);
+
+    const result = [];
+    response.forEach((item) => {
+        result.push(item);
+        item.repostBy?.forEach((repost) => {
+            if (repost.nick === nick) {
+                result.push({ ...item, repost: [repost] });
+            }
+        });
+    });
+    result.reverse().sort((a, b) => {
+        const aRepost = a.repostBy.find((repost) => repost.nick === nick);
+        const bRepost = b.repostBy.find((repost) => repost.nick === nick);
+        const aDate = aRepost ? aRepost.date : a.date;
+        const bDate = bRepost ? bRepost.date : b.date;
+        return new Date(bDate) - new Date(aDate);
+    });
     return res.status(200).send({ result });
 };
 
@@ -177,6 +235,18 @@ export const tweetLike = async (req, res) => {
             $set: { likes: like },
         }
     );
+    const date = new Date();
+    if (nick !== tweet.nick) {
+        const user = await Users.findOne({ nick: nick });
+        console.log(user);
+        await notifications.insertOne({
+            nick: tweet.nick,
+            type: 'like',
+            date: date,
+            user: user,
+            content: tweet,
+        });
+    }
     return res.status(200).send({ msg: 'Success' });
 };
 
@@ -239,4 +309,46 @@ export const getTweetsByKey = async (req, res) => {
         .toArray();
 
     return res.status(200).send({ result });
+};
+export const repostTweet = async (req, res) => {
+    const { tweetId, repostBy, isReposted } = req.body;
+    const id = new ObjectId(tweetId);
+    const tweet = await tweets.findOne({ _id: id });
+    let reposters = tweet.repostBy;
+    const date = new Date();
+    if (!isReposted) {
+        reposters.push({ nick: repostBy, date: date });
+    } else {
+        reposters = reposters.filter((item) => item.nick !== repostBy);
+    }
+    await tweets.updateOne(
+        { _id: id },
+        {
+            $set: {
+                repostBy: reposters,
+                reposts: tweet.reposts + (isReposted ? -1 : 1),
+            },
+        }
+    );
+    const user = await Users.findOne({ nick: repostBy });
+    if (!isReposted) {
+        await notifications.insertOne({
+            nick: tweet.nick,
+            type: 'repost',
+            date: date,
+            user: user,
+            content: tweet,
+        });
+    } else {
+        console.log(tweet);
+        console.log(tweet.nick);
+        console.log(user);
+        const id = new ObjectId(tweet._id);
+        await notifications.deleteOne({
+            nick: tweet.nick,
+            type: 'repost',
+            'content._id': id,
+        });
+    }
+    return res.status(200).send();
 };

@@ -75,7 +75,7 @@ const Home = () => {
                             profile={userProfile?.nick}
                             type="post-replies"
                             avatar={userProfile?.avatarId}
-                            postTweet={tweet}
+                            tweet={tweet}
                             photoMode={false}
                             user={user}
                             postQuery={post}

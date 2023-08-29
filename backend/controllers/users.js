@@ -4,14 +4,16 @@ import jwt from 'jsonwebtoken';
 import { generateAccessToken, generateRefreshToken } from './token.js';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import axios from 'axios';
+import { notifications } from './notifications.js';
+import { follows } from './follows.js';
+
 cloudinary.config({
     cloud_name: 'df4tupotg',
     api_key: '626447796253867',
     api_secret: 'mPXy5pytK8szulO6NY69mlAtP8Y',
 });
 
-const Users = db.collection('users');
+export const Users = db.collection('users');
 
 export const refreshToken = async (req, res) => {
     const { refreshToken } = req.body;
@@ -86,6 +88,8 @@ export const Login = async (req, res) => {
             $set: { refreshToken: refreshToken },
         }
     );
+    const date = new Date();
+    await notifications.insertOne({ nick: nick, type: 'login', date: date });
     return res.status(200).send({ msg: 'Success', refreshToken });
 };
 
@@ -177,5 +181,53 @@ export const GetUsersByKey = async (req, res) => {
     const result = await Users.find({
         nick: { $regex: key, $options: 'i' },
     }).toArray();
+    return res.status(200).send({ result });
+};
+
+export const GetEachOtherFollows = async (req, res) => {
+    const { nick, key } = req.body;
+    if (!nick) return res.status(404).send();
+    let result = [];
+
+    const users = await follows
+        .find({
+            $or: [{ followBy: nick }, { userToFollow: nick }],
+        })
+        .toArray();
+
+    let userNickList = [];
+    for (let i = 0; i < users.length; i++) {
+        for (let j = 0; j < users.length; j++) {
+            console.log(users[i].followBy);
+            if (
+                users[i].followBy === users[j].userToFollow &&
+                users[i].followBy !== nick
+            ) {
+                userNickList.push(users[i].followBy);
+            }
+        }
+    }
+
+    for (let i = 0; i < userNickList.length; i++) {
+        const user = await Users.findOne({ nick: userNickList[i] });
+        result.push({ user: user, followEachOther: true });
+    }
+    let newResult = [];
+    if (key !== '') {
+        const usersByKey = await Users.find({
+            nick: { $regex: key, $options: 'i' },
+        }).toArray();
+        console.log(usersByKey);
+        for (let i = 0; i < usersByKey.length; i++) {
+            const user = await Users.findOne({ nick: usersByKey[i].nick });
+            console.log(result.filter((el) => el.user.nick === user.nick));
+            if (!result.find((el) => el.user.nick === user.nick)) {
+                newResult.push({ user: user, followEachOther: false });
+            } else {
+                newResult.push({ user: user, followEachOther: true });
+            }
+        }
+        result = newResult;
+    }
     return res.status(200).send({ result });
 };

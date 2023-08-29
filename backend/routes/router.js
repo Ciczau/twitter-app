@@ -3,6 +3,7 @@ import multer from 'multer';
 import {
     EditProfile,
     GetAllUsers,
+    GetEachOtherFollows,
     GetUser,
     GetUsers,
     GetUsersByKey,
@@ -24,6 +25,7 @@ import {
     getUserTweets,
     handleBookmark,
     postTweet,
+    repostTweet,
     tweetLike,
 } from '../controllers/tweets.js';
 import {
@@ -39,6 +41,13 @@ import {
     newChat,
     sendMessage,
 } from '../controllers/messages.js';
+import { GetNotifications } from '../controllers/notifications.js';
+import {
+    createList,
+    getList,
+    getListTweets,
+    getUserList,
+} from '../controllers/lists.js';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -60,6 +69,7 @@ router.post('/user', GetUser);
 router.post('/users', GetUsers);
 router.post('/token', refreshToken);
 router.post('/users/get/search', GetUsersByKey);
+router.post('/users/get/follow', GetEachOtherFollows);
 router.get('/users/all', GetAllUsers);
 
 router.post('/tweet/create', upload.single('file'), postTweet);
@@ -67,6 +77,7 @@ router.post('/tweet/like', tweetLike);
 router.post('/tweet/bookmark', handleBookmark);
 router.post('/tweet/likes', getLikes);
 router.post('/tweet/bookmarks/get', getBookmarks);
+router.post('/tweet/repost', repostTweet);
 
 router.get('/tweet/get', getTweets);
 router.post('/tweet/get/replies', getReplies);
@@ -88,3 +99,10 @@ router.post('/chat/create', newChat);
 router.post('/chats/get', getUserChats);
 router.post('/chat/message/send', upload.single('file'), sendMessage);
 router.post('/chat/get', getChat);
+
+router.post('/notifications/get', GetNotifications);
+
+router.post('/lists/create', createList);
+router.post('/lists/user/get', getUserList);
+router.post('/list/get', getList);
+router.post('/list/get/tweets', getListTweets);

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { BsEnvelopePlus } from 'react-icons/bs';
-import { IoMdClose } from 'react-icons/io';
+import { IoIosSearch, IoMdClose } from 'react-icons/io';
 export const Wrapper = styled.div`
     color: white;
     display: flex;
@@ -49,7 +49,9 @@ export const Modal = styled.div`
     max-width: 90vw;
     width: 600px;
     position: absolute;
-
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     z-index: 999999999;
     color: white;
     border-radius: 10px;
@@ -74,8 +76,10 @@ export const CloseIcon = styled(IoMdClose)`
 export const UserWrapper = styled.div`
     display: flex;
     padding: 15px;
+    width: 100%;
     justify-content: space-between;
     transition: all 0.3s ease;
+    opacity: ${(props) => !props.followEachOther && '0.5'};
     &:active {
         background-color: #3a3a3a;
     }
@@ -97,5 +101,28 @@ export const UserContentWrapper = styled.div`
 
 export const UserNick = styled.div`
     color: gray;
+    line-height: 15px;
     font-size: 14px;
+`;
+export const ExploreInput = styled.input`
+    width: 90%;
+    outline: 0;
+    border: 0;
+    font-size: 15px;
+    color: white;
+    font-family: inherit;
+    background-color: transparent;
+`;
+export const ExploreWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    padding: 10px 20px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #c7c7c745;
+`;
+
+export const SearchIcon = styled(IoIosSearch)`
+    width: 19px;
+    color: ${(props) => (props.focus ? '#3062e0' : 'white')};
 `;

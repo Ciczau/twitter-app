@@ -33,7 +33,7 @@ const BookmarkSection = ({ user }) => {
                 avatar={userData?.avatarId}
                 profile={null}
                 type="bookmarks"
-                postTweet={null}
+                tweet={null}
                 photoMode={false}
                 user={user}
                 isEmpty={handleEmpty}

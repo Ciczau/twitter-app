@@ -167,7 +167,7 @@ const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
                             profile={userData?.nick}
                             avatar={userData?.avatarId}
                             type={type}
-                            postTweet={null}
+                            tweet={null}
                             photoMode={false}
                             user={user}
                             profileQuery={profileQuery}

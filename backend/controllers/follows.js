@@ -1,6 +1,7 @@
 import { db } from '../database/mongo.js';
+import { notifications } from './notifications.js';
 
-const follows = db.collection('follows');
+export const follows = db.collection('follows');
 const users = db.collection('users');
 export const FollowUser = async (req, res) => {
     const { user, userToFollow } = req.body;
@@ -19,6 +20,13 @@ export const FollowUser = async (req, res) => {
         { nick: userToFollow },
         { $set: { followers: userToFollowData.followers + 1 } }
     );
+    const date = new Date();
+    await notifications.insertOne({
+        nick: userToFollow,
+        type: 'follow',
+        date: date,
+        user: userData,
+    });
     return res.status(200).send();
 };
 

@@ -6,10 +6,12 @@ import { HiOutlineChat } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
 import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa';
 import { BsChat } from 'react-icons/bs';
+import { BiRepost } from 'react-icons/bi';
 
 export const Avatar = styled.img`
     width: 40px;
     height: 40px;
+    margin-top: 4px;
     object-fit: cover;
     border-radius: 50%;
 `;
@@ -96,7 +98,8 @@ export const ImageWrapper = styled.div`
 `;
 export const AvatarWrapper = styled.div`
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    justify-content: flex-start;
     flex-direction: column;
 `;
 
@@ -105,6 +108,7 @@ export const VerticalLine = styled.div`
     width: 1px;
     margin-top: 10px;
     padding-bottom: 30px;
+    margin: 10px 50% -20px 50%;
     background-color: gray;
 `;
 
@@ -132,6 +136,12 @@ export const RetweetIcon = styled(FaRegComment)`
     width: 16px;
     cursor: pointer;
     color: #585858;
+`;
+export const RepostIcon = styled(BiRepost)`
+    width: 22px;
+    cursor: pointer;
+    height: 22px;
+    color: ${(props) => (props.isReposted ? '#0c7233' : '#585858')};
 `;
 
 export const ViewsIcon = styled(ImStatsBars)`
@@ -163,6 +173,7 @@ export const IconContainer = styled.div`
         color: ${(props) => props.type === 'retweet' && '#065b94'};
         color: ${(props) => props.type === 'view' && '#065b94'};
         color: ${(props) => props.type === 'bookmark' && '#065b94'};
+        color: ${(props) => props.type === 'repost' && '#0e925f'};
     }
     &:hover ${IconWrapper} {
         background-color: ${(props) => props.type === 'like' && '#ad156e47'};
@@ -170,6 +181,7 @@ export const IconContainer = styled.div`
         background-color: ${(props) => props.type === 'view' && '#065b9445'};
         background-color: ${(props) =>
             props.type === 'bookmark' && '#065b9445'};
+        background-color: ${(props) => props.type === 'repost' && '#0e925f34'};
     }
     &:hover ${EmptyHeartIcon} {
         color: #ad156e;
@@ -183,9 +195,13 @@ export const IconContainer = styled.div`
     &:hover ${BookmarkIcon} {
         color: #065b94;
     }
+    &:hover ${RepostIcon} {
+        color: #0c7233;
+    }
 `;
 export const Counter = styled.div`
     color: ${(props) => props.isLiked && '#ad156e'};
+    color: ${(props) => props.isReposted && '#0c7233'};
     font-size: 13px;
     padding-bottom: 2px;
 `;
