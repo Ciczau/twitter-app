@@ -32,7 +32,7 @@ const Home = () => {
         };
     }, []);
     return (
-        <BodyContent child={null} auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser}>
             <Wrapper>
                 {typeof chat === 'string' && width && width > 1100 && (
                     <MessageSection user={user} type="chats" chatQuery={chat} />

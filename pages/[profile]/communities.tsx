@@ -4,9 +4,8 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
 import BodyContent, { User } from 'components/BodyContent';
-import HomeSection from 'containers/HomeSection';
-import BookmarkSection from 'containers/BookmarkSection';
-import ListSection from 'containers/ListSection';
+import ListsSection from 'containers/ListsSection';
+import CommunitiesSection from 'containers/CommunitiesSection';
 
 const Home: NextPage = () => {
     const [user, setUser] = useState<User>();
@@ -15,12 +14,10 @@ const Home: NextPage = () => {
     };
 
     const router = useRouter();
-    const { list } = router.query;
     console.log(router.pathname);
-
     return (
         <BodyContent auth={false} nickName={getUser}>
-            <ListSection user={user} listQuery={list} />
+            <CommunitiesSection user={user} />
         </BodyContent>
     );
 };

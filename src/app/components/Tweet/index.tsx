@@ -18,6 +18,7 @@ export interface TweetType {
     imageId: string;
     views: number;
     retweets: number;
+    audienceName?: string;
     reposts: number;
     bookmarks: number;
     repost?: { nick: string; date: string } | null;
@@ -123,6 +124,7 @@ const Tweet = ({
     bookmark,
     repost,
     isReply,
+    audienceName = 'Everyone',
     post,
     photoMode,
     user,
@@ -253,6 +255,9 @@ const Tweet = ({
             <S.Tweet isReply={isReply}>
                 <S.AvatarWrapper>
                     {repost && <S.RepostIcon size="100%" />}
+                    {audienceName !== 'Everyone' && (
+                        <S.AudienceIcon size="100%" />
+                    )}
                     <S.Avatar src={avatar} />
                     {isReply && <S.VerticalLine />}
                 </S.AvatarWrapper>
@@ -267,6 +272,7 @@ const Tweet = ({
                             reposted
                         </div>
                     )}
+                    {audienceName !== 'Everyone' && <div>{audienceName}</div>}
                     <S.TweetHeader post={post && !isReply ? true : false}>
                         <S.User>{name} </S.User>
                         <S.UserDate post={post && !isReply ? true : false}>

@@ -61,7 +61,7 @@ const Home = () => {
         getUserByProfile();
     }, [tweet]);
     return (
-        <BodyContent child={null} auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser}>
             <PostSection
                 user={user}
                 type="normal"

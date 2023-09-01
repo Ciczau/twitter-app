@@ -14,7 +14,7 @@ const Header = ({ user }) => {
     const router = useRouter();
 
     const handleRedirect = (link: string) => {
-        router.push(link);
+        router.push({ pathname: link, query: { profile: user.nick } });
     };
 
     useEffect(() => {
@@ -39,13 +39,10 @@ const Header = ({ user }) => {
         <S.Wrapper>
             <S.Header>
                 {menuItems.map((item, index) => {
-                    const link =
-                        item.name === 'Profile' ? `/${user.nick}` : item.link;
-
                     return (
                         <S.HeaderElement
                             key={index}
-                            onClick={() => handleRedirect(link)}
+                            onClick={() => handleRedirect(item.link)}
                             isLogo={item.name === '' ? true : false}
                         >
                             <div>{item.icon}</div>

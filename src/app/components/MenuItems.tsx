@@ -18,20 +18,46 @@ const IconWrapper = styled.div`
     border-radius: 50%;
     display: flex;
     position: relative;
+    color: white;
     justify-content: center;
     z-index: 999;
     align-items: center;
+`;
+
+const TwitterIcon = styled(FaTwitter)`
+    width: 25px;
+`;
+const HomeIcon = styled(FaHome)`
+    width: 25px;
+`;
+const ExploreIcon = styled(IoIosSearch)`
+    width: 25px;
+`;
+const NotificationsIcon = styled(FaBell)`
+    width: 22px;
+`;
+const MessagesIcon = styled(FaRegEnvelope)`
+    width: 25px;
+`;
+const ListIcon = styled(FaRegListAlt)`
+    width: 21px;
+`;
+const BookmarkIcon = styled(FaRegBookmark)`
+    width: 18px;
+`;
+const CommunitiesIcon = styled(LiaUserFriendsSolid)`
+    width: 25px;
+`;
+
+const ProfileIcon = styled(CgProfile)`
+    width: 25px;
 `;
 
 export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaTwitter
-                    size="100%"
-                    style={{ width: '25px' }}
-                    color="white"
-                />
+                <TwitterIcon size="100%" />
             </IconWrapper>
         ),
         link: '/',
@@ -40,7 +66,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaHome size="100%" style={{ width: '25px' }} color="white" />
+                <HomeIcon size="100%" />
             </IconWrapper>
         ),
         link: '/home',
@@ -49,11 +75,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <IoIosSearch
-                    size="100%"
-                    style={{ width: '25px' }}
-                    color="white"
-                />
+                <ExploreIcon size="100%" />
             </IconWrapper>
         ),
         link: '/explore',
@@ -62,7 +84,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaBell size="100%" style={{ width: '22px' }} color="white" />
+                <NotificationsIcon size="100%" />
             </IconWrapper>
         ),
         link: '/notifications',
@@ -71,11 +93,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaRegEnvelope
-                    size="100%"
-                    style={{ width: '25px' }}
-                    color="white"
-                />
+                <MessagesIcon size="100%" />
             </IconWrapper>
         ),
         link: '/messages',
@@ -84,11 +102,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaRegListAlt
-                    size="100%"
-                    style={{ width: '21px' }}
-                    color="white"
-                />
+                <ListIcon size="100%" />
             </IconWrapper>
         ),
         link: '/i/lists',
@@ -97,11 +111,7 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <FaRegBookmark
-                    size="100%"
-                    style={{ width: '18px' }}
-                    color="white"
-                />
+                <BookmarkIcon size="100%" />
             </IconWrapper>
         ),
         link: '/i/bookmarks',
@@ -110,27 +120,19 @@ export const menuItems = [
     {
         icon: (
             <IconWrapper>
-                <LiaUserFriendsSolid
-                    size="100%"
-                    style={{ width: '25px' }}
-                    color="white"
-                />
+                <CommunitiesIcon size="100%" />
             </IconWrapper>
         ),
-        link: '/communities',
+        link: '/[profile]/communities',
         name: 'Communities',
     },
     {
         icon: (
             <IconWrapper>
-                <CgProfile
-                    size="100%"
-                    style={{ width: '25px' }}
-                    color="white"
-                />
+                <ProfileIcon size="100%" />
             </IconWrapper>
         ),
-        link: '/profile',
+        link: '/[profile]',
         name: 'Profile',
     },
 ];

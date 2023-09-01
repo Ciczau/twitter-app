@@ -6,7 +6,8 @@ import { useRouter } from 'next/router';
 import BodyContent, { User } from 'components/BodyContent';
 import HomeSection from 'containers/HomeSection';
 import BookmarkSection from 'containers/BookmarkSection';
-import ListSection from 'containers/ListSection';
+import SearchSection from 'containers/CommunitiesSection/SearchSection';
+import CommunitySection from 'containers/CommunitiesSection/CommunitySection';
 
 const Home: NextPage = () => {
     const [user, setUser] = useState<User>();
@@ -15,12 +16,11 @@ const Home: NextPage = () => {
     };
 
     const router = useRouter();
-    const { list } = router.query;
+    const { community } = router.query;
     console.log(router.pathname);
-
     return (
         <BodyContent auth={false} nickName={getUser}>
-            <ListSection user={user} listQuery={list} />
+            <CommunitySection communityQuery={community} user={user} />
         </BodyContent>
     );
 };

@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion } from 'framer-motion';
 import { IoMdClose } from 'react-icons/io';
-import { BiSolidImageAdd } from 'react-icons/bi';
+import { BiSolidImageAdd, BiWorld } from 'react-icons/bi';
 import Link from 'next/link';
 import { FaRegSmile } from 'react-icons/fa';
+import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 export const Wrapper = styled.div`
     display: flex;
     width: 100%;
@@ -46,7 +47,6 @@ export const TweetCreatorWrapper = styled.div`
     width: 100%;
     border-bottom: ${(props) => (props.reply ? '0' : '1px solid #c7c7c745')};
     padding: 15px;
-
     display: flex;
     justify-content: space-between;
 `;
@@ -54,6 +54,7 @@ export const TweetCreatorWrapper = styled.div`
 export const TweetCreator = styled.div`
     display: flex;
     width: calc(100% - 60px);
+    align-items: flex-start;
     flex-direction: column;
 `;
 export const Input = styled(TextareaAutosize)`
@@ -76,6 +77,7 @@ export const Input = styled(TextareaAutosize)`
 export const SubmitBar = styled.div`
     display: flex;
     margin-top: 20px;
+    width: 100%;
     justify-content: space-between;
 `;
 
@@ -232,4 +234,86 @@ export const EmojiListIcon = styled(FaRegSmile)`
     cursor: pointer;
     margin-left: 5px;
     color: #1b60a0;
+`;
+
+export const ChoiceName = styled.div`
+    display: flex;
+    align-items: center;
+`;
+export const ChooseWrapper = styled.div`
+    background-color: black;
+    border: 1px solid #474747;
+    border-radius: 50px;
+    font-weight: 700;
+    padding: 0px 10px;
+    display: flex;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: flex-start;
+
+    z-index: 999999999999;
+    line-height: 20px;
+    color: #1b60a0;
+    position: relative;
+`;
+export const ModalBackground = styled.div`
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    cursor: default;
+    left: 0;
+    position: fixed;
+    z-index: 99999;
+`;
+
+export const ChooseModal = styled.div`
+    position: absolute;
+    background-color: black;
+    box-shadow: 0px 0px 5px 3px #7c7b7b7b;
+    border-radius: 10px;
+    width: 300px;
+    z-index: 999999999999;
+    margin-top: 30px;
+    padding: 10px;
+`;
+export const TitleModal = styled.div`
+    font-size: 20px;
+    color: white;
+    margin-bottom: 10px;
+    div {
+        margin-top: 10px;
+        font-size: 17px;
+    }
+`;
+
+export const ChoiceWrapper = styled.div`
+    display: flex;
+    color: white;
+    align-items: center;
+`;
+
+export const WorldIconWrapper = styled.div`
+    width: 40px;
+    height: 40px;
+    background-color: #2266e4;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+export const WorldIcon = styled(BiWorld)`
+    width: 20px;
+    color: white;
+`;
+export const CommunityAvatar = styled.img`
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    margin-right: 10px;
+    object-fit: cover;
+`;
+export const ModalOpenIcon = styled(MdOutlineKeyboardArrowDown)`
+    width: 15px;
+    cursor: pointer;
 `;

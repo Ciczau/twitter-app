@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 export const UsersWrapper = styled.div`
     display: flex;
+    width: 100%;
     flex-direction: column;
 `;
 

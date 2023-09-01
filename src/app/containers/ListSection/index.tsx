@@ -6,6 +6,7 @@ import Tweets from 'components/Tweets';
 
 const ListSection = ({ user, listQuery }) => {
     const [list, setList] = useState<List>();
+    const [isFollowing, setFollowing] = useState<boolean>();
 
     const getList = async () => {
         try {
@@ -17,6 +18,41 @@ const ListSection = ({ user, listQuery }) => {
             setList(res.data.result);
         } catch (err) {}
     };
+
+    const followList = async () => {
+        try {
+            await instance({
+                url: '/list/follow',
+                method: 'POST',
+                data: {
+                    id: list?.id,
+                    nick: user?.nick,
+                    isFollowing: isFollowing,
+                },
+            });
+            let followers = list?.followers;
+            if (isFollowing && followers) {
+                followers = followers.filter((el) => el !== user.nick);
+            }
+            if (!isFollowing && followers) {
+                followers.push(user.nick);
+            }
+            if (list && followers) {
+                setList({
+                    id: list?.id,
+                    name: list?.name,
+                    desc: list?.desc,
+                    members: list?.members,
+                    creator: list?.creator,
+                    followers: followers,
+                });
+            }
+            setFollowing(!isFollowing);
+        } catch (err) {}
+    };
+    useEffect(() => {
+        setFollowing(list?.followers.includes(user.nick));
+    }, [list]);
     useEffect(() => {
         getList();
     }, [listQuery]);
@@ -43,7 +79,18 @@ const ListSection = ({ user, listQuery }) => {
                     <div>{list?.followers.length}&nbsp;</div>
                     <p>Followers&nbsp;</p>
                 </S.ListInfo>
-                <S.FollowButton>Follow</S.FollowButton>
+                <S.FollowButton
+                    following={
+                        list?.followers.includes(user?.nick) ? true : false
+                    }
+                    onClick={followList}
+                >
+                    {list?.followers.includes(user?.nick) ? (
+                        <div>Following</div>
+                    ) : (
+                        <div>Follow</div>
+                    )}
+                </S.FollowButton>
             </S.ListInfoWrapper>
             {user && listQuery && (
                 <Tweets

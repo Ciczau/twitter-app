@@ -12,7 +12,7 @@ const Home = ({ type = 'tweets' }) => {
         setUser(data);
     };
     return (
-        <BodyContent child={null} auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser}>
             <ProfileSection
                 user={user}
                 profile={user}

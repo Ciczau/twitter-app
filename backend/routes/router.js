@@ -20,6 +20,7 @@ import {
     getTweets,
     getTweetsByKey,
     getUserBookmarks,
+    getUserFollowingTweets,
     getUserLikes,
     getUserReplies,
     getUserTweets,
@@ -43,11 +44,23 @@ import {
 } from '../controllers/messages.js';
 import { GetNotifications } from '../controllers/notifications.js';
 import {
+    GetListsByKey,
+    addMembersToList,
     createList,
+    followList,
     getList,
     getListTweets,
     getUserList,
 } from '../controllers/lists.js';
+import {
+    GetCommunitiesByKey,
+    createCommunity,
+    getCommunity,
+    getCommunityTweets,
+    getUserCommunities,
+    getUserCommunitiesTweets,
+    joinCommunity,
+} from '../controllers/communities.js';
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -78,6 +91,7 @@ router.post('/tweet/bookmark', handleBookmark);
 router.post('/tweet/likes', getLikes);
 router.post('/tweet/bookmarks/get', getBookmarks);
 router.post('/tweet/repost', repostTweet);
+router.post('/tweets/user/get/following', getUserFollowingTweets);
 
 router.get('/tweet/get', getTweets);
 router.post('/tweet/get/replies', getReplies);
@@ -103,6 +117,17 @@ router.post('/chat/get', getChat);
 router.post('/notifications/get', GetNotifications);
 
 router.post('/lists/create', createList);
+router.post('/lists/create/users', addMembersToList);
 router.post('/lists/user/get', getUserList);
 router.post('/list/get', getList);
 router.post('/list/get/tweets', getListTweets);
+router.post('/list/follow', followList);
+router.post('/lists/get/bykey', GetListsByKey);
+
+router.post('/community/create', upload.single('file'), createCommunity);
+router.post('/communities/user/get', getUserCommunities);
+router.post('/community/join', joinCommunity);
+router.post('/community/get', getCommunity);
+router.post('/communities/get/bykey', GetCommunitiesByKey);
+router.post('/community/get/tweets', getCommunityTweets);
+router.post('/communities/user/get/tweets', getUserCommunitiesTweets);

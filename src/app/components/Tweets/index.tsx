@@ -4,6 +4,7 @@ import Tweet, { TweetType } from 'components/Tweet';
 import instance from 'api/instance';
 
 import * as S from './index.styles';
+import { Community } from 'containers/CommunitiesSection/SearchSection';
 
 const TweetCreate = ({
     text,
@@ -11,17 +12,91 @@ const TweetCreate = ({
     createTweet,
     placeholder,
     avatar,
+    nick,
     handleFile,
     reply,
+    type = '',
 }) => {
     const [image, setImage] = useState<string>('');
+    const [communities, setCommunities] = useState<Community[]>([]);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [audienceChoice, setAudienceChoice] = useState<{
+        name: string;
+        id: string;
+    }>({ name: 'Everyone', id: '' });
     const handleImage = (e) => {
         setImage(URL.createObjectURL(e.target.files[0]));
     };
+    const getUserCommunities = async () => {
+        try {
+            const res = await instance({
+                url: '/communities/user/get',
+                method: 'POST',
+                data: { nick: nick },
+            });
+            setCommunities(res.data.result);
+        } catch (err) {}
+    };
+    const handleChoice = (name: string, id: string) => {
+        setAudienceChoice({ name: name, id: id });
+        setModalVisible(false);
+    };
+    useEffect(() => {
+        getUserCommunities();
+    }, [nick]);
     return (
         <S.TweetCreatorWrapper reply={reply}>
             <S.Avatar src={avatar} />
             <S.TweetCreator>
+                {type === 'home' && (
+                    <S.ChooseWrapper>
+                        <S.ChoiceName onClick={() => setModalVisible(true)}>
+                            {audienceChoice.name}
+                            <S.ModalOpenIcon size="100%" />
+                        </S.ChoiceName>
+                        {modalVisible && (
+                            <>
+                                <S.ModalBackground
+                                    onClick={() => setModalVisible(false)}
+                                />
+                                <S.ChooseModal>
+                                    <S.TitleModal>Choose audience</S.TitleModal>
+                                    <S.ChoiceWrapper
+                                        onClick={() =>
+                                            handleChoice('everyone', '')
+                                        }
+                                    >
+                                        {' '}
+                                        <S.WorldIconWrapper>
+                                            <S.WorldIcon size="100%" />
+                                        </S.WorldIconWrapper>
+                                        <div>Everyone</div>
+                                    </S.ChoiceWrapper>
+                                    <S.TitleModal>
+                                        <div>My communities</div>
+                                    </S.TitleModal>
+                                    {communities.map((community, index) => {
+                                        return (
+                                            <S.ChoiceWrapper
+                                                onClick={() =>
+                                                    handleChoice(
+                                                        community.name,
+                                                        community._id
+                                                    )
+                                                }
+                                            >
+                                                <S.CommunityAvatar
+                                                    src={community.avatar}
+                                                />
+                                                <div>{community.name}</div>
+                                            </S.ChoiceWrapper>
+                                        );
+                                    })}
+                                </S.ChooseModal>
+                            </>
+                        )}
+                    </S.ChooseWrapper>
+                )}
                 <S.Input
                     minRows={1}
                     maxRows={5}
@@ -58,7 +133,7 @@ const TweetCreate = ({
                     </div>
                     <S.SendButton
                         onClick={async () => {
-                            createTweet();
+                            createTweet(audienceChoice.id, audienceChoice.name);
                             setImage('');
                         }}
                     >
@@ -78,10 +153,12 @@ const Tweets = ({
     tweet,
     photoMode,
     user,
+    community = '',
     postQuery = '',
     profileQuery = '',
     listQuery = '',
     searchKey = '',
+    activeTab = '',
     closeModal = (id: string) => {},
     isEmpty = (data: boolean) => {},
 }) => {
@@ -116,7 +193,7 @@ const Tweets = ({
         setFile(e.target.files[0]);
     };
 
-    const createTweet = async () => {
+    const createTweet = async (id: string, name: string) => {
         setText('');
         setFile('');
         try {
@@ -129,6 +206,8 @@ const Tweets = ({
             formData.append('text', text);
             formData.append('parentId', parentId);
             formData.append('file', file);
+            formData.append('audienceName', name);
+            formData.append('audience', id);
 
             const res = await instance({
                 url: '/tweet/create',
@@ -173,8 +252,14 @@ const Tweets = ({
         try {
             let res;
 
-            if (type === 'home') {
+            if (type === 'home' && activeTab === 'popular') {
                 res = await instance({ url: '/tweet/get', method: 'GET' });
+            } else if (type === 'home' && activeTab === 'following') {
+                res = await instance({
+                    url: '/tweets/user/get/following',
+                    method: 'POST',
+                    data: { nick: nick },
+                });
             } else if (type === 'post-replies') {
                 res = await instance({
                     url: '/tweet/get/replies',
@@ -204,6 +289,18 @@ const Tweets = ({
                     url: `/list/get/tweets`,
                     method: 'POST',
                     data: { listId: listQuery },
+                });
+            } else if (type === 'community') {
+                res = await instance({
+                    url: `/community/get/tweets`,
+                    method: 'POST',
+                    data: { communityId: community },
+                });
+            } else if (type === 'communities') {
+                res = await instance({
+                    url: `/communities/user/get/tweets`,
+                    method: 'POST',
+                    data: { nick: nick },
                 });
             } else {
                 res = await instance({
@@ -415,7 +512,7 @@ const Tweets = ({
     };
     useEffect(() => {
         getTweets();
-    }, [nick, profile, post, searchKey]);
+    }, [nick, profile, post, searchKey, community, activeTab]);
     useEffect(() => {
         getParents();
         if (!postParent) {
@@ -502,6 +599,7 @@ const Tweets = ({
                                 createTweet={createTweet}
                                 placeholder="Post your reply!"
                                 avatar={avatar}
+                                nick={nick}
                                 reply={true}
                             />
                         </S.Reply>
@@ -584,6 +682,7 @@ const Tweets = ({
                     text={replyMode ? '' : text}
                     handleChange={handleChange}
                     handleFile={handleFile}
+                    type="home"
                     createTweet={createTweet}
                     placeholder={
                         type === 'home'
@@ -591,6 +690,7 @@ const Tweets = ({
                             : 'Post your reply!'
                     }
                     avatar={avatar}
+                    nick={nick}
                     reply={false}
                 />
             )}
@@ -621,6 +721,7 @@ const Tweets = ({
                                 (item) => item.nick === nick
                             ) !== undefined
                         }
+                        audienceName={tweet.audienceName}
                         repostBy={tweet.repostBy}
                         _id={tweet._id}
                         isLiked={likes.includes(tweet._id)}

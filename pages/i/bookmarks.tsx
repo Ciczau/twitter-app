@@ -16,7 +16,7 @@ const Home: NextPage = () => {
     const router = useRouter();
     console.log(router.pathname);
     return (
-        <BodyContent child={null} auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser}>
             <BookmarkSection user={user} />
         </BodyContent>
     );

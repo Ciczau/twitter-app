@@ -5,6 +5,7 @@ import fs from 'fs';
 import axios from 'axios';
 import { notifications } from './notifications.js';
 import { Users } from './users.js';
+import { follows } from './follows.js';
 cloudinary.config({
     cloud_name: 'df4tupotg',
     api_key: '626447796253867',
@@ -30,7 +31,7 @@ const bookmarks = db.collection('bookmarks');
 export const postTweet = async (req, res) => {
     try {
         const { file } = req;
-        const { nick, text, parentId } = req.body;
+        const { nick, text, parentId, audience, audienceName } = req.body;
         let reply = 0;
         const user = await users.findOne({ nick: nick });
         let notification = {
@@ -79,6 +80,8 @@ export const postTweet = async (req, res) => {
             reposts: 0,
             repostBy: array,
             reply: reply,
+            audience: audience,
+            audienceName: audienceName,
             parentId: parentId,
             imageId: file
                 ? `https://res.cloudinary.com/df4tupotg/image/upload/${imageId}`
@@ -109,7 +112,10 @@ export const postTweet = async (req, res) => {
 };
 
 export const getTweets = async (req, res) => {
-    const response = await tweets.find({}).sort({ _id: -1 }).toArray();
+    const response = await tweets
+        .find({ audience: '' })
+        .sort({ _id: -1 })
+        .toArray();
     const result = [];
     response.forEach((item) => {
         result.push(item);
@@ -351,4 +357,19 @@ export const repostTweet = async (req, res) => {
         });
     }
     return res.status(200).send();
+};
+export const getUserFollowingTweets = async (req, res) => {
+    const { nick } = req.body;
+    if (!nick) return res.status(404).send();
+    const following = await follows.find({ followBy: nick }).toArray();
+    let result = [];
+    for (let i = 0; i < following.length; i++) {
+        const tweetList = await tweets
+            .find({ nick: following[i].userToFollow })
+            .toArray();
+        for (let j = 0; j < tweetList.length; j++) {
+            result.push(tweetList[j]);
+        }
+    }
+    return res.status(200).send({ result });
 };

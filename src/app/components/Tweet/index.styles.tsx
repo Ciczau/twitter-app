@@ -7,6 +7,7 @@ import { ImStatsBars } from 'react-icons/im';
 import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa';
 import { BsChat } from 'react-icons/bs';
 import { BiRepost } from 'react-icons/bi';
+import { LiaUserFriendsSolid } from 'react-icons/lia';
 
 export const Avatar = styled.img`
     width: 40px;
@@ -239,4 +240,8 @@ export const IconsBar = styled.div`
     display: flex;
     justify-content: space-around;
     margin-top: 10px;
+`;
+export const AudienceIcon = styled(LiaUserFriendsSolid)`
+    width: 20px;
+    height: 20px;
 `;

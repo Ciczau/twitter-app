@@ -6,7 +6,7 @@ const lists = db.collection('lists');
 
 export const createList = async (req, res) => {
     const { creator, name, desc } = req.body;
-    if (!creator || !name || !desc) return res.status(404).send();
+    if (!creator || (!name && !desc)) return res.status(404).send();
     const id = generateRandomCode();
     let members = [creator.nick];
     let followers = [];
@@ -18,7 +18,22 @@ export const createList = async (req, res) => {
         members: members,
         followers: followers,
     });
-    return res.status(200).send();
+    const newList = await lists.findOne({ id: id });
+    return res.status(200).send({ newList });
+};
+
+export const addMembersToList = async (req, res) => {
+    const { membersArray, desc, name } = req.body;
+    if (!membersArray) return res.status(404).send();
+    const list = await lists.findOne({ desc: desc, name: name });
+    let array = list.members;
+    for (let i = 0; i < membersArray.length; i++) {
+        if (!array.includes(membersArray[i])) {
+            array.push(membersArray[i]);
+        }
+    }
+    await lists.updateOne({ id: list.id }, { $set: { members: array } });
+    return res.status(200).send({});
 };
 export const getUserList = async (req, res) => {
     const { nick } = req.body;
@@ -56,5 +71,28 @@ export const getListTweets = async (req, res) => {
         return new Date(a.date) - new Date(b.date);
     });
     console.log(result);
+    return res.status(200).send({ result });
+};
+export const followList = async (req, res) => {
+    const { id, nick, isFollowing } = req.body;
+    if (!id || !nick) return res.status(404).send();
+    if (isFollowing) {
+        await lists.updateOne({ id: id }, { $pull: { followers: nick } });
+    } else {
+        await lists.updateOne({ id: id }, { $push: { followers: nick } });
+    }
+    return res.status(200).send();
+};
+
+export const GetListsByKey = async (req, res) => {
+    const { key } = req.body;
+    console.log(key);
+    if (!key) return res.status(200).send({ result: [] });
+    const result = await lists
+        .find({
+            name: { $regex: key, $options: 'i' },
+        })
+        .sort({ _id: -1 })
+        .toArray();
     return res.status(200).send({ result });
 };

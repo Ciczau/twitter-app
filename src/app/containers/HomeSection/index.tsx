@@ -36,6 +36,7 @@ const HomeSection = ({ user }) => {
                 avatar={userData?.avatarId}
                 profile={null}
                 type="home"
+                activeTab={activeTab}
                 tweet={null}
                 photoMode={false}
                 user={user}

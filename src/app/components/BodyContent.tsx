@@ -17,13 +17,15 @@ const Wrapper = styled.div`
     width: 100vw;
     height: 100vh;
     display: flex;
+    position: absolute;
     justify-content: center;
     background-color: black;
 `;
 
 const MainWrapper = styled.section`
     height: auto;
-
+    position: relative;
+    z-index: 99999;
     max-width: 85vw;
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;
@@ -50,7 +52,12 @@ export interface User {
     following: number;
 }
 
-export default function BodyContent({ child, auth, nickName, children }) {
+export default function BodyContent({
+    auth,
+    nickName,
+    children,
+    backgroundClick = () => {},
+}) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
     const [user, setUser] = useState<User>({
@@ -101,7 +108,7 @@ export default function BodyContent({ child, auth, nickName, children }) {
             {isLogged ? (
                 <>
                     {!auth && (
-                        <Wrapper>
+                        <Wrapper onClick={() => backgroundClick()}>
                             <Header user={user} />
                             <MainWrapper>{children}</MainWrapper>
                         </Wrapper>

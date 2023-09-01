@@ -42,7 +42,7 @@ const Home = () => {
         getUserByProfile();
     }, [profile]);
     return (
-        <BodyContent child={null} auth={false} nickName={() => console.log()}>
+        <BodyContent auth={false} nickName={() => console.log()}>
             <FollowSection user={userProfile} />
         </BodyContent>
     );
