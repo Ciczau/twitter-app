@@ -156,14 +156,16 @@ export const IconWrapper = styled.label`
 
 export const CommunitiesWrapper = styled.div`
     display: flex;
+    justify-content: center;
     width: 100%;
-    padding: 15px;
+    padding: 10px;
     flex-wrap: wrap;
 `;
 export const Community = styled.div`
     display: flex;
     align-items: flex-end;
     height: 80px;
+    margin: 10px;
     border-radius: 10px;
     box-shadow: 0px 0px 5px 3px #69696965;
     width: 120px;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as S from './index.styles';
 import instance from 'api/instance';
+import { useRouter } from 'next/router';
 export interface Community {
     name: string;
     members: string[];
@@ -10,9 +11,10 @@ export interface Community {
 
 const SearchSection = () => {
     const [focus, setFocus] = useState<boolean>(false);
-    const [searchKey, setSearchKey] = useState<string>('');
     const [searchedCommunities, setSearchedCommunities] =
         useState<Community[]>();
+
+    const router = useRouter();
 
     const getCommunitiesByKey = async (e) => {
         try {
@@ -44,7 +46,7 @@ const SearchSection = () => {
     return (
         <S.Wrapper>
             <S.Header>
-                <S.LeftArrowIcon size="100%" />
+                <S.LeftArrowIcon size="100%" onClick={() => router.back()} />
                 <S.ExploreWrapper>
                     <S.SearchIcon size="100%" focus={focus} />
                     <S.ExploreInput

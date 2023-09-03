@@ -5,6 +5,7 @@ import Link from 'next/link';
 export const Wrapper = styled.div`
     display: flex;
     width: 600px;
+    min-height: 100vh;
     max-width: 85vw;
     color: white;
     overflow: hidden;

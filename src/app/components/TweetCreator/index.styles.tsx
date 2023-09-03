@@ -6,42 +6,7 @@ import { BiSolidImageAdd, BiWorld } from 'react-icons/bi';
 import Link from 'next/link';
 import { FaRegSmile } from 'react-icons/fa';
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
-export const Wrapper = styled.div`
-    display: flex;
-    width: 100%;
-    color: white;
-
-    flex-direction: column;
-`;
-
-export const Head = styled.div`
-    font-size: 25px;
-    padding: 15px;
-`;
-export const SelectionWrapper = styled.div`
-    border-bottom: 1px solid #c7c7c745;
-    display: flex;
-`;
-
-export const Button = styled.button`
-    font-family: inherit;
-    width: 50%;
-    padding: 15px;
-    display: flex;
-    font-weight: bold;
-    outline: 0;
-    color: ${(props) => (props.active ? '#0b70aa' : 'white')};
-    cursor: pointer;
-    font-size: 17px;
-
-    background-color: transparent;
-    border: 0;
-    transition: all 0.3s ease;
-    justify-content: center;
-    &:hover {
-        background-color: #aaaaaa36;
-    }
-`;
+import { AiOutlineCheck } from 'react-icons/ai';
 
 export const TweetCreatorWrapper = styled.div`
     width: 100%;
@@ -99,37 +64,7 @@ export const Avatar = styled.img`
     object-fit: cover;
     border-radius: 50%;
 `;
-export const Tweet = styled(motion.div)`
-    width: 100%;
-    border-bottom: 1px solid #c7c7c745;
-    padding: 15px;
 
-    display: flex;
-    justify-content: space-between;
-`;
-
-export const TweetHeader = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
-export const TweetContent = styled.div`
-    width: calc(100% - 60px);
-    display: flex;
-    word-break: break-all;
-    flex-direction: column;
-`;
-
-export const User = styled.div`
-    font-size: 17px;
-    font-weight: bold;
-`;
-
-export const Date = styled.div`
-    font-size: 14px;
-    color: gray;
-    margin-left: 10px;
-`;
 export const Image = styled.img`
     width: 100%;
     height: 100%;
@@ -142,65 +77,6 @@ export const ImageWrapper = styled.div`
     justify-content: flex-end;
 `;
 
-export const IconsWrapper = styled.div`
-    width: 50%;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-`;
-
-export const IconWrapper = styled.div`
-    color: #585858;
-    display: flex;
-    width: 15%;
-    cursor: pointer;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-export const ReplyBackground = styled.div`
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    width: 100vw;
-    height: 100vh;
-    background-color: #7b808849;
-`;
-
-export const ReplyWrapper = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    top: 100px;
-    z-index: 99999999999999999;
-    left: 0;
-    color: white;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-`;
-
-export const Reply = styled.div`
-    background-color: black;
-    border-radius: 15px;
-    width: 600px;
-    position: relative;
-    z-index: 9999999999;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    max-width: 90vw;
-`;
-
-export const LinkWrapper = styled(Link)`
-    text-decoration: none;
-    color: #3c79e9;
-    &:hover {
-        text-decoration: underline;
-    }
-`;
 export const DeleteImageButton = styled(IoMdClose)`
     position: absolute;
     margin-top: 10px;
@@ -216,12 +92,6 @@ export const DeleteImageButton = styled(IoMdClose)`
     &:hover {
         background-color: gray;
     }
-`;
-
-export const ReplyClose = styled(IoMdClose)`
-    margin-bottom: 15px;
-    color: white;
-    cursor: pointer;
 `;
 
 export const AddImageIcon = styled(BiSolidImageAdd)`
@@ -240,8 +110,6 @@ export const EmojiListIcon = styled(FaRegSmile)`
 export const ChoiceName = styled.div`
     display: flex;
     align-items: center;
-    position: relative;
-    z-index: 1;
 `;
 export const ChooseWrapper = styled.div`
     background-color: black;
@@ -253,8 +121,7 @@ export const ChooseWrapper = styled.div`
     cursor: pointer;
     flex-direction: column;
     align-items: flex-start;
-
-    z-index: 9999999;
+    z-index: 999999999;
     line-height: 20px;
     color: #1b60a0;
     position: relative;
@@ -275,7 +142,7 @@ export const ChooseModal = styled.div`
     box-shadow: 0px 0px 5px 3px #7c7b7b7b;
     border-radius: 10px;
     width: 300px;
-    z-index: 999999999;
+    z-index: 999999999999;
     margin-top: 30px;
     padding: 10px;
 `;
@@ -289,12 +156,21 @@ export const TitleModal = styled.div`
     }
 `;
 
-export const ChoiceWrapper = styled.div`
+export const AudienceWrapper = styled.div`
     display: flex;
-    position: relative;
-    z-index: 999;
     color: white;
+    justify-content: space-between;
+    margin: 5px 0;
     align-items: center;
+`;
+
+export const AudienceItem = styled.div`
+    display: flex;
+    align-items: center;
+`;
+export const CheckIcon = styled(AiOutlineCheck)`
+    width: 15px;
+    color: #2266e4;
 `;
 
 export const WorldIconWrapper = styled.div`

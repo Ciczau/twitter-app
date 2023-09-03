@@ -7,6 +7,7 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
 import Header from './Header';
+import instance from 'api/instance';
 
 export const font = Mukta({
     weight: '400',
@@ -18,6 +19,7 @@ const Wrapper = styled.div`
     height: 100vh;
     display: flex;
     position: absolute;
+
     justify-content: center;
     background-color: black;
 `;
@@ -46,7 +48,7 @@ export interface User {
     nick: string;
     bio: string;
     name: string;
-    avatarId: string;
+    avatar: string;
     tweets: number;
     followers: number;
     following: number;
@@ -54,9 +56,8 @@ export interface User {
 
 export default function BodyContent({
     auth,
-    nickName,
+    nickName = (data: User) => {},
     children,
-    backgroundClick = () => {},
 }) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
@@ -64,7 +65,7 @@ export default function BodyContent({
         nick: '',
         name: '',
         bio: '',
-        avatarId: '',
+        avatar: '',
         tweets: 0,
         followers: 0,
         following: 0,
@@ -73,16 +74,18 @@ export default function BodyContent({
 
     const refreshToken = async () => {
         const token = cookie.refreshToken;
-        const res = await axios.post('http://localhost:5000/token', {
-            refreshToken: token,
-        });
-
-        if (res.status === 200) {
-            let decoded: User = jwtDecode(res.data.accessToken);
-            console.log(decoded);
-            setUser(decoded);
-            nickName(decoded);
-        } else {
+        try {
+            const res = await instance({
+                url: '/token',
+                method: 'POST',
+                data: { refreshToken: token },
+            });
+            if (res.status === 200) {
+                let decoded: User = jwtDecode(res.data.accessToken);
+                setUser(decoded);
+                nickName(decoded);
+            }
+        } catch (err) {
             deleteCookie('refreshToken');
         }
     };
@@ -108,7 +111,7 @@ export default function BodyContent({
             {isLogged ? (
                 <>
                     {!auth && (
-                        <Wrapper onClick={() => backgroundClick()}>
+                        <Wrapper>
                             <Header user={user} />
                             <MainWrapper>{children}</MainWrapper>
                         </Wrapper>

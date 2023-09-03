@@ -8,7 +8,7 @@ import instance from 'api/instance';
 
 const Home = ({ type = 'tweets' }) => {
     const router = useRouter();
-    const { profile, previous } = router.query;
+    const { profile } = router.query;
 
     const [user, setUser] = useState<User>();
     const [userProfile, setUserProfile] = useState<User>();
@@ -24,19 +24,7 @@ const Home = ({ type = 'tweets' }) => {
                 data: { nick: profile },
             });
             if (res.status === 200) {
-                const nick = profile;
-                if (typeof nick === 'string') {
-                    const userData: User = {
-                        nick: nick,
-                        name: res.data.name,
-                        bio: res.data.bio,
-                        avatarId: res.data.avatar,
-                        followers: res.data.followers,
-                        following: res.data.following,
-                        tweets: res.data.tweets,
-                    };
-                    setUserProfile(userData);
-                }
+                setUserProfile(res.data.user);
             }
         } catch (err) {
             console.error(err);
@@ -53,8 +41,8 @@ const Home = ({ type = 'tweets' }) => {
                     user={user}
                     profile={userProfile}
                     type={type}
-                    child={null}
                     profileQuery={profile}
+                    children={null}
                 />
             )}
         </BodyContent>

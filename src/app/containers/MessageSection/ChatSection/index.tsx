@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import * as S from './index.styles';
+import { useCookies } from 'react-cookie';
+import { useRouter } from 'next/router';
+
 import { User } from 'components/BodyContent';
 import {
     ModalBackground,
@@ -7,8 +9,9 @@ import {
     UserAvatar,
     UserNick,
 } from '../index.styles';
-import { useRouter } from 'next/router';
 import instance from 'api/instance';
+
+import * as S from './index.styles';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
     const wss = new WebSocket('ws://localhost:5000');
@@ -29,10 +32,11 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [file, setFile] = useState<File>();
     const [image, setImage] = useState<string>();
     const [modal, setModal] = useState<{ visible: boolean; image: string }>();
+    const [cookie] = useCookies(['refreshToken']);
 
     wss.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        console.log(chat);
+
         if (data.message?.id === chatQuery || data.image?.id === chatQuery) {
             const chat: Array<{
                 sender: string;
@@ -49,7 +53,6 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                 chat.unshift(data.message);
             }
 
-            console.log(chatContent);
             setChatContent(chat);
         }
     };
@@ -66,7 +69,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     };
     const handleModal = (visible: boolean, image: string) => {
         const pathParts = image.split('/');
-        console.log(pathParts);
+
         setModal({ visible: visible, image: image });
         router.replace(
             { pathname: router.pathname, query: { chat: chatQuery } },
@@ -87,7 +90,8 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                 formData.append('receiver', selectedChat.user.nick);
                 formData.append('message', message);
                 formData.append('id', selectedChat.id);
-                console.log(selectedChat.id);
+                formData.append('refreshToken', cookie.refreshToken);
+
                 if (file && image) {
                     formData.append('file', file);
                 }
@@ -100,7 +104,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                console.log(res);
+
                 if (res.status === 200) {
                     wss.send(
                         JSON.stringify({
@@ -124,6 +128,60 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
             } catch (err) {}
         }
     };
+    const renderChatContent = () => {
+        return (
+            <>
+                {chatContent.map((message, index) => {
+                    if (message.sender === user.nick) {
+                        if (message.image !== '') {
+                            return (
+                                <S.SenderMessageWrapper key={index}>
+                                    <S.Image
+                                        src={message.image}
+                                        onClick={() =>
+                                            handleModal(true, message.image)
+                                        }
+                                    />
+                                </S.SenderMessageWrapper>
+                            );
+                        } else {
+                            return (
+                                <S.SenderMessageWrapper key={index}>
+                                    <S.SenderMessage>
+                                        {message.message}
+                                    </S.SenderMessage>
+                                </S.SenderMessageWrapper>
+                            );
+                        }
+                    } else {
+                        if (message.image !== '') {
+                            return (
+                                <S.ReceiverMessageWrapper key={index}>
+                                    <S.Image
+                                        src={message.image}
+                                        onClick={() =>
+                                            setModal({
+                                                visible: true,
+                                                image: message.image,
+                                            })
+                                        }
+                                    />
+                                </S.ReceiverMessageWrapper>
+                            );
+                        } else {
+                            return (
+                                <S.ReceiverMessageWrapper key={index}>
+                                    <S.ReceiverMessage>
+                                        {message.message}
+                                    </S.ReceiverMessage>
+                                </S.ReceiverMessageWrapper>
+                            );
+                        }
+                    }
+                })}
+            </>
+        );
+    };
 
     const getChat = async () => {
         try {
@@ -141,7 +199,11 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     useEffect(() => {
         getChat();
     }, [selectedChat]);
-
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    };
     return (
         <>
             {modal?.visible && (
@@ -152,114 +214,75 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                 </ModalWrapper>
             )}
             <S.Wrapper>
-                <S.HeaderWrapper>
-                    {width < 1100 && (
-                        <S.Header>
-                            <S.LeftArrowIcon
-                                size="100%"
-                                onClick={() => router.push('/messages')}
-                            />
-                        </S.Header>
-                    )}
-                    <S.UserWrapper>
-                        <UserAvatar
-                            src={`https://res.cloudinary.com/df4tupotg/image/upload/${selectedChat?.user.avatarId}`}
-                        />
-                        <div>{selectedChat?.user.name}</div>
-                        <UserNick>@{selectedChat?.user.nick} </UserNick>
-                    </S.UserWrapper>
-                </S.HeaderWrapper>
-                <S.ChatWindowWrapper>
-                    {chatContent.map((message, index) => {
-                        if (message.sender === user.nick) {
-                            if (message.image !== '') {
-                                return (
-                                    <S.SenderMessageWrapper>
-                                        <S.Image
-                                            src={message.image}
-                                            onClick={() =>
-                                                handleModal(true, message.image)
-                                            }
-                                        />
-                                    </S.SenderMessageWrapper>
-                                );
-                            } else {
-                                return (
-                                    <S.SenderMessageWrapper>
-                                        <S.SenderMessage>
-                                            {message.message}
-                                        </S.SenderMessage>
-                                    </S.SenderMessageWrapper>
-                                );
-                            }
-                        } else {
-                            if (message.image !== '') {
-                                return (
-                                    <S.ReceiverMessageWrapper>
-                                        <S.Image
-                                            src={message.image}
-                                            onClick={() =>
-                                                setModal({
-                                                    visible: true,
-                                                    image: message.image,
-                                                })
-                                            }
-                                        />
-                                    </S.ReceiverMessageWrapper>
-                                );
-                            } else {
-                                return (
-                                    <S.ReceiverMessageWrapper>
-                                        <S.ReceiverMessage>
-                                            {message.message}
-                                        </S.ReceiverMessage>
-                                    </S.ReceiverMessageWrapper>
-                                );
-                            }
-                        }
-                    })}
-                </S.ChatWindowWrapper>
-                <S.InputContainer>
-                    <S.InputWrapper>
-                        <div>
-                            {!image && (
-                                <>
-                                    <input
-                                        type="file"
-                                        hidden
-                                        id="imageInput"
-                                        accept="image/*"
-                                        onChange={handleImage}
+                {selectedChat && (
+                    <>
+                        <S.HeaderWrapper>
+                            {width < 1100 && (
+                                <S.Header>
+                                    <S.LeftArrowIcon
+                                        size="100%"
+                                        onClick={() => router.push('/messages')}
                                     />
-                                    <label htmlFor="imageInput">
-                                        <S.AddImageIcon size="100%" />
-                                    </label>
-
-                                    <S.EmojiListIcon size="100%" />
-                                </>
+                                </S.Header>
                             )}
-                            <S.InputImageWrapper>
-                                {image && (
-                                    <S.ImageContainer>
-                                        <S.ImageWrapper>
-                                            <S.Image src={image} />
-                                            <S.DeleteImageButton
-                                                onClick={() => setImage('')}
+                            <S.UserWrapper>
+                                <UserAvatar src={selectedChat?.user.avatar} />
+                                <div>{selectedChat?.user.name}</div>
+                                <UserNick>@{selectedChat?.user.nick} </UserNick>
+                            </S.UserWrapper>
+                        </S.HeaderWrapper>
+                        <S.ChatWindowWrapper>
+                            {renderChatContent()}
+                        </S.ChatWindowWrapper>
+                        <S.InputContainer>
+                            <S.InputWrapper>
+                                <div>
+                                    {!image && (
+                                        <>
+                                            <input
+                                                type="file"
+                                                hidden
+                                                id="imageInput"
+                                                accept="image/*"
+                                                onChange={handleImage}
                                             />
-                                        </S.ImageWrapper>
-                                    </S.ImageContainer>
-                                )}
-                                <S.Input
-                                    type="text"
-                                    placeholder="Start a new message"
-                                    onChange={handleChange}
-                                    value={message}
+                                            <label htmlFor="imageInput">
+                                                <S.AddImageIcon size="100%" />
+                                            </label>
+
+                                            {/*  <S.EmojiListIcon size="100%" />*/}
+                                        </>
+                                    )}
+                                    <S.InputImageWrapper>
+                                        {image && (
+                                            <S.ImageContainer>
+                                                <S.ImageWrapper>
+                                                    <S.Image src={image} />
+                                                    <S.DeleteImageButton
+                                                        onClick={() =>
+                                                            setImage('')
+                                                        }
+                                                    />
+                                                </S.ImageWrapper>
+                                            </S.ImageContainer>
+                                        )}
+                                        <S.Input
+                                            type="text"
+                                            placeholder="Start a new message"
+                                            onChange={handleChange}
+                                            onKeyPress={handleKeyPress}
+                                            value={message}
+                                        />
+                                    </S.InputImageWrapper>
+                                </div>
+                                <S.SendButton
+                                    size="100%"
+                                    onClick={sendMessage}
                                 />
-                            </S.InputImageWrapper>
-                        </div>
-                        <S.SendButton size="100%" onClick={sendMessage} />
-                    </S.InputWrapper>
-                </S.InputContainer>
+                            </S.InputWrapper>
+                        </S.InputContainer>
+                    </>
+                )}
             </S.Wrapper>
         </>
     );

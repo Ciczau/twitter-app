@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
-import * as S from './index.styles';
-import instance from 'api/instance';
 import { TbCameraPlus } from 'react-icons/tb';
 import { useRouter } from 'next/router';
+
+import instance from 'api/instance';
 import { Community } from './SearchSection';
 import Tweets from 'components/Tweets';
+
+import * as S from './index.styles';
 
 const CommunitiesSection = ({ user }) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [communityName, setCommunityName] = useState<string>('');
-    const [file, setFile] = useState<File>();
     const [communityBackground, setCommunityBackground] = useState<string>('');
-    const [userCommunities, setUserCommunities] = useState<Community[]>();
+    const [file, setFile] = useState<File>();
+    const [userCommunities, setUserCommunities] = useState<Community[]>([]);
 
     const router = useRouter();
 
@@ -20,7 +22,7 @@ const CommunitiesSection = ({ user }) => {
         try {
             const formData = new FormData();
             formData.append('name', communityName);
-            formData.append('nick', user.nick);
+            formData.append('nick', user?.nick);
             if (file) {
                 formData.append('file', file);
             }
@@ -30,6 +32,7 @@ const CommunitiesSection = ({ user }) => {
                 method: 'POST',
                 data: formData,
             });
+            setUserCommunities([...userCommunities, res.data.newCommunity]);
         } catch (err) {}
     };
     const handleImage = (e) => {
@@ -52,9 +55,7 @@ const CommunitiesSection = ({ user }) => {
             setUserCommunities(res.data.result);
         } catch (err) {}
     };
-    useEffect(() => {
-        getUserCommunities();
-    }, [user]);
+
     const renderCommunities = () => {
         return (
             <S.CommunitiesWrapper>
@@ -65,6 +66,7 @@ const CommunitiesSection = ({ user }) => {
                             onClick={() =>
                                 router.push(`/i/communities/${community._id}`)
                             }
+                            key={index}
                         >
                             <S.CommunityName>{community.name}</S.CommunityName>
                         </S.Community>
@@ -73,6 +75,9 @@ const CommunitiesSection = ({ user }) => {
             </S.CommunitiesWrapper>
         );
     };
+    useEffect(() => {
+        getUserCommunities();
+    }, [user]);
     return (
         <>
             {modalVisible && (
@@ -128,7 +133,10 @@ const CommunitiesSection = ({ user }) => {
             <S.Wrapper>
                 <S.Header>
                     <S.TitleWrapper>
-                        <S.LeftArrowIcon size="100%" />
+                        <S.LeftArrowIcon
+                            size="100%"
+                            onClick={() => router.back()}
+                        />
                         <S.Title>Communities</S.Title>
                     </S.TitleWrapper>
                     <S.CommunityIconsWrapper>
@@ -146,9 +154,7 @@ const CommunitiesSection = ({ user }) => {
                 <Tweets
                     nick={user?.nick}
                     avatar={user?.avatarId}
-                    profile={null}
                     type="communities"
-                    tweet={null}
                     photoMode={false}
                     user={user}
                 />

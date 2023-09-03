@@ -20,19 +20,7 @@ const Home = () => {
                 data: { nick: router.query.profile },
             });
             if (res.status === 200) {
-                const nick = profile;
-                if (typeof nick === 'string') {
-                    const userData: User = {
-                        nick: nick,
-                        name: res.data.name,
-                        bio: res.data.bio,
-                        avatarId: res.data.avatar,
-                        followers: res.data.followers,
-                        following: res.data.following,
-                        tweets: res.data.tweets,
-                    };
-                    setUserProfile(userData);
-                }
+                setUserProfile(res.data.user);
             }
         } catch (err) {
             console.error(err);

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
 import { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 
@@ -41,7 +40,6 @@ const LoginRegisterForm = ({ type }) => {
     };
 
     const handleRegistration = async () => {
-        console.log(email);
         setValidEmail(true);
         setValidPassword(true);
         try {
@@ -55,7 +53,6 @@ const LoginRegisterForm = ({ type }) => {
                     repeatPassword: passwordCheck,
                 },
             });
-            console.log(res.status);
             if (res.status === 200) {
                 const expire = new Date();
                 expire.setTime(expire.getTime() + 60 * 60 * 24 * 1000);
@@ -103,10 +100,7 @@ const LoginRegisterForm = ({ type }) => {
     return (
         <S.Wrapper initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
             <S.FormWindow>
-                <AiOutlineClose
-                    color="white"
-                    onClick={() => router.push('/x')}
-                />
+                <S.CloseIcon onClick={() => router.push('/x')} />
                 <S.FormWrapper>
                     <p>{HeadText}</p>
                     {type === 'register' && (

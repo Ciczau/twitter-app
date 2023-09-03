@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { IoMdClose } from 'react-icons/io';
 import { TbCameraPlus } from 'react-icons/tb';
+import { useCookies } from 'react-cookie';
 
 import instance from 'api/instance';
 
@@ -13,13 +13,14 @@ const Settings = ({ nick, name, bio, avatar }) => {
     const [userBio, setUserBio] = useState<string>('');
     const [userAvatar, setUserAvatar] = useState<string>('');
     const [userAvatarFile, setUserAvatarFile] = useState();
+    const [cookie] = useCookies(['refreshToken']);
+
     const router = useRouter();
 
     const handleImage = async (e) => {
         setUserAvatarFile(e.target.files[0]);
         setUserAvatar(URL.createObjectURL(e.target.files[0]));
     };
-
     const handleSave = async () => {
         const formData = new FormData();
         if (userAvatarFile) {
@@ -28,6 +29,7 @@ const Settings = ({ nick, name, bio, avatar }) => {
         formData.append('name', userName);
         formData.append('nick', nick);
         formData.append('bio', userBio);
+        formData.append('refreshToken', cookie.refreshToken);
 
         await instance({
             url: '/user/edit',
@@ -50,11 +52,7 @@ const Settings = ({ nick, name, bio, avatar }) => {
             <S.Background onClick={() => router.push(`/${nick}`)} />
             <S.SettingsWrapper>
                 <S.Header>
-                    <IoMdClose
-                        color="white"
-                        size="4%"
-                        onClick={() => router.back()}
-                    />
+                    <S.CloseIcon onClick={() => router.back()} />
                     <div>Edit profile</div>
                     <S.Button onClick={handleSave}>Save</S.Button>
                 </S.Header>

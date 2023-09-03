@@ -7,7 +7,13 @@ import instance from 'api/instance';
 
 import * as S from './index.styles';
 
-const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
+export default function ProfileSection({
+    user,
+    profile,
+    type,
+    profileQuery = '',
+    children,
+}) {
     const router = useRouter();
     const pathname = router.pathname;
     const [activeTab, setActiveTab] = useState<'tweets' | 'replies' | 'likes'>(
@@ -49,21 +55,18 @@ const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
             if (res.status === 200) {
                 setFollowing(!isFollowing);
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
 
     useEffect(() => {
         setUserData(profile);
         setClientData(user);
         checkIfFollowing();
-        console.log(profileQuery);
     }, [profile, user, userData, clientData, profileQuery]);
 
     return (
         <>
-            {child}
+            {children}
             <S.Wrapper>
                 {userData ? (
                     <>
@@ -86,7 +89,7 @@ const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
                         </S.Header>
                         <S.ProfileHeader />
                         <S.AvatarBar>
-                            <S.Avatar src={userData?.avatarId} />
+                            <S.Avatar src={userData?.avatar} />
                             {userData?.nick !== '' && (
                                 <>
                                     {userData?.nick === clientData?.nick ? (
@@ -165,7 +168,7 @@ const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
                         <Tweets
                             nick={clientData?.nick}
                             profile={userData?.nick}
-                            avatar={userData?.avatarId}
+                            avatar={userData?.avatar}
                             type={type}
                             tweet={null}
                             photoMode={false}
@@ -185,6 +188,4 @@ const ProfileSection = ({ user, profile, type, child, profileQuery = '' }) => {
             </S.Wrapper>
         </>
     );
-};
-
-export default ProfileSection;
+}

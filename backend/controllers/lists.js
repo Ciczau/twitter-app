@@ -1,8 +1,5 @@
-import { db } from '../database/mongo.js';
-import { tweets } from './tweets.js';
 import { generateRandomCode } from './users.js';
-
-const lists = db.collection('lists');
+import { lists, tweets } from '../database/collections.js';
 
 export const createList = async (req, res) => {
     const { creator, name, desc } = req.body;
@@ -44,7 +41,6 @@ export const getUserList = async (req, res) => {
         })
         .sort({ _id: -1 })
         .toArray();
-    console.log(result);
     return res.status(200).send({ result });
 };
 
@@ -61,7 +57,9 @@ export const getListTweets = async (req, res) => {
     let result = [];
     const userArray = list.members;
     for (let i = 0; i < userArray.length; i++) {
-        const tweetList = await tweets.find({ nick: userArray[i] }).toArray();
+        const tweetList = await tweets
+            .find({ nick: userArray[i], audience: '' })
+            .toArray();
         for (let j = 0; j < tweetList.length; j++) {
             result.push(tweetList[j]);
         }
@@ -70,7 +68,6 @@ export const getListTweets = async (req, res) => {
     result.sort((a, b) => {
         return new Date(a.date) - new Date(b.date);
     });
-    console.log(result);
     return res.status(200).send({ result });
 };
 export const followList = async (req, res) => {
@@ -86,7 +83,6 @@ export const followList = async (req, res) => {
 
 export const GetListsByKey = async (req, res) => {
     const { key } = req.body;
-    console.log(key);
     if (!key) return res.status(200).send({ result: [] });
     const result = await lists
         .find({

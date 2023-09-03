@@ -7,6 +7,7 @@ import * as S from './index.styles';
 import PostSection from 'containers/PostSection';
 import { User } from 'components/BodyContent';
 import Tweets from 'components/Tweets';
+import { formatDate, formatTimeDifference } from 'components/TimeFormatter';
 
 export interface TweetType {
     date: string;
@@ -32,7 +33,6 @@ interface Props extends TweetType {
     onTweetRepost?: () => void;
     parentTweet: TweetType | null;
     isLiked: boolean;
-
     isReposted?: boolean;
     bookmark: boolean;
     isReply: boolean;
@@ -42,63 +42,6 @@ interface Props extends TweetType {
     postQuery?: string;
     profileQuery?: string;
     closeModal?: (id: string) => void;
-}
-
-function formatTimeDifference(date: Date): string {
-    const now: Date = new Date();
-    const timeDifference: number = now.getTime() - date.getTime();
-
-    if (timeDifference < 60000) {
-        return Math.floor(timeDifference / 1000) + 's';
-    } else if (timeDifference < 3600000) {
-        return Math.floor(timeDifference / 60000) + 'm';
-    } else if (timeDifference < 86400000) {
-        return Math.floor(timeDifference / 3600000) + 'h';
-    } else if (now.getFullYear() !== date.getFullYear()) {
-        const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-        return dateFormatter.format(date) + ' ' + date.getFullYear();
-    } else {
-        const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
-            month: 'long',
-            day: 'numeric',
-        });
-        return dateFormatter.format(date);
-    }
-}
-
-function formatDate(date) {
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-
-    const monthNames = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-    ];
-    const month = monthNames[date.getUTCMonth()];
-    const day = date.getUTCDate();
-    const year = date.getUTCFullYear();
-
-    const formattedTime = `${hours % 12 === 0 ? 12 : hours % 12}:${
-        minutes < 10 ? '0' : ''
-    }${minutes} ${ampm}`;
-    const formattedDate = `${month} ${day}, ${year}`;
-
-    return `${formattedTime} · ${formattedDate}`;
 }
 
 const Tweet = ({
@@ -132,13 +75,20 @@ const Tweet = ({
     profileQuery = '',
     closeModal = () => {},
 }: Props) => {
-    const [avatar, setAvatar] = useState<string>('');
-    const [name, setName] = useState<string>('');
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [userProfile, setUserProfile] = useState<User>();
+    const [tweetAuthor, setTweetAuthor] = useState<User>();
     const [tweet, setTweet] = useState<TweetType>();
     const dateObject = new Date(date);
+
+    const formattedDate = date
+        ? !post || (post && isReply)
+            ? formatTimeDifference(dateObject)
+            : formatDate(dateObject)
+        : 0;
+
     const router = useRouter();
+
     const getUser = async () => {
         try {
             const res = await instance({
@@ -146,18 +96,9 @@ const Tweet = ({
                 method: 'POST',
                 data: { nick: nick },
             });
-            setAvatar(res.data.avatar);
-            setName(res.data.name);
+            setTweetAuthor(res.data.user);
         } catch (err) {}
     };
-    useEffect(() => {
-        getUser();
-    }, [nick]);
-    const formattedDate = date
-        ? !post || (post && isReply)
-            ? formatTimeDifference(dateObject)
-            : formatDate(dateObject)
-        : 0;
 
     const handleModal = (type: string) => {
         closeModal(_id);
@@ -178,10 +119,6 @@ const Tweet = ({
         setModalVisible(type === 'open' ? true : false);
     };
 
-    const closePreviousModal = (id: string) => {
-        console.log(id + 'cipka');
-        getPost(id);
-    };
     const getPost = async (id: string) => {
         try {
             const res = await instance({
@@ -189,11 +126,8 @@ const Tweet = ({
                 method: 'POST',
                 data: { tweetId: id },
             });
-
             setTweet(res.data.result);
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
     const getUserByProfile = async () => {
         try {
@@ -203,23 +137,9 @@ const Tweet = ({
                 data: { nick: tweet?.nick },
             });
             if (res.status === 200) {
-                const nick = tweet?.nick;
-                if (typeof nick === 'string') {
-                    const userData: User = {
-                        nick: nick,
-                        name: res.data.name,
-                        bio: res.data.bio,
-                        avatarId: res.data.avatar,
-                        followers: res.data.followers,
-                        following: res.data.following,
-                        tweets: res.data.tweets,
-                    };
-                    setUserProfile(userData);
-                }
+                setUserProfile(res.data.user);
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
     useEffect(() => {
         getPost(_id);
@@ -227,38 +147,46 @@ const Tweet = ({
     useEffect(() => {
         getUserByProfile();
     }, [tweet]);
-    return (
-        <>
-            {modalVisible && (
-                <PostSection
-                    type="photo"
-                    user={user}
-                    photo={tweet?.imageId}
-                    child={
+    useEffect(() => {
+        getUser();
+    }, [nick]);
+
+    const renderPhotoView = () => {
+        return (
+            <>
+                {modalVisible && (
+                    <PostSection
+                        type="photo"
+                        user={user}
+                        photo={tweet?.imageId}
+                        handleModal={() => handleModal('close')}
+                    >
                         <Tweets
                             nick={user?.nick}
                             profile={userProfile?.nick}
                             type="post-replies"
-                            avatar={userProfile?.avatarId}
+                            avatar={userProfile?.avatar}
                             tweet={tweet}
                             photoMode={true}
                             user={user}
                             postQuery={postQuery}
                             profileQuery={profileQuery}
-                            closeModal={(id) => closePreviousModal(id)}
                         />
-                    }
-                    handleModal={() => handleModal('close')}
-                />
-            )}
-
+                    </PostSection>
+                )}
+            </>
+        );
+    };
+    return (
+        <>
+            {renderPhotoView()}
             <S.Tweet isReply={isReply}>
                 <S.AvatarWrapper>
                     {repost && <S.RepostIcon size="100%" />}
                     {audienceName !== 'Everyone' && (
                         <S.AudienceIcon size="100%" />
                     )}
-                    <S.Avatar src={avatar} />
+                    <S.Avatar src={tweetAuthor?.avatar} />
                     {isReply && <S.VerticalLine />}
                 </S.AvatarWrapper>
                 <S.TweetContent>
@@ -274,7 +202,7 @@ const Tweet = ({
                     )}
                     {audienceName !== 'Everyone' && <div>{audienceName}</div>}
                     <S.TweetHeader post={post && !isReply ? true : false}>
-                        <S.User>{name} </S.User>
+                        <S.User>{tweetAuthor?.name} </S.User>
                         <S.UserDate post={post && !isReply ? true : false}>
                             <div onClick={() => router.push(`/${nick}`)}>
                                 @{nick}
@@ -289,7 +217,6 @@ const Tweet = ({
                                             )
                                         }
                                     >
-                                        {' '}
                                         {formattedDate}
                                     </div>
                                 </>
@@ -427,7 +354,6 @@ const Tweet = ({
                                         </S.IconWrapper>
                                     ) : (
                                         <S.IconWrapper type="bookmark">
-                                            {' '}
                                             <S.BookmarkIcon
                                                 size="100%"
                                                 onClick={onBookmarkChange}

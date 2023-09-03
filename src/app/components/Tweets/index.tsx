@@ -4,153 +4,34 @@ import Tweet, { TweetType } from 'components/Tweet';
 import instance from 'api/instance';
 
 import * as S from './index.styles';
-import { Community } from 'containers/CommunitiesSection/SearchSection';
+import TweetCreator from 'components/TweetCreator';
+import { User } from 'components/BodyContent';
+import { useCookies } from 'react-cookie';
 
-const TweetCreate = ({
-    text,
-    handleChange,
-    createTweet,
-    placeholder,
-    avatar,
-    nick,
-    handleFile,
-    reply,
-    type = '',
-}) => {
-    const [image, setImage] = useState<string>('');
-    const [communities, setCommunities] = useState<Community[]>([]);
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [audienceChoice, setAudienceChoice] = useState<{
-        name: string;
-        id: string;
-    }>({ name: 'Everyone', id: '' });
-    const handleImage = (e) => {
-        setImage(URL.createObjectURL(e.target.files[0]));
-    };
-    const getUserCommunities = async () => {
-        try {
-            const res = await instance({
-                url: '/communities/user/get',
-                method: 'POST',
-                data: { nick: nick },
-            });
-            setCommunities(res.data.result);
-        } catch (err) {}
-    };
-    const handleChoice = (name: string, id: string) => {
-        setAudienceChoice({ name: name, id: id });
-        setModalVisible(false);
-    };
-    useEffect(() => {
-        getUserCommunities();
-    }, [nick]);
-    return (
-        <S.TweetCreatorWrapper reply={reply}>
-            <S.Avatar src={avatar} />
-            <S.TweetCreator>
-                {type === 'home' && (
-                    <S.ChooseWrapper>
-                        <S.ChoiceName onClick={() => setModalVisible(true)}>
-                            {audienceChoice.name}
-                            <S.ModalOpenIcon size="100%" />
-                        </S.ChoiceName>
-                        {modalVisible && (
-                            <>
-                                <S.ModalBackground
-                                    onClick={() => setModalVisible(false)}
-                                />
-                                <S.ChooseModal>
-                                    <S.TitleModal>Choose audience</S.TitleModal>
-                                    <S.ChoiceWrapper
-                                        onClick={() =>
-                                            handleChoice('everyone', '')
-                                        }
-                                    >
-                                        {' '}
-                                        <S.WorldIconWrapper>
-                                            <S.WorldIcon size="100%" />
-                                        </S.WorldIconWrapper>
-                                        <div>Everyone</div>
-                                    </S.ChoiceWrapper>
-                                    <S.TitleModal>
-                                        <div>My communities</div>
-                                    </S.TitleModal>
-                                    {communities.map((community, index) => {
-                                        return (
-                                            <S.ChoiceWrapper
-                                                onClick={() =>
-                                                    handleChoice(
-                                                        community.name,
-                                                        community._id
-                                                    )
-                                                }
-                                            >
-                                                <S.CommunityAvatar
-                                                    src={community.avatar}
-                                                />
-                                                <div>{community.name}</div>
-                                            </S.ChoiceWrapper>
-                                        );
-                                    })}
-                                </S.ChooseModal>
-                            </>
-                        )}
-                    </S.ChooseWrapper>
-                )}
-                <S.Input
-                    minRows={1}
-                    maxRows={5}
-                    maxLength={255}
-                    placeholder={placeholder}
-                    onChange={handleChange}
-                    value={text}
-                />
-                {image !== '' && (
-                    <S.ImageWrapper>
-                        <S.Image src={image} />
-                        <S.DeleteImageButton
-                            size="100%"
-                            onClick={() => setImage('')}
-                        />
-                    </S.ImageWrapper>
-                )}
-                <S.SubmitBar>
-                    <div>
-                        <input
-                            type="file"
-                            hidden
-                            id="imageInput"
-                            accept="image/*"
-                            onChange={(e) => {
-                                handleFile(e);
-                                handleImage(e);
-                            }}
-                        />
-                        <label htmlFor="imageInput">
-                            <S.AddImageIcon size="100%" />
-                        </label>
-                        <S.EmojiListIcon size="100%" />
-                    </div>
-                    <S.SendButton
-                        onClick={async () => {
-                            createTweet(audienceChoice.id, audienceChoice.name);
-                            setImage('');
-                        }}
-                    >
-                        Tweet
-                    </S.SendButton>
-                </S.SubmitBar>
-            </S.TweetCreator>
-        </S.TweetCreatorWrapper>
-    );
+type TweetsType = {
+    nick: string | undefined;
+    profile?: string | null;
+    type: string;
+    avatar: string | undefined;
+    tweet?: TweetType | null;
+    photoMode: boolean;
+    user: User;
+    community?: string;
+    postQuery?: string;
+    profileQuery?: string;
+    listQuery?: string;
+    searchKey?: string;
+    activeTab?: string;
+    closeModal?: (id: string) => void;
+    isEmpty?: (data: boolean) => void;
 };
 
-const Tweets = ({
+const Tweets: React.FC<TweetsType> = ({
     nick,
     profile,
     type,
     avatar,
-    tweet,
+    tweet = null,
     photoMode,
     user,
     community = '',
@@ -163,7 +44,6 @@ const Tweets = ({
     isEmpty = (data: boolean) => {},
 }) => {
     const [post, setPost] = useState<TweetType>();
-
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
     const [postParent, setPostParent] = useState<TweetType | null>(null);
@@ -172,19 +52,9 @@ const Tweets = ({
     const [bookmarks, setBookmarks] = useState<Array<string>>([]);
     const [file, setFile] = useState<string>('');
     const [replyMode, setReplyMode] = useState<boolean>(false);
-    const [replyTarget, setReplyTarget] = useState<TweetType>({
-        date: '',
-        nick: '',
-        text: '',
-        imageId: '',
-        _id: '',
-        likes: 0,
-        parentId: '',
-        views: 0,
-        reposts: 0,
-        retweets: 0,
-        bookmarks: 0,
-    });
+    const [replyTarget, setReplyTarget] = useState<TweetType>();
+    const [cookie] = useCookies(['refreshToken']);
+
     const handleChange = (e) => {
         setText(e.target.value);
     };
@@ -197,17 +67,22 @@ const Tweets = ({
         setText('');
         setFile('');
         try {
-            let parentId: string = replyTarget?._id;
+            let parentId = replyTarget?._id;
             if (replyMode === false && post) {
                 parentId = post._id;
             }
             const formData = new FormData();
-            formData.append('nick', nick);
+            if (nick) {
+                formData.append('nick', nick);
+            }
             formData.append('text', text);
-            formData.append('parentId', parentId);
+            if (parentId) {
+                formData.append('parentId', parentId);
+            }
             formData.append('file', file);
             formData.append('audienceName', name);
             formData.append('audience', id);
+            formData.append('refreshToken', cookie.refreshToken);
 
             const res = await instance({
                 url: '/tweet/create',
@@ -220,7 +95,7 @@ const Tweets = ({
             handleReplyMode(false);
 
             if (res.status === 200) {
-                if (type !== 'notificationTweet') {
+                if (type !== 'notificationTweet' && id === '') {
                     setTweets((prevTweets) => [
                         res.data.newTweet,
                         ...prevTweets,
@@ -232,7 +107,7 @@ const Tweets = ({
                 } else {
                     setTweets((prevTweets) =>
                         prevTweets.map((tweet) => {
-                            if (tweet._id === replyTarget._id) {
+                            if (tweet._id === replyTarget?._id) {
                                 return {
                                     ...tweet,
                                     retweets: tweet.retweets + 1,
@@ -243,9 +118,7 @@ const Tweets = ({
                     );
                 }
             }
-        } catch (err) {
-            console.log(err);
-        }
+        } catch (err) {}
     };
 
     const getTweets = async () => {
@@ -282,7 +155,7 @@ const Tweets = ({
                 res = await instance({
                     url: '/tweet/getone',
                     method: 'POST',
-                    data: { tweetId: tweet._id },
+                    data: { tweetId: tweet?._id },
                 });
             } else if (type === 'list') {
                 res = await instance({
@@ -308,7 +181,6 @@ const Tweets = ({
                     method: 'POST',
                     data: { nick: profile },
                 });
-                console.log(res);
             }
 
             const likes = await instance({
@@ -321,15 +193,11 @@ const Tweets = ({
                 method: 'POST',
                 data: { nick: nick },
             });
-            if (
-                bookmarks.data.result.length === 0 ||
-                res.data.result.length === 0
-            ) {
+            if (res.data.result.length === 0) {
                 isEmpty(true);
             } else {
                 isEmpty(false);
             }
-            console.log(likes);
             setBookmarks(bookmarks.data.result);
             setLikes(likes.data.result);
             if (type !== 'notificationTweet') {
@@ -342,58 +210,36 @@ const Tweets = ({
         } catch (err) {}
     };
 
-    const handleTweetLike = async (tweetId: string) => {
-        const isTweetLiked = likes.includes(tweetId);
-        if (isTweetLiked) {
-            setLikes(likes.filter((el) => el !== tweetId));
-        } else {
-            setLikes([...likes, tweetId]);
+    const handleTweetEvent = async (
+        targetTweet: TweetType,
+        eventType: 'like' | 'bookmark' | 'repost'
+    ) => {
+        let isEventExecuted: boolean = false;
+        if (eventType === 'like') {
+            isEventExecuted = likes.includes(targetTweet._id);
+            if (isEventExecuted) {
+                setLikes(likes.filter((el) => el !== targetTweet._id));
+            } else {
+                setLikes([...likes, targetTweet._id]);
+            }
+        } else if (eventType === 'bookmark') {
+            isEventExecuted = bookmarks.includes(targetTweet._id);
+            if (isEventExecuted) {
+                setBookmarks(bookmarks.filter((el) => el !== targetTweet._id));
+            } else {
+                setBookmarks([...bookmarks, targetTweet._id]);
+            }
+        } else if (eventType === 'repost') {
+            isEventExecuted =
+                targetTweet.repostBy?.find(
+                    (item) => item.nick === user.nick
+                ) !== undefined;
         }
         setTweets((prevTweets) =>
-            prevTweets.map((tweet) => {
-                if (tweet._id === tweetId) {
-                    return {
-                        ...tweet,
-                        likes: tweet.likes + (isTweetLiked ? -1 : 1),
-                    };
-                }
-                return tweet;
-            })
-        );
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            post &&
-            post._id === tweetId
-        ) {
-            let temp: TweetType = post;
-            temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
-        }
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            postParent &&
-            postParent._id === tweetId
-        ) {
-            let temp: TweetType = postParent;
-            temp.likes = temp.likes + (isTweetLiked ? -1 : 1);
-            setPostParent(temp);
-        }
-        await instance({
-            url: '/tweet/like',
-            method: 'POST',
-            data: { nick: nick, tweetId: tweetId, mode: isTweetLiked },
-        });
-    };
-    const handleRepost = async (tweet: TweetType) => {
-        const isReposted =
-            tweet.repostBy?.find((item) => item.nick === user.nick) !==
-            undefined;
-        setTweets((prevTweets) =>
-            prevTweets.map((item: TweetType) => {
-                const date = new Date();
-                let reposters = item.repostBy;
-
-                if (item._id === tweet._id) {
-                    if (isReposted) {
+            prevTweets.map((tweet: TweetType) => {
+                let reposters = targetTweet.repostBy;
+                if (tweet._id === targetTweet._id && eventType === 'repost') {
+                    if (isEventExecuted) {
                         reposters = reposters?.filter(
                             (item) => item.nick !== user.nick
                         );
@@ -404,86 +250,57 @@ const Tweets = ({
                         });
                     }
                     return {
-                        ...item,
-                        reposts: item.reposts + (isReposted ? -1 : 1),
+                        ...tweet,
+                        reposts: tweet.reposts + (isEventExecuted ? -1 : 1),
                         repostBy: reposters,
                     };
                 }
-                return item;
-            })
-        );
-
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            post &&
-            post._id === tweet._id
-        ) {
-            let temp: TweetType = post;
-            temp.reposts = temp.reposts + (isReposted ? -1 : 1);
-        }
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            postParent &&
-            postParent._id === tweet._id
-        ) {
-            let temp: TweetType = postParent;
-            temp.reposts = temp.reposts + (isReposted ? -1 : 1);
-            setPostParent(temp);
-        }
-        try {
-            const res = await instance({
-                url: '/tweet/repost',
-                method: 'POST',
-                data: {
-                    tweetId: tweet._id,
-                    repostBy: nick,
-                    isReposted: isReposted,
-                },
-            });
-        } catch (err) {}
-    };
-    const handleBookmark = async (tweetId: string) => {
-        const isBookmark = bookmarks.includes(tweetId);
-        if (isBookmark) {
-            setBookmarks(bookmarks.filter((el) => el !== tweetId));
-        } else {
-            setBookmarks([...bookmarks, tweetId]);
-        }
-        setTweets((prevTweets) =>
-            prevTweets.map((tweet) => {
-                if (tweet._id === tweetId) {
+                if (tweet._id === targetTweet._id && eventType === 'bookmark') {
                     return {
                         ...tweet,
-                        bookmarks: tweet.bookmarks + (isBookmark ? -1 : 1),
+                        bookmarks: tweet.bookmarks + (isEventExecuted ? -1 : 1),
+                    };
+                }
+                if (tweet._id === targetTweet._id && eventType === 'like') {
+                    return {
+                        ...tweet,
+                        likes: tweet.likes + (isEventExecuted ? -1 : 1),
                     };
                 }
                 return tweet;
             })
         );
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            post &&
-            post._id === tweetId
-        ) {
-            let temp: TweetType = post;
-            temp.bookmarks = temp.bookmarks + (isBookmark ? -1 : 1);
-        }
-        if (
-            (type === 'post-replies' || type === 'notificationTweet') &&
-            postParent &&
-            postParent._id === tweetId
-        ) {
-            let temp: TweetType = postParent;
-            temp.bookmarks = temp.bookmarks + (isBookmark ? -1 : 1);
-            setPostParent(temp);
+        const value = isEventExecuted ? -1 : 1;
+        if (type === 'post-replies' || type === 'notificationTweet') {
+            let temp: TweetType = targetTweet;
+            if (post && post._id === targetTweet?._id) {
+                temp = post;
+            } else if (postParent && postParent._id === targetTweet?._id) {
+                temp = postParent;
+            }
+
+            if (eventType === 'like') {
+                temp.likes = temp.likes + value;
+            } else if (eventType === 'bookmark') {
+                temp.bookmarks = temp.bookmarks + value;
+            } else if (eventType === 'repost') {
+                temp.reposts = temp.reposts + value;
+            }
+            if (temp === postParent) {
+                setPostParent(temp);
+            }
         }
         await instance({
-            url: '/tweet/bookmark',
+            url: `/tweet/${eventType}`,
             method: 'POST',
-            data: { nick: nick, tweetId: tweetId, mode: isBookmark },
+            data: {
+                nick: nick,
+                tweetId: targetTweet._id,
+                mode: isEventExecuted,
+                refreshToken: cookie.refreshToken,
+            },
         });
     };
-
     const getParents = async () => {
         let parentTweets: Array<TweetType> = [];
 
@@ -507,11 +324,12 @@ const Tweets = ({
                 parentTweets.push(response.data.result);
             }
         }
-        console.log(parentTweets);
         setParents(parentTweets);
     };
     useEffect(() => {
-        getTweets();
+        if ((type === 'home' && nick) || type !== 'home') {
+            getTweets();
+        }
     }, [nick, profile, post, searchKey, community, activeTab]);
     useEffect(() => {
         getParents();
@@ -523,7 +341,7 @@ const Tweets = ({
         getParent();
     }, [post, parents]);
     useEffect(() => {
-        if (type === 'post-replies') {
+        if (type === 'post-replies' && tweet) {
             setReplyTarget(tweet);
             setPost(tweet);
         }
@@ -555,193 +373,230 @@ const Tweets = ({
         );
         setPostParent(parent[0]);
     };
+    const renderTweets = () => {
+        return (
+            <>
+                {tweets?.map((tweet: TweetType, index) => {
+                    const parentTweet: TweetType[] = parents.filter(
+                        (el) => el._id === tweet.parentId
+                    );
 
-    return (
-        <>
-            {replyMode && (
-                <>
-                    <S.ReplyWrapper>
-                        <S.ReplyBackground
-                            onClick={() => handleReplyMode(false)}
+                    const repost = tweet.repost ? tweet.repost[0] : null;
+
+                    return (
+                        <Tweet
+                            date={tweet.date}
+                            nick={tweet.nick}
+                            text={tweet.text}
+                            likes={tweet.likes}
+                            parentId={tweet.parentId}
+                            imageId={tweet.imageId}
+                            views={tweet.views}
+                            retweets={tweet.retweets}
+                            bookmarks={tweet.bookmarks}
+                            reposts={tweet.reposts}
+                            repost={repost}
+                            isReposted={
+                                tweet.repostBy?.find(
+                                    (item) => item.nick === nick
+                                ) !== undefined
+                            }
+                            audienceName={tweet.audienceName}
+                            repostBy={tweet.repostBy}
+                            _id={tweet._id}
+                            isLiked={likes.includes(tweet._id)}
+                            bookmark={bookmarks.includes(tweet._id)}
+                            isReply={false}
+                            parentTweet={parentTweet[0]}
+                            onTweetLike={() => handleTweetEvent(tweet, 'like')}
+                            onReplyModeUpdate={() =>
+                                handleReplyMode(true, tweet)
+                            }
+                            onBookmarkChange={() =>
+                                handleTweetEvent(tweet, 'bookmark')
+                            }
+                            onTweetRepost={() =>
+                                handleTweetEvent(tweet, 'repost')
+                            }
+                            post={false}
+                            key={index}
+                            photoMode={false}
+                            user={user}
+                            profileQuery={profileQuery}
+                            postQuery={postQuery}
+                            closeModal={closeModal}
                         />
-                        <S.Reply>
-                            <S.ReplyClose
-                                size="4%"
+                    );
+                })}
+            </>
+        );
+    };
+    const renderReplyView = () => {
+        return (
+            <>
+                {replyMode && replyTarget && (
+                    <>
+                        <S.ReplyWrapper>
+                            <S.ReplyBackground
                                 onClick={() => handleReplyMode(false)}
                             />
-                            <Tweet
-                                date={replyTarget?.date}
-                                nick={replyTarget?.nick}
-                                text={replyTarget?.text}
-                                _id={replyTarget?._id}
-                                imageId={replyTarget?.imageId}
-                                likes={replyTarget?.likes}
-                                parentId={replyTarget?.parentId}
-                                views={replyTarget?.views}
-                                retweets={replyTarget?.retweets}
-                                reposts={replyTarget?.reposts}
-                                repostBy={replyTarget.repostBy}
-                                bookmarks={replyTarget.bookmarks}
-                                parentTweet={null}
-                                isLiked={false}
-                                bookmark={false}
-                                isReply={true}
-                                post={false}
-                                photoMode={false}
-                                user={user}
-                                closeModal={closeModal}
-                            />
+                            <S.Reply>
+                                <S.ReplyClose
+                                    size="4%"
+                                    onClick={() => handleReplyMode(false)}
+                                />
+                                <Tweet
+                                    date={replyTarget?.date}
+                                    nick={replyTarget?.nick}
+                                    text={replyTarget?.text}
+                                    _id={replyTarget?._id}
+                                    imageId={replyTarget?.imageId}
+                                    likes={replyTarget?.likes}
+                                    parentId={replyTarget?.parentId}
+                                    views={replyTarget?.views}
+                                    retweets={replyTarget?.retweets}
+                                    reposts={replyTarget?.reposts}
+                                    repostBy={replyTarget?.repostBy}
+                                    bookmarks={replyTarget?.bookmarks}
+                                    parentTweet={null}
+                                    isLiked={false}
+                                    bookmark={false}
+                                    isReply={true}
+                                    post={false}
+                                    photoMode={false}
+                                    user={user}
+                                    closeModal={closeModal}
+                                />
 
-                            <TweetCreate
-                                text={text}
-                                handleChange={handleChange}
-                                handleFile={handleFile}
-                                createTweet={createTweet}
-                                placeholder="Post your reply!"
-                                avatar={avatar}
-                                nick={nick}
-                                reply={true}
-                            />
-                        </S.Reply>
-                    </S.ReplyWrapper>
-                </>
-            )}
-            {(type === 'post-replies' || type === 'notificationTweet') &&
-                post && (
-                    <>
-                        {postParent && type !== 'notificationTweet' && (
+                                <TweetCreator
+                                    text={text}
+                                    handleChange={handleChange}
+                                    handleFile={handleFile}
+                                    createTweet={createTweet}
+                                    placeholder="Post your reply!"
+                                    avatar={avatar}
+                                    nick={nick}
+                                    reply={true}
+                                />
+                            </S.Reply>
+                        </S.ReplyWrapper>
+                    </>
+                )}
+            </>
+        );
+    };
+    const renderPostView = () => {
+        return (
+            <>
+                {(type === 'post-replies' || type === 'notificationTweet') &&
+                    post && (
+                        <>
+                            {postParent && type !== 'notificationTweet' && (
+                                <Tweet
+                                    date={postParent.date}
+                                    nick={postParent.nick}
+                                    text={postParent.text}
+                                    _id={postParent._id}
+                                    imageId={postParent.imageId}
+                                    likes={postParent.likes}
+                                    parentId={postParent.parentId}
+                                    views={postParent.views}
+                                    retweets={postParent.retweets}
+                                    bookmarks={postParent.bookmarks}
+                                    reposts={postParent.reposts}
+                                    repostBy={postParent.repostBy}
+                                    parentTweet={null}
+                                    isLiked={likes.includes(postParent._id)}
+                                    bookmark={bookmarks.includes(
+                                        postParent._id
+                                    )}
+                                    isReply={true}
+                                    onTweetLike={() =>
+                                        handleTweetEvent(postParent, 'like')
+                                    }
+                                    onReplyModeUpdate={() =>
+                                        handleReplyMode(true, postParent)
+                                    }
+                                    onBookmarkChange={() =>
+                                        handleTweetEvent(postParent, 'bookmark')
+                                    }
+                                    post={true}
+                                    photoMode={photoMode}
+                                    user={user}
+                                    postQuery={postQuery}
+                                    profileQuery={profileQuery}
+                                    closeModal={closeModal}
+                                />
+                            )}
                             <Tweet
-                                date={postParent.date}
-                                nick={postParent.nick}
-                                text={postParent.text}
-                                _id={postParent._id}
-                                imageId={postParent.imageId}
-                                likes={postParent.likes}
-                                parentId={postParent.parentId}
-                                views={postParent.views}
-                                retweets={postParent.retweets}
-                                bookmarks={postParent.bookmarks}
-                                reposts={postParent.reposts}
-                                repostBy={postParent.repostBy}
-                                parentTweet={null}
-                                isLiked={likes.includes(postParent._id)}
-                                bookmark={bookmarks.includes(postParent._id)}
-                                isReply={true}
+                                date={post.date}
+                                nick={post.nick}
+                                text={post.text}
+                                likes={post.likes}
+                                parentId={post.parentId}
+                                imageId={post.imageId}
+                                views={post.views}
+                                retweets={post.retweets}
+                                bookmarks={post.bookmarks}
+                                reposts={post.reposts}
+                                repostBy={post.repostBy}
+                                _id={post._id}
+                                isLiked={likes.includes(post._id)}
+                                bookmark={bookmarks.includes(post._id)}
+                                isReply={false}
+                                parentTweet={
+                                    type === 'post-replies' ? null : postParent
+                                }
                                 onTweetLike={() =>
-                                    handleTweetLike(postParent._id)
+                                    handleTweetEvent(post, 'like')
                                 }
                                 onReplyModeUpdate={() =>
-                                    handleReplyMode(true, postParent)
+                                    handleReplyMode(true, post)
                                 }
                                 onBookmarkChange={() =>
-                                    handleBookmark(postParent._id)
+                                    handleTweetEvent(post, 'bookmark')
                                 }
-                                post={true}
+                                post={type === 'post-replies' ? true : false}
                                 photoMode={photoMode}
                                 user={user}
                                 postQuery={postQuery}
                                 profileQuery={profileQuery}
                                 closeModal={closeModal}
                             />
-                        )}
-                        <Tweet
-                            date={post.date}
-                            nick={post.nick}
-                            text={post.text}
-                            likes={post.likes}
-                            parentId={post.parentId}
-                            imageId={post.imageId}
-                            views={post.views}
-                            retweets={post.retweets}
-                            bookmarks={post.bookmarks}
-                            reposts={post.reposts}
-                            repostBy={post.repostBy}
-                            _id={post._id}
-                            isLiked={likes.includes(post._id)}
-                            bookmark={bookmarks.includes(post._id)}
-                            isReply={false}
-                            parentTweet={
-                                type === 'post-replies' ? null : postParent
-                            }
-                            onTweetLike={() => handleTweetLike(post._id)}
-                            onReplyModeUpdate={() =>
-                                handleReplyMode(true, post)
-                            }
-                            onBookmarkChange={() => handleBookmark(post._id)}
-                            post={type === 'post-replies' ? true : false}
-                            photoMode={photoMode}
-                            user={user}
-                            postQuery={postQuery}
-                            profileQuery={profileQuery}
-                            closeModal={closeModal}
-                        />
-                    </>
-                )}
-            {(type === 'home' || type === 'post-replies') && (
-                <TweetCreate
-                    text={replyMode ? '' : text}
-                    handleChange={handleChange}
-                    handleFile={handleFile}
-                    type="home"
-                    createTweet={createTweet}
-                    placeholder={
-                        type === 'home'
-                            ? 'What is happening?!'
-                            : 'Post your reply!'
-                    }
-                    avatar={avatar}
-                    nick={nick}
-                    reply={false}
-                />
-            )}
-
-            {tweets?.map((tweet: TweetType, index) => {
-                const parentTweet: TweetType[] = parents.filter(
-                    (el) => el._id === tweet.parentId
-                );
-
-                const repost = tweet.repost ? tweet.repost[0] : null;
-                console.log(tweet.text);
-                console.log(tweet.repostBy);
-                return (
-                    <Tweet
-                        date={tweet.date}
-                        nick={tweet.nick}
-                        text={tweet.text}
-                        likes={tweet.likes}
-                        parentId={tweet.parentId}
-                        imageId={tweet.imageId}
-                        views={tweet.views}
-                        retweets={tweet.retweets}
-                        bookmarks={tweet.bookmarks}
-                        reposts={tweet.reposts}
-                        repost={repost}
-                        isReposted={
-                            tweet.repostBy?.find(
-                                (item) => item.nick === nick
-                            ) !== undefined
+                        </>
+                    )}
+            </>
+        );
+    };
+    const renderCreator = () => {
+        return (
+            <>
+                {(type === 'home' || type === 'post-replies') && (
+                    <TweetCreator
+                        text={replyMode ? '' : text}
+                        handleChange={handleChange}
+                        handleFile={handleFile}
+                        type="home"
+                        createTweet={createTweet}
+                        placeholder={
+                            type === 'home'
+                                ? 'What is happening?!'
+                                : 'Post your reply!'
                         }
-                        audienceName={tweet.audienceName}
-                        repostBy={tweet.repostBy}
-                        _id={tweet._id}
-                        isLiked={likes.includes(tweet._id)}
-                        bookmark={bookmarks.includes(tweet._id)}
-                        isReply={false}
-                        parentTweet={parentTweet[0]}
-                        onTweetLike={() => handleTweetLike(tweet._id)}
-                        onReplyModeUpdate={() => handleReplyMode(true, tweet)}
-                        onBookmarkChange={() => handleBookmark(tweet._id)}
-                        onTweetRepost={() => handleRepost(tweet)}
-                        post={false}
-                        key={index}
-                        photoMode={false}
-                        user={user}
-                        profileQuery={profileQuery}
-                        postQuery={postQuery}
-                        closeModal={closeModal}
+                        avatar={avatar}
+                        nick={nick}
+                        reply={false}
                     />
-                );
-            })}
+                )}
+            </>
+        );
+    };
+    return (
+        <>
+            {renderReplyView()}
+            {renderPostView()}
+            {renderCreator()}
+            {renderTweets()}
         </>
     );
 };

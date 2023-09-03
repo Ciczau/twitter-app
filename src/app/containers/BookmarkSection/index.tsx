@@ -30,10 +30,9 @@ const BookmarkSection = ({ user }) => {
             )}
             <Tweets
                 nick={userData?.nick}
-                avatar={userData?.avatarId}
+                avatar={userData?.avatar}
                 profile={null}
                 type="bookmarks"
-                tweet={null}
                 photoMode={false}
                 user={user}
                 isEmpty={handleEmpty}

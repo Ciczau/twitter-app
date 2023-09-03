@@ -11,7 +11,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [users, setUsers] =
         useState<Array<{ user: User; followEachOther: boolean }>>();
-    const [chats, setChats] = useState<Array<{ id: string; user: User }>>();
+    const [chats, setChats] = useState<Array<{ id: string; user: User }>>([]);
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [focus, setFocus] = useState<boolean>(false);
     const [searchKey, setSearchKey] = useState<string>('');
@@ -25,9 +25,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                 data: { nick: user?.nick, key: searchKey },
             });
             setUsers(res.data.result);
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
     const createChat = async (choosenUser: {
         user: User;
@@ -43,9 +41,13 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                         secondUser: choosenUser.user.nick,
                     },
                 });
-                console.log(res);
+
                 if (res.data.chatId) {
                     router.push(`/messages/${res.data.chatId}`);
+                }
+                if (res.data.chat) {
+                    setModalVisible(false);
+                    setChats([...chats, res.data.chat]);
                 }
             } catch (err) {}
         }
@@ -57,7 +59,6 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                 method: 'POST',
                 data: { nick: user?.nick },
             });
-            console.log(res);
             setChats(res.data.tab);
         } catch (err) {}
     };
@@ -65,7 +66,53 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     const handleChange = (e) => {
         setSearchKey(e.target.value);
     };
-
+    const renderChats = () => {
+        return (
+            <>
+                {chats?.map((item, index) => {
+                    return (
+                        <S.UserWrapper
+                            key={index}
+                            onClick={() => router.push(`/messages/${item.id}`)}
+                            followEachOther={true}
+                        >
+                            <S.UserAvatar src={item.user.avatar} />
+                            <S.UserContentWrapper>
+                                <div>{item.user.name}</div>
+                                <S.UserNick>@{item.user.nick}</S.UserNick>
+                            </S.UserContentWrapper>
+                        </S.UserWrapper>
+                    );
+                })}
+            </>
+        );
+    };
+    const renderUsers = () => {
+        return (
+            <>
+                {users?.map((user, index) => {
+                    return (
+                        <S.UserWrapper
+                            key={index}
+                            onClick={async () => await createChat(user)}
+                            followEachOther={user.followEachOther}
+                        >
+                            <S.UserAvatar src={user.user.avatar} />
+                            <S.UserContentWrapper>
+                                <div>{user.user.name}</div>
+                                <S.UserNick>
+                                    <div>@{user.user.nick}</div>
+                                    {user.followEachOther && (
+                                        <div>You follow each other</div>
+                                    )}
+                                </S.UserNick>
+                            </S.UserContentWrapper>
+                        </S.UserWrapper>
+                    );
+                })}
+            </>
+        );
+    };
     useEffect(() => {
         setWidth(window.innerWidth);
         const handleWidth = () => {
@@ -81,7 +128,6 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     }, [user]);
     useEffect(() => {
         getUsers();
-        console.log(searchKey);
     }, [user, searchKey]);
     return (
         <>
@@ -111,32 +157,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                                     onChange={handleChange}
                                 />
                             </S.ExploreWrapper>
-                            {users?.map((user, index) => {
-                                return (
-                                    <S.UserWrapper
-                                        key={index}
-                                        onClick={async () =>
-                                            await createChat(user)
-                                        }
-                                        followEachOther={user.followEachOther}
-                                    >
-                                        <S.UserAvatar
-                                            src={`https://res.cloudinary.com/df4tupotg/image/upload/${user.user.avatarId}`}
-                                        />
-                                        <S.UserContentWrapper>
-                                            <div>{user.user.name}</div>
-                                            <S.UserNick>
-                                                <div>@{user.user.nick}</div>
-                                                {user.followEachOther && (
-                                                    <div>
-                                                        You follow each other
-                                                    </div>
-                                                )}
-                                            </S.UserNick>
-                                        </S.UserContentWrapper>
-                                    </S.UserWrapper>
-                                );
-                            })}
+                            {renderUsers()}
                         </S.Modal>
                     </S.ModalWrapper>
                 </>
@@ -153,30 +174,10 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                                 onClick={() => setModalVisible(true)}
                             />
                         </S.Header>
-
-                        {chats?.map((chat, index) => {
-                            return (
-                                <S.UserWrapper
-                                    key={index}
-                                    onClick={() =>
-                                        router.push(`/messages/${chat.id}`)
-                                    }
-                                    followEachOther={true}
-                                >
-                                    <S.UserAvatar
-                                        src={`https://res.cloudinary.com/df4tupotg/image/upload/${chat.user.avatarId}`}
-                                    />
-                                    <S.UserContentWrapper>
-                                        <div>{chat.user.name}</div>
-                                        <S.UserNick>
-                                            @{chat.user.nick}
-                                        </S.UserNick>
-                                    </S.UserContentWrapper>
-                                </S.UserWrapper>
-                            );
-                        })}
+                        {renderChats()}
                     </S.ChatListWrapper>
                 )}
+
                 {type === 'openedChat' && chats && (
                     <ChatSection
                         chat={chats.filter((chat) => chat.id === chatQuery)}

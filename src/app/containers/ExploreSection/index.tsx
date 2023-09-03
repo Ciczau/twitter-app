@@ -1,9 +1,10 @@
-import { IoIosSearch } from 'react-icons/io';
-import * as S from './index.styles';
 import { useEffect, useState } from 'react';
+
 import Tweets from 'components/Tweets';
 import { User } from 'components/BodyContent';
 import Users from 'components/Users';
+
+import * as S from './index.styles';
 
 const ExploreSection = ({ user }) => {
     const [focus, setFocus] = useState<boolean>(false);
@@ -12,12 +13,12 @@ const ExploreSection = ({ user }) => {
     const [activeTab, setActiveTab] = useState<'tweets' | 'users'>('tweets');
     const [emptyTweetList, setEmptyTweetList] = useState<boolean>(false);
     const [emptyUserList, setEmptyUserList] = useState<boolean>(false);
+
     const handleChange = (e) => {
         if (e.key === 'Enter') {
             setEmptyTweetList(false);
             setEmptyUserList(false);
             setSearchKey(e.target.value);
-            console.log(e.target.value);
         }
     };
     useEffect(() => {
@@ -63,10 +64,8 @@ const ExploreSection = ({ user }) => {
                             ) : (
                                 <Tweets
                                     nick={userData?.nick}
-                                    avatar={userData?.avatarId}
-                                    profile={null}
+                                    avatar={userData?.avatar}
                                     type="search"
-                                    tweet={null}
                                     photoMode={false}
                                     searchKey={searchKey}
                                     user={user}

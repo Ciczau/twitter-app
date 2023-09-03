@@ -1,10 +1,9 @@
-import Tweet, { TweetType } from 'components/Tweet';
-import * as S from './index.styles';
 import { useEffect, useState } from 'react';
-import { IoMdClose } from 'react-icons/io';
 import { useRouter } from 'next/router';
 
-const PostSection = ({ user, child, type, photo, handleModal }) => {
+import * as S from './index.styles';
+
+const PostSection = ({ user, children, type, photo, handleModal }) => {
     const router = useRouter();
 
     const [width, setWidth] = useState<number>(0);
@@ -36,7 +35,7 @@ const PostSection = ({ user, child, type, photo, handleModal }) => {
                             <S.HeaderText>Tweet</S.HeaderText>
                         </S.Header>
                     )}
-                    {child}
+                    {children}
                 </S.Post>
             )}
         </S.Wrapper>

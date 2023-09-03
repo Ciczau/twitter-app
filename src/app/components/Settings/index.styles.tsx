@@ -1,3 +1,4 @@
+import { IoMdClose } from 'react-icons/io';
 import styled from 'styled-components';
 import css from 'styled-jsx/css';
 
@@ -110,3 +111,5 @@ export const Label = styled.label`
         color: #1463a3;
     }
 `;
+
+export const CloseIcon = styled(IoMdClose)``;

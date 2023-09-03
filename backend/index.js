@@ -22,7 +22,6 @@ wss.on('connection', (ws) => {
     clients.add(ws);
     ws.on('message', (mess) => {
         const data = JSON.parse(mess);
-        console.log(data);
         clients.forEach((client) => {
             client.send(JSON.stringify(data));
         });

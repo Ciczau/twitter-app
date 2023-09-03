@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { AiOutlineClose } from 'react-icons/ai';
+
 export const Wrapper = styled(motion.div)`
     width: 100vw;
     height: 100vh;
@@ -71,5 +73,7 @@ export const BottomTextWrapper = styled.div`
         border: 0;
         font-family: inherit;
         font-size: 20px;
+        cursor: pointer;
     }
 `;
+export const CloseIcon = styled(AiOutlineClose)``;

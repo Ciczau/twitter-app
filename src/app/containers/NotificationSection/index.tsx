@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import * as S from './index.styles';
+
 import instance from 'api/instance';
 import { User } from 'components/BodyContent';
-import Tweet, { TweetType } from 'components/Tweet';
-import { RepostIcon } from 'components/Tweet/index.styles';
+import { TweetType } from 'components/Tweet';
 import Tweets from 'components/Tweets';
+
+import * as S from './index.styles';
 
 interface Notification {
     nick: string;
@@ -27,16 +28,9 @@ const NotificationSection = ({ user }) => {
             setNotifications(res.data.nots);
         } catch (err) {}
     };
-
-    useEffect(() => {
-        getNotifications();
-    }, [user]);
-    return (
-        <S.Wrapper>
-            <S.Header>
-                <S.Title>Notifications</S.Title>
-            </S.Header>
-            <S.NotificationsWrapper>
+    const renderNotifications = () => {
+        return (
+            <>
                 {notifications?.map((not, index) => {
                     const date = new Date(not.date);
                     const monthNames = [
@@ -56,15 +50,14 @@ const NotificationSection = ({ user }) => {
                     const month = monthNames[date.getUTCMonth()];
                     const day = date.getUTCDate();
                     const year = date.getUTCFullYear();
-                    console.log(not);
+
                     return (
                         <S.Notification type={not.type}>
                             {not.type === 'retweet' ? (
                                 <Tweets
                                     nick={not.user?.nick}
-                                    profile={null}
                                     type="notificationTweet"
-                                    avatar={not.user?.avatarId}
+                                    avatar={not.user?.avatar}
                                     tweet={not.content}
                                     photoMode={true}
                                     user={user}
@@ -99,7 +92,7 @@ const NotificationSection = ({ user }) => {
                                             not.type === 'follow') && (
                                             <>
                                                 <S.Avatar
-                                                    src={`https://res.cloudinary.com/df4tupotg/image/upload/${not.user?.avatarId}`}
+                                                    src={not.user?.avatar}
                                                 />
                                                 <div>
                                                     <b>{not.user?.nick}</b>{' '}
@@ -125,6 +118,19 @@ const NotificationSection = ({ user }) => {
                         </S.Notification>
                     );
                 })}
+            </>
+        );
+    };
+    useEffect(() => {
+        getNotifications();
+    }, [user]);
+    return (
+        <S.Wrapper>
+            <S.Header>
+                <S.Title>Notifications</S.Title>
+            </S.Header>
+            <S.NotificationsWrapper>
+                {renderNotifications()}
             </S.NotificationsWrapper>
         </S.Wrapper>
     );

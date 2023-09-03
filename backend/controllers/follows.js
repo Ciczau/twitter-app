@@ -1,8 +1,5 @@
-import { db } from '../database/mongo.js';
-import { notifications } from './notifications.js';
+import { users, follows, notifications } from '../database/collections.js';
 
-export const follows = db.collection('follows');
-const users = db.collection('users');
 export const FollowUser = async (req, res) => {
     const { user, userToFollow } = req.body;
     if (!user || !userToFollow) return res.status(400).send();
@@ -44,7 +41,6 @@ export const GetFollowers = async (req, res) => {
     const list = following.map((follow) => {
         return follow.followBy;
     });
-    console.log(list);
     return res.status(200).send({ list });
 };
 

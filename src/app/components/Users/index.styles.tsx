@@ -16,6 +16,7 @@ export const Avatar = styled.img`
     height: 45px;
     width: 45px;
     border-radius: 50%;
+    margin-right: 5px;
     object-fit: cover;
 `;
 
@@ -40,7 +41,7 @@ export const UserBio = styled.div`
 export const FollowButton = styled.button`
     border-radius: 50px;
     padding: 5px 15px;
-
+    cursor: pointer;
     font-family: inherit;
     font-weight: bold;
     font-size: 16px;
@@ -48,4 +49,7 @@ export const FollowButton = styled.button`
     font-weight: bold;
     background-color: ${(props) => (props.isFollowing ? 'black' : 'white')};
     border: ${(props) => (props.isFollowing ? '1px solid gray' : '0')};
+`;
+export const UserInfoWrapper = styled.div`
+    display: flex;
 `;

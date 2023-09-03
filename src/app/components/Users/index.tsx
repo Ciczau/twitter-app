@@ -1,8 +1,10 @@
 import { useRouter } from 'next/router';
-import * as S from './index.styles';
 import { useEffect, useState } from 'react';
+
 import { User } from 'components/BodyContent';
 import instance from 'api/instance';
+
+import * as S from './index.styles';
 
 const Users = ({
     user,
@@ -13,15 +15,49 @@ const Users = ({
     addUserToList = (data: User) => {},
     removeUserFromList = (data: User) => {},
 }) => {
-    const router = useRouter();
-
     const [userData, setUserData] = useState<User>();
     const [users, setUsers] = useState<User[]>();
     const [addedUsersList, setAddedUsersList] = useState<User[]>([]);
+    const [followingList, setFollowingList] = useState<string[]>([]);
+
+    const router = useRouter();
 
     useEffect(() => {
         setUserData(user);
+        getFollowingUsers();
     }, [user]);
+    const handleFollowUser = async (user: User) => {
+        await followUser(user);
+    };
+    const followUser = async (user) => {
+        const type = followingList.includes(user.nick) ? 'delete' : 'add';
+        try {
+            const res = await instance({
+                url: `/follow/${type}`,
+                method: 'POST',
+                data: { user: userData?.nick, userToFollow: user.nick },
+            });
+            if (res.status === 200) {
+                if (type === 'delete') {
+                    let tempList = [...followingList];
+                    tempList = tempList.filter((el) => el !== user.nick);
+                    setFollowingList(tempList);
+                } else {
+                    setFollowingList([...followingList, user.nick]);
+                }
+            }
+        } catch (err) {}
+    };
+    const getFollowingUsers = async () => {
+        try {
+            const res = await instance({
+                url: '/follow/following',
+                method: 'POST',
+                data: { user: user.nick },
+            });
+            setFollowingList(res.data.list);
+        } catch (err) {}
+    };
 
     const getUsers = async () => {
         try {
@@ -47,7 +83,7 @@ const Users = ({
                     method: 'POST',
                     data: { key: searchKey },
                 });
-                console.log(res.data.result);
+
                 if (res.status === 200) {
                     if (res.data.result.length === 0) {
                         isEmpty(true);
@@ -57,9 +93,7 @@ const Users = ({
                     setUsers(res.data.result);
                 }
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
 
     const handleUserAdd = (user: User) => {
@@ -72,63 +106,86 @@ const Users = ({
         addedUsersArray = addedUsersArray.filter((el) => el.nick !== user.nick);
         setAddedUsersList(addedUsersArray);
     };
-    useEffect(() => {
-        getUsers();
-        console.log(searchKey);
-    }, [userData, searchKey]);
-    return (
-        <S.UsersWrapper>
-            {users?.map((user, index) => {
-                if (
-                    (activeTab === 'members' &&
-                        addedUsersList.includes(user)) ||
-                    (activeTab === 'suggested' &&
-                        !addedUsersList.includes(user)) ||
-                    (activeTab !== 'members' && activeTab !== 'suggested')
-                ) {
-                    return (
-                        <S.User key={index}>
-                            <S.Avatar
-                                src={`https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`}
-                            />
-                            <S.UserDescription
-                                onClick={() => router.push(`/${user.nick}`)}
-                            >
-                                <S.UserName>{user.name}</S.UserName>
-                                <div>@{user.nick}</div>
-                                <S.UserBio>{user.bio}</S.UserBio>
-                            </S.UserDescription>
-                            <S.FollowButton>
-                                {type === 'listSearch' ? (
-                                    <>
-                                        {addedUsersList?.includes(user) ? (
-                                            <div
-                                                onClick={() =>
-                                                    handleUserRemove(user)
-                                                }
-                                            >
-                                                Remove
-                                            </div>
+
+    const renderUsers = () => {
+        return (
+            <>
+                {users?.map((user, index) => {
+                    if (
+                        (activeTab === 'members' &&
+                            addedUsersList.includes(user)) ||
+                        (activeTab === 'suggested' &&
+                            !addedUsersList.includes(user)) ||
+                        (activeTab !== 'members' && activeTab !== 'suggested')
+                    ) {
+                        const isFollowing = followingList.includes(user.nick);
+                        return (
+                            <S.User key={index}>
+                                <S.UserInfoWrapper>
+                                    <S.Avatar src={user.avatar} />
+                                    <S.UserDescription
+                                        onClick={() =>
+                                            router.push(`/${user.nick}`)
+                                        }
+                                    >
+                                        <S.UserName>{user.name}</S.UserName>
+                                        <div>@{user.nick}</div>
+                                        <S.UserBio>{user.bio}</S.UserBio>
+                                    </S.UserDescription>
+                                </S.UserInfoWrapper>
+                                {user.nick !== userData?.nick && (
+                                    <S.FollowButton
+                                        isFollowing={
+                                            isFollowing && type !== 'listSearch'
+                                        }
+                                    >
+                                        {type === 'listSearch' ? (
+                                            <>
+                                                {addedUsersList?.includes(
+                                                    user
+                                                ) ? (
+                                                    <div
+                                                        onClick={() =>
+                                                            handleUserRemove(
+                                                                user
+                                                            )
+                                                        }
+                                                    >
+                                                        Remove
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        onClick={() =>
+                                                            handleUserAdd(user)
+                                                        }
+                                                    >
+                                                        Add
+                                                    </div>
+                                                )}
+                                            </>
                                         ) : (
                                             <div
                                                 onClick={() =>
-                                                    handleUserAdd(user)
+                                                    handleFollowUser(user)
                                                 }
                                             >
-                                                Add
+                                                Follow{isFollowing && <>ing</>}{' '}
                                             </div>
                                         )}
-                                    </>
-                                ) : (
-                                    <div>Follow</div>
+                                    </S.FollowButton>
                                 )}
-                            </S.FollowButton>
-                        </S.User>
-                    );
-                }
-            })}
-        </S.UsersWrapper>
-    );
+                            </S.User>
+                        );
+                    }
+                })}
+            </>
+        );
+    };
+
+    useEffect(() => {
+        getUsers();
+    }, [userData, searchKey]);
+    return <S.UsersWrapper>{renderUsers()}</S.UsersWrapper>;
 };
 
 export default Users;

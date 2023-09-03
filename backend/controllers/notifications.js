@@ -1,6 +1,4 @@
-import { db } from '../database/mongo.js';
-
-export const notifications = db.collection('notifications');
+import { notifications } from '../database/collections.js';
 
 export const GetNotifications = async (req, res) => {
     const { nick } = req.body;

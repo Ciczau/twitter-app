@@ -1,12 +1,17 @@
-import instance from 'api/instance';
-import * as S from './index.styles';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+
 import { List } from 'containers/ListsSection';
 import Tweets from 'components/Tweets';
+import instance from 'api/instance';
+
+import * as S from './index.styles';
 
 const ListSection = ({ user, listQuery }) => {
     const [list, setList] = useState<List>();
     const [isFollowing, setFollowing] = useState<boolean>();
+
+    const router = useRouter();
 
     const getList = async () => {
         try {
@@ -58,51 +63,59 @@ const ListSection = ({ user, listQuery }) => {
     }, [listQuery]);
     return (
         <S.Wrapper>
-            <S.Header>
-                <S.LeftArrowIcon size="100%" />
-                <S.TitleWrapper>
-                    <S.Title>
-                        <div>{list?.name}</div>
-                        <p>@{list?.creator.nick}</p>
-                    </S.Title>
-                </S.TitleWrapper>
-            </S.Header>
-            <S.ListInfoWrapper>
-                <S.ListTitle>{list?.name}</S.ListTitle>
-                <S.ListDesc>{list?.desc}</S.ListDesc>
-                <S.ListInfo>
-                    {list?.creator.name}&nbsp; <p>@{list?.creator.nick}</p>
-                </S.ListInfo>
-                <S.ListInfo>
-                    <div>{list?.members.length}&nbsp;</div>
-                    <p>Members&nbsp;</p>
-                    <div>{list?.followers.length}&nbsp;</div>
-                    <p>Followers&nbsp;</p>
-                </S.ListInfo>
-                <S.FollowButton
-                    following={
-                        list?.followers.includes(user?.nick) ? true : false
-                    }
-                    onClick={followList}
-                >
-                    {list?.followers.includes(user?.nick) ? (
-                        <div>Following</div>
-                    ) : (
-                        <div>Follow</div>
+            {list && (
+                <>
+                    <S.Header>
+                        <S.LeftArrowIcon
+                            size="100%"
+                            onClick={() => router.back()}
+                        />
+                        <S.TitleWrapper>
+                            <S.Title>
+                                <div>{list?.name}</div>
+                                <p>@{list?.creator.nick}</p>
+                            </S.Title>
+                        </S.TitleWrapper>
+                    </S.Header>
+                    <S.ListInfoWrapper>
+                        <S.ListTitle>{list?.name}</S.ListTitle>
+                        <S.ListDesc>{list?.desc}</S.ListDesc>
+                        <S.ListInfo>
+                            {list?.creator.name}&nbsp;{' '}
+                            <p>@{list?.creator.nick}</p>
+                        </S.ListInfo>
+                        <S.ListInfo>
+                            <div>{list?.members.length}&nbsp;</div>
+                            <p>Members&nbsp;</p>
+                            <div>{list?.followers.length}&nbsp;</div>
+                            <p>Followers&nbsp;</p>
+                        </S.ListInfo>
+                        <S.FollowButton
+                            following={
+                                list?.followers.includes(user?.nick)
+                                    ? true
+                                    : false
+                            }
+                            onClick={followList}
+                        >
+                            {list?.followers.includes(user?.nick) ? (
+                                <div>Following</div>
+                            ) : (
+                                <div>Follow</div>
+                            )}
+                        </S.FollowButton>
+                    </S.ListInfoWrapper>
+                    {user && listQuery && (
+                        <Tweets
+                            nick={user?.nick}
+                            avatar={user?.avatarId}
+                            type="list"
+                            photoMode={false}
+                            user={user}
+                            listQuery={listQuery}
+                        />
                     )}
-                </S.FollowButton>
-            </S.ListInfoWrapper>
-            {user && listQuery && (
-                <Tweets
-                    nick={user?.nick}
-                    avatar={user?.avatarId}
-                    profile={null}
-                    type="list"
-                    tweet={null}
-                    photoMode={false}
-                    user={user}
-                    listQuery={listQuery}
-                />
+                </>
             )}
         </S.Wrapper>
     );

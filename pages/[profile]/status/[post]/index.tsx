@@ -36,19 +36,7 @@ const Home = () => {
                 data: { nick: tweet?.nick },
             });
             if (res.status === 200) {
-                const nick = tweet?.nick;
-                if (typeof nick === 'string') {
-                    const userData: User = {
-                        nick: nick,
-                        name: res.data.name,
-                        bio: res.data.bio,
-                        avatarId: res.data.avatar,
-                        followers: res.data.followers,
-                        following: res.data.following,
-                        tweets: res.data.tweets,
-                    };
-                    setUserProfile(userData);
-                }
+                setUserProfile(res.data.user);
             }
         } catch (err) {
             console.error(err);
@@ -67,23 +55,23 @@ const Home = () => {
                 type="normal"
                 photo={tweet?.imageId}
                 handleModal={null}
-                child={
-                    typeof post === 'string' &&
-                    typeof profile === 'string' && (
+            >
+                {typeof post === 'string' &&
+                    typeof profile === 'string' &&
+                    user && (
                         <Tweets
                             nick={user?.nick}
                             profile={userProfile?.nick}
                             type="post-replies"
-                            avatar={userProfile?.avatarId}
+                            avatar={userProfile?.avatar}
                             tweet={tweet}
                             photoMode={false}
                             user={user}
                             postQuery={post}
                             profileQuery={profile}
                         />
-                    )
-                }
-            />
+                    )}
+            </PostSection>
         </BodyContent>
     );
 };

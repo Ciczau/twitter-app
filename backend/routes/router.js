@@ -74,6 +74,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 export const router = express();
+
 router.post('/user/register', Register);
 router.post('/user/login', Login);
 router.post('/user/logout', Logout);
@@ -119,15 +120,15 @@ router.post('/notifications/get', GetNotifications);
 router.post('/lists/create', createList);
 router.post('/lists/create/users', addMembersToList);
 router.post('/lists/user/get', getUserList);
+router.post('/lists/get/bykey', GetListsByKey);
 router.post('/list/get', getList);
 router.post('/list/get/tweets', getListTweets);
 router.post('/list/follow', followList);
-router.post('/lists/get/bykey', GetListsByKey);
 
 router.post('/community/create', upload.single('file'), createCommunity);
-router.post('/communities/user/get', getUserCommunities);
 router.post('/community/join', joinCommunity);
 router.post('/community/get', getCommunity);
-router.post('/communities/get/bykey', GetCommunitiesByKey);
 router.post('/community/get/tweets', getCommunityTweets);
+router.post('/communities/user/get', getUserCommunities);
+router.post('/communities/get/bykey', GetCommunitiesByKey);
 router.post('/communities/user/get/tweets', getUserCommunitiesTweets);

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import * as S from './index.styles';
-import instance from 'api/instance';
 import { useRouter } from 'next/router';
+
+import instance from 'api/instance';
 import { User } from 'components/BodyContent';
 import Users from 'components/Users';
 
+import * as S from './index.styles';
 export interface List {
     id: string;
     name: string;
@@ -24,11 +25,14 @@ const ListSection = ({ user }) => {
         'creator'
     );
     const [futureMembersList, setMembersList] = useState<User[]>([]);
-    const [activeTab, setActiveTab] = useState<'members' | 'suggested'>();
+    const [activeTab, setActiveTab] = useState<'members' | 'suggested'>(
+        'suggested'
+    );
     const [listSearchKey, setListSearchKey] = useState<string>('');
     const [usersSearchKey, setUsersSearchKey] = useState<string>('');
     const [searchedLists, setSearchedLists] = useState<List[]>([]);
     const [resultVisible, setResultVisible] = useState<boolean>(false);
+
     const router = useRouter();
 
     const handleListCreate = async () => {
@@ -52,7 +56,6 @@ const ListSection = ({ user }) => {
                 method: 'POST',
                 data: { nick: user.nick },
             });
-            console.log(res);
             setUserLists(res.data.result);
         } catch (err) {}
     };
@@ -68,7 +71,6 @@ const ListSection = ({ user }) => {
     };
     useEffect(() => {
         getUserLists();
-        console.log(futureMembersList.length);
     }, [user]);
     useEffect(() => {
         getListsByKey();
@@ -105,7 +107,7 @@ const ListSection = ({ user }) => {
         setListDesc('');
         setListName('');
     };
-    function closeResult(ref) {
+    function closeResultListener(ref) {
         useEffect(() => {
             function handleClickOutside(event) {
                 if (ref.current && !ref.current.contains(event.target)) {
@@ -140,8 +142,9 @@ const ListSection = ({ user }) => {
             </S.ListsWrapper>
         );
     };
+
     const searchResultRef = useRef(null);
-    closeResult(searchResultRef);
+    closeResultListener(searchResultRef);
     return (
         <>
             {modalVisible && (
@@ -157,7 +160,7 @@ const ListSection = ({ user }) => {
                                                 size="100%"
                                                 onClick={closeModal}
                                             />
-                                            <div>chuj</div>
+                                            <div>Create a new list</div>
                                         </S.Title>
                                         <S.Button
                                             onClick={handleListCreate}
@@ -213,7 +216,7 @@ const ListSection = ({ user }) => {
                                                 size="100%"
                                                 onClick={closeModal}
                                             />
-                                            <div>chuj</div>
+                                            <div></div>
                                         </S.Title>
                                         <S.Button
                                             onClick={handleListUsers}

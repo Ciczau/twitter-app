@@ -1,9 +1,10 @@
 import { ObjectId } from 'mongodb';
-import { db } from '../database/mongo.js';
-import { generateRandomCode } from './users.js';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import { tweets } from './tweets.js';
+
+import { generateRandomCode } from './users.js';
+
+import { tweets, communities } from '../database/collections.js';
 
 cloudinary.config({
     cloud_name: 'df4tupotg',
@@ -11,7 +12,6 @@ cloudinary.config({
     api_secret: 'mPXy5pytK8szulO6NY69mlAtP8Y',
 });
 
-const communities = db.collection('communities');
 export const createCommunity = async (req, res) => {
     const { file } = req;
     const { name, nick } = req.body;
@@ -26,32 +26,33 @@ export const createCommunity = async (req, res) => {
         }
     }
     let members = [nick];
-    await communities.insertOne({
+    const addComunity = await communities.insertOne({
         name: name,
         members: members,
         avatar: `https://res.cloudinary.com/df4tupotg/image/upload/${imageId}`,
     });
-    return res.status(200).send();
+    const newCommunity = await communities.findOne({
+        _id: addComunity.insertedId,
+    });
+    return res.status(200).send({ newCommunity });
 };
 export const getUserCommunities = async (req, res) => {
     const { nick } = req.body;
     const result = await communities
         .find({ members: { $in: [nick] } })
         .toArray();
-    console.log(result);
     return res.status(200).send({ result });
 };
 export const joinCommunity = async (req, res) => {
-    const { nick, community } = req.body;
-    await communities.updateOne(
-        { name: community },
-        { $push: { members: nick } }
-    );
+    const { nick, community, joined } = req.body;
+    const update = joined
+        ? { $pull: { members: nick } }
+        : { $push: { members: nick } };
+    await communities.updateOne({ _id: new ObjectId(community) }, update);
     return res.status(200).send();
 };
 export const GetCommunitiesByKey = async (req, res) => {
     const { key } = req.body;
-    console.log(key);
     if (!key) return res.status(200).send({ result: [] });
     const result = await communities
         .find({
@@ -71,7 +72,6 @@ export const getCommunity = async (req, res) => {
 export const getCommunityTweets = async (req, res) => {
     const { communityId } = req.body;
     const result = await tweets.find({ audience: communityId }).toArray();
-    console.log(result);
     return res.status(200).send({ result });
 };
 export const getUserCommunitiesTweets = async (req, res) => {
@@ -83,18 +83,30 @@ export const getUserCommunitiesTweets = async (req, res) => {
         })
         .toArray();
 
-    let result = [];
+    let tempResult = [];
     for (let i = 0; i < communitiesList.length; i++) {
         const tweetList = await tweets
             .find({ audience: communitiesList[i]._id.toString() })
             .toArray();
-        console.log(communitiesList[i]._id);
         for (let j = 0; j < tweetList.length; j++) {
-            result.push(tweetList[j]);
+            tempResult.push(tweetList[j]);
         }
     }
-    result.sort((a, b) => {
-        return new Date(b.date) - new Date(a.date);
+    let result = [];
+    tempResult.forEach((item) => {
+        result.push(item);
+        item.repostBy?.forEach((repost) => {
+            if (repost.nick === nick) {
+                result.push({ ...item, repost: [repost] });
+            }
+        });
+    });
+    result.reverse().sort((a, b) => {
+        const aRepost = a.repostBy.find((repost) => repost.nick === nick);
+        const bRepost = b.repostBy.find((repost) => repost.nick === nick);
+        const aDate = aRepost ? aRepost.date : a.date;
+        const bDate = bRepost ? bRepost.date : b.date;
+        return new Date(bDate) - new Date(aDate);
     });
 
     return res.status(200).send({ result });

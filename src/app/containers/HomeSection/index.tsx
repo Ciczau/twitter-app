@@ -33,11 +33,9 @@ const HomeSection = ({ user }) => {
             </S.SelectionWrapper>
             <Tweets
                 nick={userData?.nick}
-                avatar={userData?.avatarId}
-                profile={null}
+                avatar={userData?.avatar}
                 type="home"
                 activeTab={activeTab}
-                tweet={null}
                 photoMode={false}
                 user={user}
             />

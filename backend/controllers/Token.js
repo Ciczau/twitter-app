@@ -9,13 +9,13 @@ export const generateAccessToken = (
     nick,
     bio,
     name,
-    avatarId,
+    avatar,
     tweets,
     followers,
     following
 ) => {
     return jwt.sign(
-        { nick, bio, name, avatarId, tweets, followers, following },
+        { nick, bio, name, avatar, tweets, followers, following },
         process.env.JWT_SECRET_ACCESS_KEY,
         {
             expiresIn: '15s',

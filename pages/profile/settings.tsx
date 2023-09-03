@@ -13,19 +13,14 @@ const Home = ({ type = 'tweets' }) => {
     };
     return (
         <BodyContent auth={false} nickName={getUser}>
-            <ProfileSection
-                user={user}
-                profile={user}
-                type={type}
-                child={
-                    <Settings
-                        nick={user?.nick}
-                        name={user?.name}
-                        avatar={user?.avatarId}
-                        bio={user?.bio}
-                    />
-                }
-            />
+            <ProfileSection user={user} profile={user} type={type}>
+                <Settings
+                    nick={user?.nick}
+                    name={user?.name}
+                    avatar={user?.avatar}
+                    bio={user?.bio}
+                />
+            </ProfileSection>
         </BodyContent>
     );
 };

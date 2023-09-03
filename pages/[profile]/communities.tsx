@@ -4,7 +4,6 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 
 import BodyContent, { User } from 'components/BodyContent';
-import ListsSection from 'containers/ListsSection';
 import CommunitiesSection from 'containers/CommunitiesSection';
 
 const Home: NextPage = () => {

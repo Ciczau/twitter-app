@@ -37,7 +37,7 @@ export const CommunityContent = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-
+    height: 130px;
     width: 100%;
     padding: 15px;
     background-color: #111214;
@@ -45,18 +45,31 @@ export const CommunityContent = styled.div`
 export const CommunityTitle = styled.div`
     font-size: 30px;
 `;
+export const CommunityBar = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+`;
+export const MembersCount = styled.div``;
 export const Button = styled.div`
     border-radius: 50px;
     padding: 5px 15px;
-    margin-top: 20px;
+    cursor: pointer;
     font-family: inherit;
-    color: inherit;
-    border: 1px solid #363642;
     font-weight: bold;
+    display: flex;
+    justify-content: center;
+    min-width: ${(props) => (props.joined ? '80px' : '50px')};
     font-size: 16px;
-    background-color: transparent;
-    color: ${(props) => (props.joined ? 'white' : 'black')};
-    font-weight: bold;
-    background-color: ${(props) => (props.joined ? 'black' : 'white')};
-    border: ${(props) => (props.joined ? '1px solid gray' : '0')};
+    background-color: ${(props) =>
+        props.leave ? '#ffffff' : props.joined ? '#111214' : 'white'};
+    color: ${(props) => (!props.leave && props.joined ? 'white' : '#111214')};
+    font-weight: 700;
+    border: 1px solid gray;
+    &:hover {
+        background-color: ${(props) =>
+            !props.joined && !props.leave && 'transparent'};
+        color: ${(props) => !props.joined && 'white'};
+    }
 `;

@@ -1,11 +1,10 @@
-import { db } from '../database/mongo.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { generateAccessToken, generateRefreshToken } from './token.js';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-import { notifications } from './notifications.js';
-import { follows } from './follows.js';
+
+import { generateAccessToken, generateRefreshToken } from './token.js';
+import { users, follows, notifications } from '../database/collections.js';
 
 cloudinary.config({
     cloud_name: 'df4tupotg',
@@ -13,12 +12,10 @@ cloudinary.config({
     api_secret: 'mPXy5pytK8szulO6NY69mlAtP8Y',
 });
 
-export const Users = db.collection('users');
-
 export const refreshToken = async (req, res) => {
     const { refreshToken } = req.body;
     if (!refreshToken) return res.status(400).send({ msg: 'Error' });
-    const user = await Users.findOne({ refreshToken: refreshToken });
+    const user = await users.findOne({ refreshToken: refreshToken });
     if (!user)
         return res
             .status(409)
@@ -27,12 +24,11 @@ export const refreshToken = async (req, res) => {
     if (!verifyToken) {
         return res.status(401).send({ msg: 'Token not verified' });
     } else {
-        const avatarUrl = `https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`;
         const accessToken = generateAccessToken(
             user.nick,
             user.bio,
             user.name,
-            avatarUrl,
+            user.avatar,
             user.tweets,
             user.followers,
             user.following
@@ -48,8 +44,8 @@ export const Register = async (req, res) => {
         return res.status(400).send({ msg: 'Error' });
     if (password !== repeatPassword)
         return res.status(403).send({ msg: 'Passwords did not match' });
-    const searchForUserByMail = await Users.findOne({ email: email });
-    const searchForUserByNick = await Users.findOne({ nick: nick });
+    const searchForUserByMail = await users.findOne({ email: email });
+    const searchForUserByNick = await users.findOne({ nick: nick });
     if (searchForUserByMail || searchForUserByNick)
         return res.status(409).send({
             msg: 'User already exists',
@@ -59,12 +55,12 @@ export const Register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const encryptedPassword = await bcrypt.hash(password, salt);
     const refreshToken = generateRefreshToken(nick);
-    await Users.insertOne({
+    await users.insertOne({
         email: email,
         nick: nick,
         name: nick,
         bio: '',
-        avatarId: 'defaultAvatar',
+        avatar: 'https://res.cloudinary.com/df4tupotg/image/upload/defaultAvatar',
         password: encryptedPassword,
         refreshToken: refreshToken,
         tweets: 0,
@@ -77,12 +73,12 @@ export const Register = async (req, res) => {
 export const Login = async (req, res) => {
     const { nick, password } = req.body;
     if (!nick || !password) return res.status(400).send({ msg: 'Error' });
-    const User = await Users.findOne({ nick: nick });
+    const User = await users.findOne({ nick: nick });
     if (!User) return res.status(404).send({ msg: 'User not exists' });
     const checkPassword = await bcrypt.compare(password, User.password);
     if (!checkPassword) return res.status(401).send({ msg: 'Wrong password' });
     const refreshToken = generateRefreshToken(nick);
-    await Users.updateOne(
+    await users.updateOne(
         { nick: nick },
         {
             $set: { refreshToken: refreshToken },
@@ -96,7 +92,7 @@ export const Login = async (req, res) => {
 export const Logout = async (req, res) => {
     const { nick } = req.body;
     if (!nick) return res.status(400).send();
-    await Users.updateOne({ nick: nick }, { $set: { refreshToken: '' } });
+    await users.updateOne({ nick: nick }, { $set: { refreshToken: '' } });
     return res.status(200).send();
 };
 
@@ -115,25 +111,35 @@ export function generateRandomCode() {
 export const EditProfile = async (req, res) => {
     try {
         const { file } = req;
-        const { name, bio, nick } = req.body;
+        const { name, bio, nick, refreshToken } = req.body;
+        if (!refreshToken) return res.status(404).send();
+        const checkToken = await users.findOne({ refreshToken: refreshToken });
+        if (!checkToken) return res.status(409).send();
         const fileName = generateRandomCode();
-        const user = await Users.findOne({ nick: nick });
-        await Users.updateOne(
+        const user = await users.findOne({ nick: nick });
+        await users.updateOne(
             { nick: nick },
             { $set: { name: name, bio: bio } }
         );
 
         if (file) {
-            if (user.avatar !== 'defaultAvatar') {
-                await cloudinary.uploader.destroy(user.avatarId);
+            if (
+                user.avatar !==
+                'https://res.cloudinary.com/df4tupotg/image/upload/defaultAvatar'
+            ) {
+                await cloudinary.uploader.destroy(user.avatar);
             }
             const uploadResult = await cloudinary.uploader.upload(file.path, {
                 public_id: fileName,
                 invalidate: true,
             });
-            await Users.updateOne(
+            await users.updateOne(
                 { nick: nick },
-                { $set: { avatarId: fileName } }
+                {
+                    $set: {
+                        avatar: `https://res.cloudinary.com/df4tupotg/image/upload/${fileName}`,
+                    },
+                }
             );
             if (uploadResult) {
                 await fs.promises.unlink(file.path);
@@ -142,45 +148,41 @@ export const EditProfile = async (req, res) => {
 
         return res.status(200).send();
     } catch (error) {
-        console.error('Error:', error);
         return res.status(500).send('Internal Server Error');
     }
 };
 
 export const GetUser = async (req, res) => {
     const { nick } = req.body;
-    const user = await Users.findOne({ nick: nick });
+    if (!nick) return res.status(404).send();
+    const user = await users.findOne({ nick: nick });
     if (!user) return res.status(404).send();
-    const avatar = `https://res.cloudinary.com/df4tupotg/image/upload/${user.avatarId}`;
-    const { name, bio, followers, following, tweets } = user;
-    return res
-        .status(200)
-        .send({ avatar, name, bio, followers, following, tweets });
+    return res.status(200).send({ user });
 };
 
 export const GetUsers = async (req, res) => {
     const { list } = req.body;
-    console.log(list);
     if (!list) return res.status(400).send();
-    const users = [];
+    const userList = [];
     for (let i = 0; i < list.length; i++) {
-        const user = await Users.findOne({ nick: list[i] });
-        users.push(user);
+        const user = await users.findOne({ nick: list[i] });
+        userList.push(user);
     }
-    return res.status(200).send({ users });
+    return res.status(200).send({ users: userList });
 };
 
 export const GetAllUsers = async (req, res) => {
-    const users = await Users.find({}).toArray();
+    const users = await users.find({}).toArray();
     return res.status(200).send({ users });
 };
 
 export const GetUsersByKey = async (req, res) => {
     const { key } = req.body;
-    console.log(key);
-    const result = await Users.find({
-        nick: { $regex: key, $options: 'i' },
-    }).toArray();
+    const result = await users
+        .find({
+            nick: { $regex: key, $options: 'i' },
+        })
+        .toArray();
     return res.status(200).send({ result });
 };
 
@@ -189,38 +191,37 @@ export const GetEachOtherFollows = async (req, res) => {
     if (!nick) return res.status(404).send();
     let result = [];
 
-    const users = await follows
+    const followList = await follows
         .find({
             $or: [{ followBy: nick }, { userToFollow: nick }],
         })
         .toArray();
 
     let userNickList = [];
-    for (let i = 0; i < users.length; i++) {
-        for (let j = 0; j < users.length; j++) {
-            console.log(users[i].followBy);
+    for (let i = 0; i < followList.length; i++) {
+        for (let j = 0; j < followList.length; j++) {
             if (
-                users[i].followBy === users[j].userToFollow &&
-                users[i].followBy !== nick
+                followList[i].followBy === followList[j].userToFollow &&
+                followList[i].followBy !== nick
             ) {
-                userNickList.push(users[i].followBy);
+                userNickList.push(followList[i].followBy);
             }
         }
     }
 
     for (let i = 0; i < userNickList.length; i++) {
-        const user = await Users.findOne({ nick: userNickList[i] });
+        const user = await users.findOne({ nick: userNickList[i] });
         result.push({ user: user, followEachOther: true });
     }
     let newResult = [];
     if (key !== '') {
-        const usersByKey = await Users.find({
-            nick: { $regex: key, $options: 'i' },
-        }).toArray();
-        console.log(usersByKey);
+        const usersByKey = await users
+            .find({
+                nick: { $regex: key, $options: 'i' },
+            })
+            .toArray();
         for (let i = 0; i < usersByKey.length; i++) {
-            const user = await Users.findOne({ nick: usersByKey[i].nick });
-            console.log(result.filter((el) => el.user.nick === user.nick));
+            const user = await users.findOne({ nick: usersByKey[i].nick });
             if (!result.find((el) => el.user.nick === user.nick)) {
                 newResult.push({ user: user, followEachOther: false });
             } else {

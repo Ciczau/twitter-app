@@ -1,6 +1,5 @@
 import {
     FaHome,
-    FaSearch,
     FaBell,
     FaRegEnvelope,
     FaRegListAlt,
