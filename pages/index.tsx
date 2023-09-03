@@ -1,17 +1,14 @@
-'use client';
-import type { NextPage } from 'next';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-const Home: NextPage = () => {
+const Home = () => {
+    const router = useRouter();
+
+    useEffect(() => {
+        router.push('/home'); // Przekierowanie na stronę /home
+    }, []);
+
     return null;
 };
 
 export default Home;
-
-export async function getStaticProps() {
-    return {
-        redirect: {
-            permanent: false,
-            destination: '/home',
-        },
-    };
-}
