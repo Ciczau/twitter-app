@@ -41,8 +41,9 @@ const Home = ({ type = 'tweets' }) => {
                         profile={userProfile}
                         type={type}
                         profileQuery={profile}
-                        children={null}
-                    />
+                    >
+                        {null}
+                    </ProfileSection>
                 </BodyContent>
             )}
         </>
