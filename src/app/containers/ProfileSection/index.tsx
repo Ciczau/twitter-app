@@ -182,7 +182,7 @@ export default function ProfileSection({
                             size="100%"
                             onClick={() => router.back()}
                         />
-                        <S.Warning>This user doesn't exists!</S.Warning>{' '}
+                        <S.Warning>This user doesn{"'"}t exists!</S.Warning>{' '}
                     </>
                 )}
             </S.Wrapper>
