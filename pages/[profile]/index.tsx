@@ -26,9 +26,7 @@ const Home = ({ type = 'tweets' }) => {
             if (res.status === 200) {
                 setUserProfile(res.data.user);
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
     useEffect(() => {
         getUserByProfile();
@@ -36,15 +34,17 @@ const Home = ({ type = 'tweets' }) => {
 
     return (
         <BodyContent auth={false} nickName={getUser}>
-            {typeof profile === 'string' && (
-                <ProfileSection
-                    user={user}
-                    profile={userProfile}
-                    type={type}
-                    profileQuery={profile}
-                    children={null}
-                />
-            )}
+            <>
+                {typeof profile === 'string' && (
+                    <ProfileSection
+                        user={user}
+                        profile={userProfile}
+                        type={type}
+                        profileQuery={profile}
+                        children={null}
+                    />
+                )}
+            </>
         </BodyContent>
     );
 };

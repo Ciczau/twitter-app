@@ -107,7 +107,7 @@ const ListSection = ({ user }) => {
         setListDesc('');
         setListName('');
     };
-    function closeResultListener(ref) {
+    function CloseResultListener(ref) {
         useEffect(() => {
             function handleClickOutside(event) {
                 if (ref.current && !ref.current.contains(event.target)) {
@@ -144,7 +144,7 @@ const ListSection = ({ user }) => {
     };
 
     const searchResultRef = useRef(null);
-    closeResultListener(searchResultRef);
+    CloseResultListener(searchResultRef);
     return (
         <>
             {modalVisible && (
@@ -320,8 +320,8 @@ const ListSection = ({ user }) => {
                                             </S.ExploreWarning>
                                         ) : (
                                             <S.ExploreWarning>
-                                                No Lists matched "
-                                                {listSearchKey}"
+                                                No Lists matched{' '}
+                                                {`"${listSearchKey}"`}
                                             </S.ExploreWarning>
                                         )}
                                     </>
