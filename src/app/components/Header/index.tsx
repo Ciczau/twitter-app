@@ -38,7 +38,7 @@ const Header = ({ user }) => {
             router.push('/x');
         } catch (err) {}
     };
-    function closeResultListener(ref) {
+    function CloseResultListener(ref) {
         useEffect(() => {
             function handleClickOutside(event) {
                 if (ref.current && !ref.current.contains(event.target)) {
@@ -52,7 +52,7 @@ const Header = ({ user }) => {
         }, [ref]);
     }
     const modalRef = useRef(null);
-    closeResultListener(modalRef);
+    CloseResultListener(modalRef);
     return (
         <S.Wrapper>
             <S.Header>

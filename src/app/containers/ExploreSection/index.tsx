@@ -59,7 +59,7 @@ const ExploreSection = ({ user }) => {
                         <>
                             {emptyTweetList ? (
                                 <S.Warning>
-                                    No result for "{searchKey}"
+                                    No result for {`"${searchKey}"`}
                                 </S.Warning>
                             ) : (
                                 <Tweets
@@ -77,7 +77,7 @@ const ExploreSection = ({ user }) => {
                         <>
                             {emptyUserList ? (
                                 <S.Warning>
-                                    No result for "{searchKey}"
+                                    No result for {`"${searchKey}"`}
                                 </S.Warning>
                             ) : (
                                 <Users

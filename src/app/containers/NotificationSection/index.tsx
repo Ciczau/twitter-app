@@ -52,7 +52,7 @@ const NotificationSection = ({ user }) => {
                     const year = date.getUTCFullYear();
 
                     return (
-                        <S.Notification type={not.type}>
+                        <S.Notification type={not.type} key={index}>
                             {not.type === 'retweet' ? (
                                 <Tweets
                                     nick={not.user?.nick}

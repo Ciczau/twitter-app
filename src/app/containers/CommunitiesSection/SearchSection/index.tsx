@@ -31,7 +31,7 @@ const SearchSection = () => {
             <S.CommunitiesWrapper>
                 {searchedCommunities?.map((community, index) => {
                     return (
-                        <S.Community>
+                        <S.Community key={index}>
                             <S.CommunityAvatar src={community.avatar} />
                             <S.CommunityContent>
                                 <p>{community.name}</p>
