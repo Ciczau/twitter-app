@@ -33,9 +33,9 @@ const Home = ({ type = 'tweets' }) => {
     }, [profile]);
 
     return (
-        <BodyContent auth={false} nickName={getUser}>
-            <>
-                {typeof profile === 'string' && (
+        <>
+            {typeof profile === 'string' && (
+                <BodyContent auth={false} nickName={getUser}>
                     <ProfileSection
                         user={user}
                         profile={userProfile}
@@ -43,9 +43,9 @@ const Home = ({ type = 'tweets' }) => {
                         profileQuery={profile}
                         children={null}
                     />
-                )}
-            </>
-        </BodyContent>
+                </BodyContent>
+            )}
+        </>
     );
 };
 export default Home;
