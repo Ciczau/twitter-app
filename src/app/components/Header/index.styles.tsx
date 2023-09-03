@@ -5,7 +5,7 @@ export const Wrapper = styled.div`
     height: 100vh;
 
     display: flex;
-    z-index: 99999;
+    z-index: 99999999;
     position: relative;
     padding: 10px 20px 25px 0;
     min-width: 70px;
@@ -71,7 +71,7 @@ export const Avatar = styled.img`
 `;
 export const ToolTip = styled.div`
     position: absolute;
-    z-index: 9;
+    z-index: 99;
     width: 150px;
     border-radius: 15px;
     font-size: 18px;
