@@ -1,2 +1,1 @@
--zrobić efekt ładowania (opcjonalne)
--zrobić dodawanie tweetów (backend + frontend) + ich wyświetlanie
+Twitter clon app
