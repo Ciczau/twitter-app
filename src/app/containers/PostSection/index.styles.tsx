@@ -6,6 +6,7 @@ import { IoMdClose } from 'react-icons/io';
 export const Wrapper = styled.div`
     color: white;
     width: 600px;
+
     max-width: 85vw;
 `;
 export const PhotoWrapper = styled.div`
@@ -14,8 +15,9 @@ export const PhotoWrapper = styled.div`
     position: fixed;
     z-index: 9999999;
     top: 0;
+
+    background-color: #000000ed;
     display: flex;
-    background-color: #000000ea;
     justify-content: center;
     align-items: center;
     left: 0;
@@ -25,14 +27,26 @@ export const PhotoWrapper = styled.div`
 `;
 
 export const IconWrapper = styled.div`
-    position: absolute;
-    left: 15px;
-    top: 15px;
-    z-index: 999999999;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+
+    left: 0;
+    top: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    color: white;
+    z-index: 9999999999;
 `;
 
 export const CloseIcon = styled(IoMdClose)`
     width: 30px;
+    height: 30px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 9999999999999;
     color: white;
 `;
 

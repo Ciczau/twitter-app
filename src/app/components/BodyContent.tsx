@@ -19,7 +19,6 @@ const Wrapper = styled.div`
     height: 100vh;
     display: flex;
     position: absolute;
-
     justify-content: center;
     background-color: black;
 `;
@@ -27,7 +26,7 @@ const Wrapper = styled.div`
 const MainWrapper = styled.section`
     height: auto;
     position: relative;
-    z-index: 99999;
+    z-index: 9;
     max-width: 85vw;
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;

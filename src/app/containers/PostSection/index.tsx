@@ -16,9 +16,8 @@ const PostSection = ({ user, children, type, photo, handleModal }) => {
         <S.Wrapper>
             {type === 'photo' && (
                 <>
-                    <S.IconWrapper>
-                        <S.CloseIcon size="100%" onClick={handleModal} />
-                    </S.IconWrapper>
+                    <S.CloseIcon size="100%" onClick={handleModal} />
+
                     <S.PhotoWrapper>
                         <S.Photo src={photo} />
                     </S.PhotoWrapper>

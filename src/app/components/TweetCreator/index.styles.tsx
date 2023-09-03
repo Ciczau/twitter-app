@@ -13,6 +13,7 @@ export const TweetCreatorWrapper = styled.div`
     border-bottom: ${(props) => (props.reply ? '0' : '1px solid #c7c7c745')};
     padding: 15px;
     display: flex;
+    position: relative;
     justify-content: space-between;
 `;
 
@@ -109,6 +110,8 @@ export const EmojiListIcon = styled(FaRegSmile)`
 
 export const ChoiceName = styled.div`
     display: flex;
+    position: relative;
+    z-index: 10;
     align-items: center;
 `;
 export const ChooseWrapper = styled.div`
@@ -121,7 +124,7 @@ export const ChooseWrapper = styled.div`
     cursor: pointer;
     flex-direction: column;
     align-items: flex-start;
-    z-index: 999999999;
+    z-index: 99;
     line-height: 20px;
     color: #1b60a0;
     position: relative;

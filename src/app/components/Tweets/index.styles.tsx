@@ -10,7 +10,6 @@ export const Wrapper = styled.div`
     display: flex;
     width: 100%;
     color: white;
-
     flex-direction: column;
 `;
 
@@ -173,7 +172,7 @@ export const ReplyWrapper = styled.div`
     justify-content: center;
     align-items: flex-start;
     top: 100px;
-    z-index: 99999999999999999;
+    z-index: 9999999999;
     left: 0;
     color: white;
     width: 100vw;

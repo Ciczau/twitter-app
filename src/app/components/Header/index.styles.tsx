@@ -1,11 +1,9 @@
 import styled from 'styled-components';
-import { Tooltip } from '@nextui-org/react';
-
 export const Wrapper = styled.div`
     height: 100vh;
 
     display: flex;
-    z-index: 99999999;
+    z-index: 9;
     position: relative;
     padding: 10px 20px 25px 0;
     min-width: 70px;
@@ -32,7 +30,7 @@ export const Header = styled.header`
 export const HeaderElement = styled.div`
     display: flex;
     align-items: center;
-    z-index: 999;
+    z-index: 0;
 
     cursor: pointer;
     border-radius: 50px;
@@ -71,7 +69,7 @@ export const Avatar = styled.img`
 `;
 export const ToolTip = styled.div`
     position: absolute;
-    z-index: 99;
+    z-index: 99999;
     width: 150px;
     border-radius: 15px;
     font-size: 18px;
@@ -80,12 +78,11 @@ export const ToolTip = styled.div`
     padding: 5px 10px;
     font-weight: 400;
     box-shadow: 0px 0px 5px 3px #ffffff29;
-    background-color: #000000;
+    background: #000000;
 `;
 export const ProfileElement = styled.div`
     display: flex;
     color: white;
-    z-index: 999;
     position: relative;
     flex-direction: column;
 `;
