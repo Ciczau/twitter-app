@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import instance from 'api/instance';
 import { User } from 'components/BodyContent';
@@ -113,6 +113,11 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
             </>
         );
     };
+
+    const filter = useMemo(() => {
+        return chats.filter((chat) => chat.id === chatQuery)
+    }, [chats]);
+
     useEffect(() => {
         setWidth(window.innerWidth);
         const handleWidth = () => {
@@ -180,7 +185,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
 
                 {type === 'openedChat' && chats && (
                     <ChatSection
-                        chat={chats.filter((chat) => chat.id === chatQuery)}
+                        chat={filter}
                         user={user}
                         chatQuery={chatQuery}
                         width={width}
