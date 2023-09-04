@@ -14,7 +14,7 @@ import instance from 'api/instance';
 import * as S from './index.styles';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
-    const wss = new WebSocket('ws://ciczau-twitter-backend-e83fca20f698.herokuapp.com');
+    const wss = new WebSocket('https://ciczau-twitter-backend-e83fca20f698.herokuapp.com');
 
     const [selectedChat, setSelectedChat] = useState<{
         id: string;
