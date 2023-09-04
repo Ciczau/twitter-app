@@ -34,26 +34,31 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [modal, setModal] = useState<{ visible: boolean; image: string }>();
     const [cookie] = useCookies(['refreshToken']);
 
-    wss.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        console.log(e.data)
-        if (data.message?.id === chatQuery || data.image?.id === chatQuery) {
-            const chat: Array<{
-                sender: string;
-                receiver: string;
-                message: string;
-                image: string;
-            }> = [...chatContent];
-            if (data.image) {
-                delete data.image.id;
-                chat.unshift(data.image);
-            }
-            if (data.message) {
-                delete data.message.id;
-                chat.unshift(data.message);
-            }
+        wss.onmessage = (e) => {
+        if (e.data !== 'ping') {
+            const data = JSON.parse(e.data);
+            console.log(e);
+            if (
+                data.message?.id === chatQuery ||
+                data.image?.id === chatQuery
+            ) {
+                const chat: Array<{
+                    sender: string;
+                    receiver: string;
+                    message: string;
+                    image: string;
+                }> = [...chatContent];
+                if (data.image) {
+                    delete data.image.id;
+                    chat.unshift(data.image);
+                }
+                if (data.message) {
+                    delete data.message.id;
+                    chat.unshift(data.message);
+                }
 
-            setChatContent(chat);
+                setChatContent(chat);
+            }
         }
     };
 
