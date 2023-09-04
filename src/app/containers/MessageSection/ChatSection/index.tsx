@@ -36,7 +36,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
 
     wss.onmessage = (e) => {
         const data = JSON.parse(e.data);
-
+        console.log(e)
         if (data.message?.id === chatQuery || data.image?.id === chatQuery) {
             const chat: Array<{
                 sender: string;
