@@ -355,7 +355,7 @@ const Tweets: React.FC<TweetsType> = ({
         if (tweets && parents && likes && bookmarks) {
             setTimeout(() => {
                 setLoaded(true);
-            }, 500);
+            }, 1000);
         }
     }, [tweets, likes, bookmarks, parents]);
 
@@ -606,6 +606,7 @@ const Tweets: React.FC<TweetsType> = ({
     if (!isLoaded) {
         return (
             <>
+                {post && <Loader />}
                 {renderCreator()}
                 <Loader />
             </>
