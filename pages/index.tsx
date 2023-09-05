@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import LoadingPage from 'components/LoadingPage';
+import { GlobalStyle } from 'components/BodyContent';
 
 const Home = () => {
     const router = useRouter();
@@ -8,7 +10,12 @@ const Home = () => {
         router.push('/home'); // Przekierowanie na stronę /home
     }, []);
 
-    return null;
+    return (
+        <>
+            <GlobalStyle />
+            <LoadingPage />
+        </>
+    );
 };
 
 export default Home;
