@@ -14,7 +14,9 @@ import instance from 'api/instance';
 import * as S from './index.styles';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
-    const wss = new WebSocket('wss://ciczau-twitter-backend-e83fca20f698.herokuapp.com');
+    const wss = new WebSocket(
+        'wss://ciczau-twitter-backend-e83fca20f698.herokuapp.com'
+    );
 
     const [selectedChat, setSelectedChat] = useState<{
         id: string;
@@ -34,7 +36,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [modal, setModal] = useState<{ visible: boolean; image: string }>();
     const [cookie] = useCookies(['refreshToken']);
 
-        wss.onmessage = (e) => {
+    wss.onmessage = (e) => {
         if (e.data !== 'ping') {
             const data = JSON.parse(e.data);
             console.log(e);
@@ -59,6 +61,8 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
 
                 setChatContent(chat);
             }
+        } else {
+            wss.send('ping');
         }
     };
 
