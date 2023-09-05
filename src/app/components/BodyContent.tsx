@@ -113,10 +113,9 @@ export default function BodyContent({
         <div className={font.className}>
             <GlobalStyle />
 
-            {!isLoaded && <LoadingPage />}
-
             {isLogged ? (
                 <>
+                    {!isLoaded && <LoadingPage />}
                     {!auth && (
                         <Wrapper>
                             <Header user={user} />
