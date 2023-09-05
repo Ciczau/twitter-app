@@ -8,6 +8,8 @@ import jwtDecode from 'jwt-decode';
 
 import Header from './Header';
 import instance from 'api/instance';
+import LoadingPage from './LoadingPage';
+import { AnimatePresence } from 'framer-motion';
 
 export const font = Mukta({
     weight: '400',
@@ -59,6 +61,7 @@ export default function BodyContent({
     children,
 }) {
     const [isLogged, setLogged] = useState<boolean>(false);
+    const [isLoaded, setLoaded] = useState<boolean>(false);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
     const [user, setUser] = useState<User>({
         nick: '',
@@ -83,6 +86,9 @@ export default function BodyContent({
                 let decoded: User = jwtDecode(res.data.accessToken);
                 setUser(decoded);
                 nickName(decoded);
+                setTimeout(() => {
+                    setLoaded(true);
+                }, 500);
             }
         } catch (err) {
             deleteCookie('refreshToken');
@@ -106,6 +112,8 @@ export default function BodyContent({
     return (
         <div className={font.className}>
             <GlobalStyle />
+
+            {!isLoaded && <LoadingPage />}
 
             {isLogged ? (
                 <>

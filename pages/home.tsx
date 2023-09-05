@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 import BodyContent, { User } from 'components/BodyContent';
 import HomeSection from 'containers/HomeSection';
+import { Loader } from 'components/Loader/index.styles';
 
 const Home: NextPage = () => {
     const [user, setUser] = useState<User>();

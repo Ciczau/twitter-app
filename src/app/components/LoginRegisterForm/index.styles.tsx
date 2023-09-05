@@ -44,6 +44,7 @@ export const SubmitButton = styled.button`
     font-family: inherit;
     margin: 25px;
     padding: 5px 15px;
+    cursor: pointer;
     font-size: 20px;
     transition: all 0.3s ease;
     background-color: ${(props) => props.success && 'transparent'};

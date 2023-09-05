@@ -12,6 +12,7 @@ import {
 import instance from 'api/instance';
 
 import * as S from './index.styles';
+import Loader from 'components/Loader';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [selectedChat, setSelectedChat] = useState<{
@@ -31,6 +32,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [image, setImage] = useState<string>();
     const [modal, setModal] = useState<{ visible: boolean; image: string }>();
     const [cookie] = useCookies(['refreshToken']);
+    const [isLoaded, setLoaded] = useState<boolean>(false);
     const [wss, setWebSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
@@ -116,6 +118,8 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
 
                 if (file && image) {
                     formData.append('file', file);
+                    const img = new Image();
+                    img.src = image;
                 }
                 setImage('');
                 const res = await instance({
@@ -212,6 +216,13 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                 method: 'POST',
                 data: { id: selectedChat?.id },
             });
+            const chat = res.data.chat;
+            chat.forEach((message) => {
+                if (message.image) {
+                    const img = new Image();
+                    img.src = message.image;
+                }
+            });
             setChatContent(res.data.chat);
         } catch (err) {}
     };
@@ -221,6 +232,11 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     useEffect(() => {
         getChat();
     }, [selectedChat]);
+    useEffect(() => {
+        setTimeout(() => {
+            setLoaded(true);
+        }, 500);
+    }, [chatContent]);
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             sendMessage();
@@ -254,7 +270,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                             </S.UserWrapper>
                         </S.HeaderWrapper>
                         <S.ChatWindowWrapper>
-                            {renderChatContent()}
+                            {isLoaded ? renderChatContent() : <Loader />}
                         </S.ChatWindowWrapper>
                         <S.InputContainer>
                             <S.InputWrapper>

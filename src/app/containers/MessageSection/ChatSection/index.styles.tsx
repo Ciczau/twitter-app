@@ -84,7 +84,7 @@ export const SendButton = styled(AiOutlineSend)`
 `;
 
 export const ChatWindowWrapper = styled.div`
-    height: 700px;
+    height: auto;
     width: 100%;
     padding: 15px;
     overflow-y: scroll;

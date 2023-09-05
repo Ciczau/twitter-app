@@ -79,6 +79,8 @@ const Tweet = ({
     const [userProfile, setUserProfile] = useState<User>();
     const [tweetAuthor, setTweetAuthor] = useState<User>();
     const [tweet, setTweet] = useState<TweetType>();
+    const [avatarLoaded, setAvatarLoaded] = useState<boolean>(false);
+    const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const dateObject = new Date(date);
 
     const formattedDate = date
@@ -150,7 +152,18 @@ const Tweet = ({
     useEffect(() => {
         getUser();
     }, [nick]);
-
+    useEffect(() => {
+        if (tweetAuthor) {
+            const image = new Image();
+            image.src = tweetAuthor.avatar;
+            setAvatarLoaded(true);
+        }
+        if (imageId) {
+            const image = new Image();
+            image.src = imageId;
+            setImageLoaded(true);
+        }
+    }, [tweetAuthor, imageId]);
     const renderPhotoView = () => {
         return (
             <>
@@ -177,6 +190,7 @@ const Tweet = ({
             </>
         );
     };
+
     return (
         <>
             {renderPhotoView()}

@@ -7,6 +7,8 @@ import * as S from './index.styles';
 import TweetCreator from 'components/TweetCreator';
 import { User } from 'components/BodyContent';
 import { useCookies } from 'react-cookie';
+import Loader from 'components/Loader';
+import useImageLoader from 'hooks/useImageLoader';
 
 type TweetsType = {
     nick: string | undefined;
@@ -54,6 +56,8 @@ const Tweets: React.FC<TweetsType> = ({
     const [replyMode, setReplyMode] = useState<boolean>(false);
     const [replyTarget, setReplyTarget] = useState<TweetType>();
     const [cookie] = useCookies(['refreshToken']);
+    const [isLoaded, setLoaded] = useState<boolean>(false);
+    const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
 
     const handleChange = (e) => {
         setText(e.target.value);
@@ -200,6 +204,7 @@ const Tweets: React.FC<TweetsType> = ({
             }
             setBookmarks(bookmarks.data.result);
             setLikes(likes.data.result);
+
             if (type !== 'notificationTweet') {
                 setTweets(res.data.result);
             }
@@ -346,6 +351,13 @@ const Tweets: React.FC<TweetsType> = ({
             setPost(tweet);
         }
     }, [tweet]);
+    useEffect(() => {
+        if (tweets && parents && likes && bookmarks) {
+            setTimeout(() => {
+                setLoaded(true);
+            }, 500);
+        }
+    }, [tweets, likes, bookmarks, parents]);
 
     const handleReplyMode = (
         mode: boolean,
@@ -591,6 +603,14 @@ const Tweets: React.FC<TweetsType> = ({
             </>
         );
     };
+    if (!isLoaded) {
+        return (
+            <>
+                {renderCreator()}
+                <Loader />
+            </>
+        );
+    }
     return (
         <>
             {renderReplyView()}
