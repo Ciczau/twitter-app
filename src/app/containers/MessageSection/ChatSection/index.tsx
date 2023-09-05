@@ -37,6 +37,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [cookie] = useCookies(['refreshToken']);
 
     wss.onmessage = (e) => {
+        console.log(e.data);
         if (e.data !== 'ping') {
             const data = JSON.parse(e.data);
             console.log(e);
