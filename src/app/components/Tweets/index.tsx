@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 
 import Tweet, { TweetType } from 'components/Tweet';
 import instance from 'api/instance';
-
-import * as S from './index.styles';
 import TweetCreator from 'components/TweetCreator';
 import { User } from 'components/BodyContent';
-import { useCookies } from 'react-cookie';
 import Loader from 'components/Loader';
-import useImageLoader from 'hooks/useImageLoader';
+import { cacheImages } from 'hooks/CacheImages';
+
+import * as S from './index.styles';
 
 type TweetsType = {
     nick: string | undefined;
@@ -204,6 +204,13 @@ const Tweets: React.FC<TweetsType> = ({
             }
             setBookmarks(bookmarks.data.result);
             setLikes(likes.data.result);
+            const imagesArray: string[] = [user.avatar];
+            const tweetList: TweetType[] = res.data.result;
+            tweetList.forEach((tweet) => {
+                if (tweet.imageId !== '') {
+                    imagesArray.push(tweet.imageId);
+                }
+            });
 
             if (type !== 'notificationTweet') {
                 setTweets(res.data.result);
@@ -212,6 +219,7 @@ const Tweets: React.FC<TweetsType> = ({
                 setPost(res.data.result);
                 setReplyTarget(res.data.result);
             }
+            await cacheImages(imagesArray, setImagesLoaded);
         } catch (err) {}
     };
 
@@ -603,7 +611,7 @@ const Tweets: React.FC<TweetsType> = ({
             </>
         );
     };
-    if (!isLoaded) {
+    if (!isLoaded || !imagesLoaded) {
         return (
             <>
                 {post && <Loader />}

@@ -80,6 +80,7 @@ export const Input = styled.input`
 
 export const SendButton = styled(AiOutlineSend)`
     width: 25px;
+    cursor: pointer;
     color: #045291;
 `;
 

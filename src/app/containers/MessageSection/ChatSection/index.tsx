@@ -13,6 +13,7 @@ import instance from 'api/instance';
 
 import * as S from './index.styles';
 import Loader from 'components/Loader';
+import { cacheImages } from 'hooks/CacheImages';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [selectedChat, setSelectedChat] = useState<{
@@ -217,12 +218,14 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                 data: { id: selectedChat?.id },
             });
             const chat = res.data.chat;
+            const imagesArray: string[] = [];
+
             chat.forEach((message) => {
                 if (message.image) {
-                    const img = new Image();
-                    img.src = message.image;
+                    imagesArray.push(message.image);
                 }
             });
+            await cacheImages(imagesArray, setLoaded);
             setChatContent(res.data.chat);
         } catch (err) {}
     };
@@ -232,11 +235,6 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     useEffect(() => {
         getChat();
     }, [selectedChat]);
-    useEffect(() => {
-        setTimeout(() => {
-            setLoaded(true);
-        }, 500);
-    }, [chatContent]);
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             sendMessage();
