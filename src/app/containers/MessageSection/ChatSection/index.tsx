@@ -14,10 +14,6 @@ import instance from 'api/instance';
 import * as S from './index.styles';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
-    const wss = new WebSocket(
-        'wss://ciczau-twitter-backend-e83fca20f698.herokuapp.com'
-    );
-
     const [selectedChat, setSelectedChat] = useState<{
         id: string;
         user: User;
@@ -35,36 +31,53 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [image, setImage] = useState<string>();
     const [modal, setModal] = useState<{ visible: boolean; image: string }>();
     const [cookie] = useCookies(['refreshToken']);
+    const [wss, setWebSocket] = useState<WebSocket | null>(null);
 
-    wss.onmessage = (e) => {
-        if (e.data !== 'ping') {
-            const data = JSON.parse(e.data);
-            console.log(e);
-            if (
-                data.message?.id === chatQuery ||
-                data.image?.id === chatQuery
-            ) {
-                const chat: Array<{
-                    sender: string;
-                    receiver: string;
-                    message: string;
-                    image: string;
-                }> = [...chatContent];
-                if (data.image) {
-                    delete data.image.id;
-                    chat.unshift(data.image);
-                }
-                if (data.message) {
-                    delete data.message.id;
-                    chat.unshift(data.message);
-                }
+    useEffect(() => {
+        const socket = new WebSocket(
+            'wss://ciczau-twitter-backend-e83fca20f698.herokuapp.com'
+        );
 
-                setChatContent(chat);
+        setWebSocket(socket);
+
+        return () => {
+            if (socket) {
+                socket.close();
             }
-        } else {
-            wss.send('ping');
-        }
-    };
+        };
+    }, []);
+
+    if (wss) {
+        wss.onmessage = (e) => {
+            if (e.data !== 'ping') {
+                const data = JSON.parse(e.data);
+                console.log(e);
+                if (
+                    data.message?.id === chatQuery ||
+                    data.image?.id === chatQuery
+                ) {
+                    const chat: Array<{
+                        sender: string;
+                        receiver: string;
+                        message: string;
+                        image: string;
+                    }> = [...chatContent];
+                    if (data.image) {
+                        delete data.image.id;
+                        chat.unshift(data.image);
+                    }
+                    if (data.message) {
+                        delete data.message.id;
+                        chat.unshift(data.message);
+                    }
+
+                    setChatContent(chat);
+                }
+            } else {
+                wss.send('ping');
+            }
+        };
+    }
 
     const router = useRouter();
 
@@ -114,7 +127,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                     },
                 });
 
-                if (res.status === 200) {
+                if (res.status === 200 && wss) {
                     wss.send(
                         JSON.stringify({
                             message: message !== '' && {
