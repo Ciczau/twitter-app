@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import ChatSection from './ChatSection';
 
 import * as S from './index.styles';
+import SideBar from 'components/SideBar';
 
 const MessageSection = ({ user, type, chatQuery = '' }) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -115,7 +116,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     };
 
     const filter = useMemo(() => {
-        return chats.filter((chat) => chat.id === chatQuery)
+        return chats.filter((chat) => chat.id === chatQuery);
     }, [chats]);
 
     useEffect(() => {
@@ -173,6 +174,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                         openedChat={chatQuery !== '' ? true : false}
                     >
                         <S.Header>
+                            {width < 767 && <SideBar user={user} />}
                             <S.Title>Messages</S.Title>
                             <S.NewChatIcon
                                 size="100%"

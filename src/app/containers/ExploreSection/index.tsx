@@ -5,6 +5,7 @@ import { User } from 'components/BodyContent';
 import Users from 'components/Users';
 
 import * as S from './index.styles';
+import SideBar from 'components/SideBar';
 
 const ExploreSection = ({ user }) => {
     const [focus, setFocus] = useState<boolean>(false);
@@ -13,7 +14,17 @@ const ExploreSection = ({ user }) => {
     const [activeTab, setActiveTab] = useState<'tweets' | 'users'>('tweets');
     const [emptyTweetList, setEmptyTweetList] = useState<boolean>(false);
     const [emptyUserList, setEmptyUserList] = useState<boolean>(false);
+    const [width, setWidth] = useState<number>(window.innerWidth);
+    useEffect(() => {
+        const handleWidth = () => {
+            setWidth(window.innerWidth);
+        };
 
+        window.addEventListener('resize', handleWidth);
+        return () => {
+            window.removeEventListener('resize', handleWidth);
+        };
+    }, []);
     const handleChange = (e) => {
         if (e.key === 'Enter') {
             setEmptyTweetList(false);
@@ -27,6 +38,7 @@ const ExploreSection = ({ user }) => {
     return (
         <S.Wrapper>
             <S.Header>
+                {width < 767 && <SideBar user={user} />}
                 <S.ExploreWrapper>
                     <S.SearchIcon size="100%" focus={focus} />
                     <S.ExploreInput

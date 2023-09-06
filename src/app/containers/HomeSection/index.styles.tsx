@@ -2,14 +2,17 @@ import styled from 'styled-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { FaTwitter } from 'react-icons/fa';
 export const Wrapper = styled.div`
     display: flex;
     width: 600px;
     min-height: 100vh;
     max-width: 85vw;
+    position: relative;
+    z-index: 9;
     color: white;
     flex-direction: column;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
     }
@@ -18,6 +21,8 @@ export const Wrapper = styled.div`
 export const Head = styled.div`
     font-size: 25px;
     padding: 15px;
+    display: flex;
+    align-items: center;
 `;
 export const SelectionWrapper = styled.div`
     border-bottom: 1px solid #c7c7c745;
@@ -188,4 +193,15 @@ export const LinkWrapper = styled(Link)`
     &:hover {
         text-decoration: underline;
     }
+`;
+export const TwitterIcon = styled(FaTwitter)`
+    width: 25px;
+`;
+export const TwitterIconWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    align-items: center;
+    position: absolute;
 `;

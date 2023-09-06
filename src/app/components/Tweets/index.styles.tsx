@@ -158,7 +158,7 @@ export const ReplyBackground = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9999;
+    z-index: 999999;
     width: 100vw;
     height: 100vh;
     background-color: #7b808849;
@@ -181,6 +181,7 @@ export const Reply = styled.div`
     background-color: black;
     border-radius: 15px;
     width: 600px;
+    max-height: 80%;
     position: relative;
     z-index: 9999999999;
     padding: 10px;

@@ -32,7 +32,12 @@ const Home = () => {
         };
     }, []);
     return (
-        <BodyContent auth={false} nickName={getUser} showHeader={width && width < 767 ? false : true}>
+        <BodyContent
+            auth={false}
+            nickName={getUser}
+            showHeader={width && width < 767 ? false : true}
+            activeHeaderItem="Messages"
+        >
             <Wrapper>
                 {typeof chat === 'string' && width && width > 1100 && (
                     <MessageSection user={user} type="chats" chatQuery={chat} />

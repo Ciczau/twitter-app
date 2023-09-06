@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 export const Wrapper = styled.div`
     height: 100vh;
-
     display: flex;
     z-index: 9;
     position: relative;
@@ -14,7 +13,9 @@ export const Wrapper = styled.div`
         padding: 0px 5px;
         position: fixed;
         left: 0;
-        opacity: ${(props) => {return props.opacity}};
+        opacity: ${(props) => {
+            return props.opacity;
+        }};
         background-color: #050505;
         bottom: 0;
         border-top: 1px solid #3b3a3a;

@@ -6,6 +6,7 @@ import { TweetType } from 'components/Tweet';
 import Tweets from 'components/Tweets';
 
 import * as S from './index.styles';
+import SideBar from 'components/SideBar';
 
 interface Notification {
     nick: string;
@@ -17,7 +18,17 @@ interface Notification {
 
 const NotificationSection = ({ user }) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [width, setWidth] = useState<number>(window.innerWidth);
+    useEffect(() => {
+        const handleWidth = () => {
+            setWidth(window.innerWidth);
+        };
 
+        window.addEventListener('resize', handleWidth);
+        return () => {
+            window.removeEventListener('resize', handleWidth);
+        };
+    }, []);
     const getNotifications = async () => {
         try {
             const res = await instance({
@@ -127,6 +138,7 @@ const NotificationSection = ({ user }) => {
     return (
         <S.Wrapper>
             <S.Header>
+                {width < 767 && <SideBar user={user} />}
                 <S.Title>Notifications</S.Title>
             </S.Header>
             <S.NotificationsWrapper>

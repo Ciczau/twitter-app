@@ -5,7 +5,7 @@ export const Wrapper = styled.div`
     color: white;
     width: 600px;
     max-width: 85vw;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
     }
@@ -13,7 +13,7 @@ export const Wrapper = styled.div`
 
 export const Header = styled.div`
     display: flex;
-    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
     width: 100%;
     margin-top: 5px;

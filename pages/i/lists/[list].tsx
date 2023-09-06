@@ -19,7 +19,7 @@ const Home: NextPage = () => {
     console.log(router.pathname);
 
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser} activeHeaderItem="Lists">
             <ListSection user={user} listQuery={list} />
         </BodyContent>
     );

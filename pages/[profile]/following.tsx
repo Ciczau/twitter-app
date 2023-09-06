@@ -30,7 +30,7 @@ const Home = () => {
         getUserByProfile();
     }, [profile]);
     return (
-        <BodyContent auth={false} nickName={() => console.log()}>
+        <BodyContent auth={false} activeHeaderItem="Profile">
             <FollowSection user={userProfile} />
         </BodyContent>
     );

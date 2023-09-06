@@ -12,7 +12,7 @@ const Home = ({ type = 'tweets' }) => {
         setUser(data);
     };
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser} activeHeaderItem="Profile">
             <ProfileSection user={user} profile={user} type={type}>
                 <Settings
                     nick={user?.nick}

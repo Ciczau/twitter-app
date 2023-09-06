@@ -35,7 +35,11 @@ const Home = ({ type = 'tweets' }) => {
     return (
         <>
             {typeof profile === 'string' && (
-                <BodyContent auth={false} nickName={getUser}>
+                <BodyContent
+                    auth={false}
+                    nickName={getUser}
+                    activeHeaderItem="Profile"
+                >
                     <ProfileSection
                         user={user}
                         profile={userProfile}

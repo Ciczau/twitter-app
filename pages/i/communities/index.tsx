@@ -8,7 +8,7 @@ import SearchSection from 'containers/CommunitiesSection/SearchSection';
 
 const Home: NextPage = () => {
     return (
-        <BodyContent auth={false}>
+        <BodyContent auth={false} activeHeaderItem="Communities">
             <SearchSection />
         </BodyContent>
     );

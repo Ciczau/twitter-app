@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import instance from 'api/instance';
@@ -8,6 +8,7 @@ import PostSection from 'containers/PostSection';
 import { User } from 'components/BodyContent';
 import Tweets from 'components/Tweets';
 import { formatDate, formatTimeDifference } from 'components/TimeFormatter';
+import { useCookies } from 'react-cookie';
 
 export interface TweetType {
     date: string;
@@ -79,6 +80,8 @@ const Tweet = ({
     const [userProfile, setUserProfile] = useState<User>();
     const [tweetAuthor, setTweetAuthor] = useState<User>();
     const [tweet, setTweet] = useState<TweetType>();
+    const [moreModalVisible, setMoreModalVisible] = useState<boolean>(false);
+    const [cookie] = useCookies(['refreshToken']);
     const dateObject = new Date(date);
 
     const formattedDate = date
@@ -150,7 +153,33 @@ const Tweet = ({
     useEffect(() => {
         getUser();
     }, [nick]);
+    function CloseMoreModal(ref) {
+        useEffect(() => {
+            function handleClickOutside(event) {
+                if (ref.current && !ref.current.contains(event.target)) {
+                    setMoreModalVisible(false);
+                }
+            }
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+            };
+        }, [ref]);
+    }
+    const moreModalRef = useRef(null);
+    CloseMoreModal(moreModalRef);
 
+    const handleTweetDelete = async () => {
+        setMoreModalVisible(false);
+        try {
+            await instance({
+                url: '/tweet/delete',
+                method: 'POST',
+                data: { refreshToken: cookie.refreshToken, id: _id },
+            });
+            router.reload();
+        } catch (err) {}
+    };
     const renderPhotoView = () => {
         return (
             <>
@@ -239,6 +268,25 @@ const Tweet = ({
                                         </>
                                     )}
                                 </S.UserDate>
+                                {nick === user.nick && (
+                                    <>
+                                        <S.DotsIcon
+                                            size="100%"
+                                            onClick={() =>
+                                                setMoreModalVisible(true)
+                                            }
+                                        />
+                                        {moreModalVisible && (
+                                            <S.MoreModal
+                                                ref={moreModalRef}
+                                                onClick={handleTweetDelete}
+                                            >
+                                                <S.TrashIcon size="100%" />
+                                                <div>Delete</div>
+                                            </S.MoreModal>
+                                        )}
+                                    </>
+                                )}
                             </S.TweetHeader>
 
                             {parentId && !isReply && !post && (

@@ -11,7 +11,11 @@ const Home = () => {
         setUser(data);
     };
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent
+            auth={false}
+            nickName={getUser}
+            activeHeaderItem="Notifications"
+        >
             <NotificationSection user={user} />
         </BodyContent>
     );

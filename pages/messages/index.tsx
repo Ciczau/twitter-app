@@ -14,7 +14,11 @@ const Home = () => {
         setUser(data);
     };
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent
+            auth={false}
+            nickName={getUser}
+            activeHeaderItem="Messages"
+        >
             <MessageSection user={user} type="chats" />
         </BodyContent>
     );

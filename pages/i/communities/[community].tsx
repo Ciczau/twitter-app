@@ -16,7 +16,11 @@ const Home: NextPage = () => {
     const { community } = router.query;
     console.log(router.pathname);
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent
+            auth={false}
+            nickName={getUser}
+            activeHeaderItem="Communities"
+        >
             <CommunitySection communityQuery={community} user={user} />
         </BodyContent>
     );

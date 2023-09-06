@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { AiFillHeart, AiOutlineHeart } from 'react-icons/ai';
-import { HiOutlineChat } from 'react-icons/hi';
+import { HiOutlineChat, HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { ImStatsBars } from 'react-icons/im';
 import { FaBookmark, FaRegBookmark, FaRegComment } from 'react-icons/fa';
-import { BsChat } from 'react-icons/bs';
+import { BsChat, BsFillTrash3Fill } from 'react-icons/bs';
 import { BiRepost } from 'react-icons/bi';
 import { LiaUserFriendsSolid } from 'react-icons/lia';
 
@@ -63,7 +63,7 @@ export const UserDate = styled.div`
 `;
 
 export const IconsWrapper = styled.div`
-    width: 80%;
+    width: 90%;
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
@@ -244,4 +244,31 @@ export const IconsBar = styled.div`
 export const AudienceIcon = styled(LiaUserFriendsSolid)`
     width: 20px;
     height: 20px;
+`;
+export const DotsIcon = styled(HiOutlineDotsHorizontal)`
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 10px;
+    color: gray;
+    cursor: pointer;
+`;
+export const MoreModal = styled.div`
+    background-color: #000000;
+    box-shadow: 0px 0px 5px 3px #64606039;
+    border-radius: 5px;
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    display: flex;
+    padding: 5px 10px;
+    align-items: center;
+    color: #a00202;
+    height: 30px;
+`;
+export const TrashIcon = styled(BsFillTrash3Fill)`
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    color: #a00202;
 `;

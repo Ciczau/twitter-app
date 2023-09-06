@@ -15,7 +15,7 @@ const Home: NextPage = () => {
     const router = useRouter();
     console.log(router.pathname);
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser} activeHeaderItem="Profile">
             <ListsSection user={user} />
         </BodyContent>
     );

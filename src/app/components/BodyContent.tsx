@@ -33,7 +33,7 @@ const MainWrapper = styled.section`
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;
     border-right: 1px solid #c7c7c745;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         max-width: 100vw;
         width: 100vw;
         border: 0;
@@ -66,6 +66,7 @@ export default function BodyContent({
     nickName = (data: User) => {},
     children,
     showHeader = true,
+    activeHeaderItem = '',
 }) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -124,8 +125,13 @@ export default function BodyContent({
                 <>
                     {!isLoaded && <LoadingPage />}
                     {!auth && (
-                        <Wrapper >
-                            {showHeader && <Header user={user} />}
+                        <Wrapper>
+                            {showHeader && (
+                                <Header
+                                    user={user}
+                                    activeHeaderItem={activeHeaderItem}
+                                />
+                            )}
                             <MainWrapper id="main">{children}</MainWrapper>
                         </Wrapper>
                     )}

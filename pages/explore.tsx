@@ -11,7 +11,7 @@ const Home = () => {
         setUser(data);
     };
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent auth={false} nickName={getUser} activeHeaderItem="Explore">
             <ExploreSection user={user} />
         </BodyContent>
     );

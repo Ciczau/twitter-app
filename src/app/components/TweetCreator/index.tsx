@@ -84,7 +84,7 @@ const TweetCreator = ({
                                     <S.TitleModal>Choose audience</S.TitleModal>
                                     <S.AudienceWrapper
                                         onClick={() =>
-                                            handleChoice('everyone', '')
+                                            handleChoice('Everyone', '')
                                         }
                                     >
                                         <S.AudienceItem>
@@ -97,9 +97,11 @@ const TweetCreator = ({
                                             <S.CheckIcon size="100%" />
                                         )}
                                     </S.AudienceWrapper>
-                                    <S.TitleModal>
-                                        <div>My communities</div>
-                                    </S.TitleModal>
+                                    {communities.length !== 0 && (
+                                        <S.TitleModal>
+                                            <div>My communities</div>
+                                        </S.TitleModal>
+                                    )}
                                     {renderCommunities()}
                                 </S.ChooseModal>
                             </>

@@ -4,19 +4,39 @@ import Tweets from 'components/Tweets';
 import { User } from 'components/BodyContent';
 
 import * as S from './index.styles';
+import SideBar from 'components/SideBar';
 
 const HomeSection = ({ user }) => {
     const [activeTab, setActiveTab] = useState<'popular' | 'following'>(
         'popular'
     );
     const [userData, setUserData] = useState<User>();
+    const [width, setWidth] = useState<number>(window.innerWidth);
+    useEffect(() => {
+        const handleWidth = () => {
+            setWidth(window.innerWidth);
+        };
 
+        window.addEventListener('resize', handleWidth);
+        return () => {
+            window.removeEventListener('resize', handleWidth);
+        };
+    }, []);
     useEffect(() => {
         setUserData(user);
     }, [user]);
     return (
         <S.Wrapper>
-            <S.Head>Home</S.Head>
+            {width < 768 ? (
+                <S.Head>
+                    <S.TwitterIconWrapper>
+                        <S.TwitterIcon size="100%" />
+                    </S.TwitterIconWrapper>
+                    <SideBar user={userData} />
+                </S.Head>
+            ) : (
+                <S.Head>Home</S.Head>
+            )}
             <S.SelectionWrapper>
                 <S.Button
                     onClick={() => setActiveTab('popular')}
