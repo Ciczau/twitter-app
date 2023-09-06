@@ -7,6 +7,10 @@ export const Wrapper = styled.div`
     width: 600px;
     color: white;
     max-width: 85vw;
+    @media screen and (max-width:767px){
+        width: 100vw;
+        max-width: 100vw;
+    }
 `;
 export const Header = styled.div`
     display: flex;

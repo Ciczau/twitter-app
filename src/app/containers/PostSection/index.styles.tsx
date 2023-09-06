@@ -8,6 +8,10 @@ export const Wrapper = styled.div`
     width: 600px;
 
     max-width: 85vw;
+    @media screen and (max-width:767px){
+        width: 100vw;
+        max-width: 100vw;
+    }
 `;
 export const PhotoWrapper = styled.div`
     width: calc(100vw - 400px);
