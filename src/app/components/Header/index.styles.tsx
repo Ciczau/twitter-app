@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
     position: relative;
     padding: 10px 20px 25px 0;
     min-width: 70px;
+    transform: translate(0);
     flex-direction: column;
     justify-content: space-between;
     @media screen and (max-width: 767px) {

@@ -9,6 +9,7 @@ import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 export const Wrapper = styled.div`
     display: flex;
     width: 100%;
+
     color: white;
     flex-direction: column;
 `;
@@ -262,10 +263,11 @@ export const ModalBackground = styled.div`
     width: 100vw;
     height: 100vh;
     top: 0;
+    right: 0;
     cursor: default;
     left: 0;
     position: fixed;
-    z-index: 99999;
+    z-index: 9999999;
 `;
 
 export const ChooseModal = styled.div`

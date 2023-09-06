@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 const MainWrapper = styled.section`
     height: auto;
     position: relative;
-    z-index: 9;
+    z-index: 10;
     max-width: 85vw;
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;
@@ -43,7 +43,7 @@ export const GlobalStyle = createGlobalStyle`
         &::-webkit-scrollbar{
             width: 0;
         }
-        -webkit-transform: translate3d(0, 0, 0);
+
     }
 `;
 export interface User {
