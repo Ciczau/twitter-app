@@ -6,7 +6,7 @@ import instance from 'api/instance';
 import TweetCreator from 'components/TweetCreator';
 import { User } from 'components/BodyContent';
 import Loader from 'components/Loader';
-import { cacheImages } from 'hooks/CacheImages';
+import { cacheImages } from 'hooks/cacheImages';
 
 import * as S from './index.styles';
 

@@ -13,7 +13,7 @@ import instance from 'api/instance';
 
 import * as S from './index.styles';
 import Loader from 'components/Loader';
-import { cacheImages } from 'hooks/CacheImages';
+import { cacheImages } from 'hooks/cacheImages';
 
 const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [selectedChat, setSelectedChat] = useState<{
