@@ -43,6 +43,7 @@ export const GlobalStyle = createGlobalStyle`
         &::-webkit-scrollbar{
             width: 0;
         }
+        -webkit-transform: translate3d(0, 0, 0);
     }
 `;
 export interface User {
