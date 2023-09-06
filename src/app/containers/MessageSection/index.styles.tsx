@@ -14,6 +14,11 @@ export const ChatListWrapper = styled.div`
         width: 600px;
         max-width: 85vw;
     }
+    @media screen and (max-width:767px){
+        width: 100vw;
+        max-width: 100vw;
+        border: 0;
+    }
 `;
 export const Header = styled.div`
     display: flex;

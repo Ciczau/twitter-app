@@ -8,8 +8,11 @@ export const Wrapper = styled.div`
     min-height: 100vh;
     max-width: 85vw;
     color: white;
-    overflow: hidden;
     flex-direction: column;
+    @media screen and (max-width:767px){
+        width: 100vw;
+        max-width: 100vw;
+    }
 `;
 
 export const Head = styled.div`

@@ -33,6 +33,11 @@ const MainWrapper = styled.section`
     overflow-y: scroll;
     border-left: 1px solid #c7c7c745;
     border-right: 1px solid #c7c7c745;
+    @media screen and (max-width:767px){
+        max-width: 100vw;
+        width: 100vw;
+        border: 0;
+    }
 `;
 
 export const GlobalStyle = createGlobalStyle`
@@ -60,6 +65,7 @@ export default function BodyContent({
     auth,
     nickName = (data: User) => {},
     children,
+    showHeader = true,
 }) {
     const [isLogged, setLogged] = useState<boolean>(false);
     const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -118,9 +124,9 @@ export default function BodyContent({
                 <>
                     {!isLoaded && <LoadingPage />}
                     {!auth && (
-                        <Wrapper>
-                            <Header user={user} />
-                            <MainWrapper>{children}</MainWrapper>
+                        <Wrapper >
+                            {showHeader && <Header user={user} />}
+                            <MainWrapper id="main">{children}</MainWrapper>
                         </Wrapper>
                     )}
                 </>

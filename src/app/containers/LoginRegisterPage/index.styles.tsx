@@ -16,12 +16,21 @@ export const Wrapper = styled.div`
     }
     h1 {
         font-size: 60px;
+        @media screen and (max-width: 767px){
+            font-size: 40px;
+        }
     }
     h2 {
         font-size: 40px;
+        @media screen and (max-width: 767px){
+            font-size: 30px;
+        }
     }
     p {
         font-size: 30px;
+        @media screen and (max-width: 767px){
+            font-size: 25px;
+        }
     }
 `;
 

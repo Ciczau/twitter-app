@@ -25,6 +25,11 @@ export const FormWindow = styled.div`
     color: inherit;
     border-radius: 15px;
     background-color: black;
+
+    @media screen and (max-width: 767px){
+        height: 100%;
+    }
+
 `;
 
 export const Input = styled.input`
@@ -59,6 +64,9 @@ export const FormWrapper = styled.div`
     align-items: center;
     p {
         font-size: 25px;
+    }
+    @media screen and (max-width:767px){
+        margin-top: 60px;
     }
 `;
 export const BottomTextWrapper = styled.div`

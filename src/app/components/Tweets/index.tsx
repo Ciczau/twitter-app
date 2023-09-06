@@ -625,7 +625,10 @@ const Tweets: React.FC<TweetsType> = ({
             {renderReplyView()}
             {renderPostView()}
             {renderCreator()}
+            <S.Wrapper>
             {renderTweets()}
+
+            </S.Wrapper>
         </>
     );
 };

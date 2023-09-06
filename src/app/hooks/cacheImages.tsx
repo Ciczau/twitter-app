@@ -11,6 +11,5 @@ export const cacheImages = async (
         });
     });
     await Promise.all(promises);
-    console.log('chuj');
     setLoaded(true);
 };

@@ -7,11 +7,7 @@ import Link from 'next/link';
 import { FaRegSmile } from 'react-icons/fa';
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md';
 export const Wrapper = styled.div`
-    display: flex;
-    width: 100%;
-
-    color: white;
-    flex-direction: column;
+    margin-bottom: 100px;
 `;
 
 export const Head = styled.div`

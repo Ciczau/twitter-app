@@ -240,6 +240,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
             sendMessage();
         }
     };
+
     return (
         <>
             {modal?.visible && (

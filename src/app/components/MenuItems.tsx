@@ -61,6 +61,7 @@ export const menuItems = [
         ),
         link: '/',
         name: '',
+        mobile: false
     },
     {
         icon: (
@@ -70,6 +71,7 @@ export const menuItems = [
         ),
         link: '/home',
         name: 'Home',
+        mobile: true,
     },
     {
         icon: (
@@ -79,6 +81,7 @@ export const menuItems = [
         ),
         link: '/explore',
         name: 'Explore',
+            mobile: true,
     },
     {
         icon: (
@@ -88,6 +91,7 @@ export const menuItems = [
         ),
         link: '/notifications',
         name: 'Notifications',
+            mobile: true,
     },
     {
         icon: (
@@ -97,6 +101,7 @@ export const menuItems = [
         ),
         link: '/messages',
         name: 'Messages',
+        mobile: true,
     },
     {
         icon: (
@@ -106,6 +111,7 @@ export const menuItems = [
         ),
         link: '/i/lists',
         name: 'Lists',
+        mobile: false,
     },
     {
         icon: (
@@ -115,6 +121,7 @@ export const menuItems = [
         ),
         link: '/i/bookmarks',
         name: 'Bookmarks',
+            mobile: false
     },
     {
         icon: (
@@ -124,6 +131,7 @@ export const menuItems = [
         ),
         link: '/[profile]/communities',
         name: 'Communities',
+        mobile: false
     },
     {
         icon: (
@@ -132,6 +140,7 @@ export const menuItems = [
             </IconWrapper>
         ),
         link: '/[profile]',
-        name: 'Profile',
+                    name: 'Profile',
+            mobile: false
     },
 ];

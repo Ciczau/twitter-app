@@ -11,7 +11,17 @@ export const Wrapper = styled.div`
     flex-direction: column;
     justify-content: space-between;
     @media screen and (max-width: 767px) {
-        padding: 5px 5px 35px 5px;
+        padding: 0px 5px;
+        position: fixed;
+        left: 0;
+        opacity: ${(props) => {return props.opacity}};
+        background-color: #050505;
+        bottom: 0;
+        border-top: 1px solid #3b3a3a;
+        width: 100vw;
+        height: auto;
+        z-index: 9999;
+        flex-direction: row;
     }
 `;
 
@@ -25,6 +35,10 @@ export const Header = styled.header`
     height: 60vh;
     @media screen and (max-width: 767px) {
         align-items: center;
+        flex-direction: row;
+        width: 100%;
+        height: auto;
+        justify-content: space-around;
     }
 `;
 

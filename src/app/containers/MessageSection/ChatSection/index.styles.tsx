@@ -14,6 +14,12 @@ export const Wrapper = styled.div`
     max-width: 85vw;
     height: 100vh;
     justify-content: space-between;
+    @media screen and (max-width:767px){
+        width: 100vw;
+        max-width: 100vw;
+        border: 0;    
+        position    :fixed ;
+    }
 `;
 
 export const HeaderWrapper = styled.div`
@@ -54,6 +60,11 @@ export const InputContainer = styled.div`
     display: flex;
     padding: 15px;
     justify-content: center;
+    background-color: black;
+    @media screen and (max-width: 767px){
+        position: fixed;
+        bottom: 0;
+    }
 `;
 export const InputWrapper = styled.div`
     border-radius: 15px;
@@ -87,10 +98,14 @@ export const SendButton = styled(AiOutlineSend)`
 export const ChatWindowWrapper = styled.div`
     height: auto;
     width: 100%;
-    padding: 15px;
+   position :relative ;
+    padding: 5px 15px;
     overflow-y: scroll;
     display: flex;
     flex-direction: column-reverse;
+    @media screen and (max-width:767px){
+        margin-bottom: 160px;
+    }
 `;
 
 export const SenderMessageWrapper = styled.div`
