@@ -16,7 +16,11 @@ const SideBar = ({ user }) => {
             />
             {modalVisible && (
                 <>
-                    <S.ModalBackground onClick={() => setModalVisible(false)} />
+                    <S.ModalBackground
+                        onClick={() => setModalVisible(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                    />
                     <S.Wrapper
                         animate={{ x: [-500, 0] }}
                         transition={{ type: 'keyframes' }}

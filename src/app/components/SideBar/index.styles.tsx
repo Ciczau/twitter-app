@@ -27,7 +27,7 @@ export const Avatar = styled(AvatarToggler)`
     margin-left: 12px;
 `;
 
-export const ModalBackground = styled.div`
+export const ModalBackground = styled(motion.div)`
     width: 100vw;
     height: 100vh;
     position: fixed;
