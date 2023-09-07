@@ -22,9 +22,7 @@ const Home = () => {
             if (res.status === 200) {
                 setUserProfile(res.data.user);
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) {}
     };
     useEffect(() => {
         getUserByProfile();

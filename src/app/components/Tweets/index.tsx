@@ -186,7 +186,7 @@ const Tweets: React.FC<TweetsType> = ({
                     data: { nick: profile },
                 });
             }
-
+            console.log(res);
             const likes = await instance({
                 url: '/tweet/likes',
                 method: 'POST',
@@ -625,10 +625,7 @@ const Tweets: React.FC<TweetsType> = ({
             {renderReplyView()}
             {renderPostView()}
             {renderCreator()}
-            <S.Wrapper>
-            {renderTweets()}
-
-            </S.Wrapper>
+            <S.Wrapper>{renderTweets()}</S.Wrapper>
         </>
     );
 };
