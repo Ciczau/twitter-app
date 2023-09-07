@@ -122,11 +122,12 @@ export default function BodyContent({
         <div className={font.className}>
             <GlobalStyle />
             <Head>
-                <title>Twitter</title>
+                <title>{activeHeaderItem} / Twitter</title>
                 <meta
                     name="description"
                     content="From breaking news and entertainment to sports and politics, get the full story with all the live commentary."
                 />
+                <link rel="icon" href="/favicon.ico" sizes="any" />
             </Head>
             {isLogged ? (
                 <>
