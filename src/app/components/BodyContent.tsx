@@ -10,6 +10,7 @@ import Header from './Header';
 import instance from 'api/instance';
 import LoadingPage from './LoadingPage';
 import { AnimatePresence } from 'framer-motion';
+import Head from 'next/head';
 
 export const font = Mukta({
     weight: '400',
@@ -120,7 +121,13 @@ export default function BodyContent({
     return (
         <div className={font.className}>
             <GlobalStyle />
-
+            <Head>
+                <title>Twitter</title>
+                <meta
+                    name="description"
+                    content="From breaking news and entertainment to sports and politics, get the full story with all the live commentary."
+                />
+            </Head>
             {isLogged ? (
                 <>
                     {!isLoaded && <LoadingPage />}
