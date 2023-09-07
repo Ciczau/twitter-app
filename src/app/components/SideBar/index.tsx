@@ -36,6 +36,7 @@ const SideBar = ({ user }) => {
                                                 query: { profile: user?.nick },
                                             })
                                         }
+                                        key={index}
                                     >
                                         <div>{item.icon}</div>
                                         <div>{item.name}</div>
