@@ -146,7 +146,6 @@ const Tweets: React.FC<TweetsType> = ({
             } else {
                 tweetsArray = await GetProfileTweetsRequest(profile, type);
             }
-            console.log(tweetsArray);
             const likes = await GetUserLikesRequest(userData.nick);
             const bookmarks = await GetUserBookmarksRequest(userData.nick);
             if (tweetsArray.length === 0) {
@@ -166,7 +165,6 @@ const Tweets: React.FC<TweetsType> = ({
             if (type !== 'notificationTweet') {
                 setTweets(tweetsArray);
             }
-            console.log(tweetsArray);
             await cacheImages(imagesArray, setImagesLoaded);
         } catch (err) {}
     };
@@ -289,7 +287,6 @@ const Tweets: React.FC<TweetsType> = ({
     }, [tweets, post]);
     useEffect(() => {
         getParent();
-        console.log(post);
     }, [post, parents]);
     useEffect(() => {
         if (
@@ -444,7 +441,6 @@ const Tweets: React.FC<TweetsType> = ({
         );
     };
     const renderPostView = () => {
-        console.log(post);
         return (
             <>
                 {(type === 'post-replies' || type === 'notificationTweet') &&
