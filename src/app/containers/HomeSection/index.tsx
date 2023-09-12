@@ -24,39 +24,43 @@ const HomeSection = () => {
             window.removeEventListener('resize', handleWidth);
         };
     }, []);
+
     return (
         <S.Wrapper>
-            {width < 768 ? (
-                <S.Head>
-                    <S.TwitterIconWrapper>
-                        <S.TwitterIcon size="100%" />
-                    </S.TwitterIconWrapper>
-                    <SideBar />
-                </S.Head>
-            ) : (
-                <S.Head>Home</S.Head>
-            )}
-            <S.SelectionWrapper>
-                <S.Button
-                    onClick={() => setActiveTab('popular')}
-                    active={activeTab === 'popular' ? true : false}
-                >
-                    For you
-                </S.Button>
-                <S.Button
-                    onClick={() => setActiveTab('following')}
-                    active={activeTab === 'following' ? true : false}
-                >
-                    Following
-                </S.Button>
-            </S.SelectionWrapper>
-
-            <Tweets
-                avatar={userData?.avatar}
-                type="home"
-                activeTab={activeTab}
-                photoMode={false}
-            />
+            <S.Header>
+                {width < 768 ? (
+                    <S.Head>
+                        <S.TwitterIconWrapper>
+                            <S.TwitterIcon size="100%" />
+                        </S.TwitterIconWrapper>
+                        <SideBar />
+                    </S.Head>
+                ) : (
+                    <S.Head>Home</S.Head>
+                )}
+                <S.SelectionWrapper>
+                    <S.Button
+                        onClick={() => setActiveTab('popular')}
+                        active={activeTab === 'popular' ? true : false}
+                    >
+                        For you
+                    </S.Button>
+                    <S.Button
+                        onClick={() => setActiveTab('following')}
+                        active={activeTab === 'following' ? true : false}
+                    >
+                        Following
+                    </S.Button>
+                </S.SelectionWrapper>
+            </S.Header>
+            <S.TweetsWrapper>
+                <Tweets
+                    avatar={userData?.avatar}
+                    type="home"
+                    activeTab={activeTab}
+                    photoMode={false}
+                />
+            </S.TweetsWrapper>
         </S.Wrapper>
     );
 };

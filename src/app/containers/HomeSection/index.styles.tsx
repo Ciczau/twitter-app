@@ -17,6 +17,26 @@ export const Wrapper = styled.div`
         max-width: 100vw;
     }
 `;
+export const Header = styled.div`
+    position: fixed;
+    width: 600px;
+    z-index: 2;
+    backdrop-filter: blur(5px);
+    background-color: #000000b2;
+    max-width: 85vw;
+    transition: all 0.01s ease;
+    @media screen and (max-width: 767px) {
+        width: 100vw;
+        max-width: 100vw;
+        position: relative;
+    }
+`;
+export const TweetsWrapper = styled.div`
+    margin-top: 130px;
+    @media screen and (max-width: 767px) {
+        margin-top: 0px;
+    }
+`;
 
 export const Head = styled.div`
     font-size: 25px;
