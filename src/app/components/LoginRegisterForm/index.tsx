@@ -70,7 +70,6 @@ const LoginRegisterForm = ({ type }) => {
                     <Loader />
                 ) : (
                     <>
-                        {' '}
                         <S.CloseIcon onClick={() => router.push('/x')} />
                         <S.FormWrapper
                             onSubmit={handleSubmit(handleFormSubmit)}

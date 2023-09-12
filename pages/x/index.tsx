@@ -5,7 +5,7 @@ const LoginRegister = ({ children }) => {
     return (
         <div>
             <BodyContent auth={true}>
-                <LoginRegisterPage children={children} />
+                <LoginRegisterPage>{children}</LoginRegisterPage>
             </BodyContent>
         </div>
     );
