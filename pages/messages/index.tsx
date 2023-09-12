@@ -1,27 +1,13 @@
 'use client';
-import { useState } from 'react';
-
-import ProfileSection from 'containers/ProfileSection';
-import BodyContent, { User } from 'components/BodyContent';
-import Settings from 'components/Settings';
+import BodyContent from 'components/BodyContent';
 import MessageSection from 'containers/MessageSection';
-import { useRouter } from 'next/router';
 
-const Home = () => {
-    const [user, setUser] = useState<User>();
-
-    const getUser = (data: User) => {
-        setUser(data);
-    };
+const Messages = () => {
     return (
-        <BodyContent
-            auth={false}
-            nickName={getUser}
-            activeHeaderItem="Messages"
-        >
-            <MessageSection user={user} type="chats" />
+        <BodyContent auth={false} activeHeaderItem="Messages">
+            <MessageSection type="chats" />
         </BodyContent>
     );
 };
 
-export default Home;
+export default Messages;

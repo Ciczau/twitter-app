@@ -1,19 +1,22 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useCookies } from 'react-cookie';
 
-import { font } from 'components/BodyContent';
 import { menuItems } from 'components/MenuItems';
 import instance from 'api/instance';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
+import { UserLogoutRequest } from 'api/users';
 
-const Header = ({ user, activeHeaderItem }) => {
+const Header = ({ activeHeaderItem }) => {
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [opacity, setOpacity] = useState<number>(1);
     const [cookie, setCookie, deleteCookie] = useCookies(['refreshToken']);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const router = useRouter();
+
+    const user = useContext(UserContext);
 
     const handleRedirect = (link: string) => {
         router.push({ pathname: link, query: { profile: user.nick } });
@@ -47,17 +50,10 @@ const Header = ({ user, activeHeaderItem }) => {
             };
         }
     });
-    useEffect(() => {
-        console.log(window.scrollY);
-    });
 
     const handleLogout = async () => {
         try {
-            await instance({
-                url: '/user/logout',
-                method: 'POST',
-                data: { nick: user.nick },
-            });
+            await UserLogoutRequest(user.nick);
             deleteCookie('refreshToken');
             router.push('/x');
         } catch (err) {}
@@ -77,43 +73,43 @@ const Header = ({ user, activeHeaderItem }) => {
     }
     const modalRef = useRef(null);
     CloseResultListener(modalRef);
-    return (
-        <S.Wrapper opacity={opacity}>
+    const renderHeader = () => {
+        return (
             <S.Header>
                 {menuItems.map((item, index) => {
-                    if (width > 767 || item.mobile) {
-                        return (
-                            <S.HeaderElement
-                                key={index}
-                                onClick={() => handleRedirect(item.link)}
-                                isLogo={item.name === '' ? true : false}
-                            >
-                                {item.name === activeHeaderItem ? (
-                                    <div>{item.activeIcon}</div>
-                                ) : (
-                                    <div>{item.icon}</div>
-                                )}
-                                {width > 767 && <div>{item.name}</div>}
-                            </S.HeaderElement>
-                        );
-                    }
+                    return (
+                        <S.HeaderElement
+                            key={index}
+                            onClick={() => handleRedirect(item.link)}
+                            isLogo={item.name === '' ? true : false}
+                            mobileView={item.mobile}
+                        >
+                            {item.name === activeHeaderItem ? (
+                                <div>{item.activeIcon}</div>
+                            ) : (
+                                <div>{item.icon}</div>
+                            )}
+                            {width > 767 && <div>{item.name}</div>}
+                        </S.HeaderElement>
+                    );
                 })}
             </S.Header>
-            {width > 767 && (
-                <S.ProfileElement>
-                    {modalVisible && (
-                        <S.ToolTip onClick={handleLogout} ref={modalRef}>
-                            Log out @{user.nick}
-                        </S.ToolTip>
-                    )}
-                    <S.HeaderElement
-                        onClick={() => setModalVisible(!modalVisible)}
-                    >
-                        <S.Avatar src={user.avatar} />
-                        {width > 767 && <div>{user.nick}</div>}
-                    </S.HeaderElement>
-                </S.ProfileElement>
-            )}
+        );
+    };
+    return (
+        <S.Wrapper opacity={opacity}>
+            {renderHeader()}
+            <S.ProfileElement>
+                {modalVisible && (
+                    <S.ToolTip onClick={handleLogout} ref={modalRef}>
+                        Log out @{user.nick}
+                    </S.ToolTip>
+                )}
+                <S.HeaderElement onClick={() => setModalVisible(!modalVisible)}>
+                    <S.Avatar src={user.avatar} />
+                    <div>{user.nick}</div>
+                </S.HeaderElement>
+            </S.ProfileElement>
         </S.Wrapper>
     );
 };

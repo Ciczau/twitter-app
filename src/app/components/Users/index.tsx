@@ -1,10 +1,15 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { User } from 'components/BodyContent';
 import instance from 'api/instance';
+import { User } from 'types/user';
 
 import * as S from './index.styles';
+import {
+    GetFollowingUsersRequest,
+    GetSearchedUsersRequest,
+    HandleFollowRequest,
+} from 'api/users';
 
 const Users = ({
     user,
@@ -15,7 +20,7 @@ const Users = ({
     addUserToList = (data: User) => {},
     removeUserFromList = (data: User) => {},
 }) => {
-    const [userData, setUserData] = useState<User>();
+    const [userData, setUserData] = useState<User>({} as User);
     const [users, setUsers] = useState<User[]>();
     const [addedUsersList, setAddedUsersList] = useState<User[]>([]);
     const [followingList, setFollowingList] = useState<string[]>([]);
@@ -29,14 +34,14 @@ const Users = ({
     const handleFollowUser = async (user: User) => {
         await followUser(user);
     };
-    const followUser = async (user) => {
+    const followUser = async (user: User) => {
         const type = followingList.includes(user.nick) ? 'delete' : 'add';
         try {
-            const res = await instance({
-                url: `/follow/${type}`,
-                method: 'POST',
-                data: { user: userData?.nick, userToFollow: user.nick },
-            });
+            const res = await HandleFollowRequest(
+                userData.nick,
+                user.nick,
+                type
+            );
             if (res.status === 200) {
                 if (type === 'delete') {
                     let tempList = [...followingList];
@@ -50,12 +55,8 @@ const Users = ({
     };
     const getFollowingUsers = async () => {
         try {
-            const res = await instance({
-                url: '/follow/following',
-                method: 'POST',
-                data: { user: user.nick },
-            });
-            setFollowingList(res.data.list);
+            const following = await GetFollowingUsersRequest(user.nick);
+            setFollowingList(following);
         } catch (err) {}
     };
 
@@ -78,20 +79,14 @@ const Users = ({
                 }
             }
             if (type === 'search' || type === 'listSearch') {
-                const res = await instance({
-                    url: '/users/get/search',
-                    method: 'POST',
-                    data: { key: searchKey },
-                });
+                const usersArray = await GetSearchedUsersRequest(searchKey);
 
-                if (res.status === 200) {
-                    if (res.data.result.length === 0) {
-                        isEmpty(true);
-                    } else {
-                        isEmpty(false);
-                    }
-                    setUsers(res.data.result);
+                if (usersArray.length === 0) {
+                    isEmpty(true);
+                } else {
+                    isEmpty(false);
                 }
+                setUsers(usersArray);
             }
         } catch (err) {}
     };

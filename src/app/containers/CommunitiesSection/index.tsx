@@ -1,19 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { TbCameraPlus } from 'react-icons/tb';
 import { useRouter } from 'next/router';
 
 import instance from 'api/instance';
-import { Community } from './SearchSection';
+import { Community } from 'types/community';
 import Tweets from 'components/Tweets';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
+import {
+    CreateCommunityRequest,
+    GetUserCommunitiesRequest,
+} from 'api/communities';
 
-const CommunitiesSection = ({ user }) => {
+const CommunitiesSection = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [communityName, setCommunityName] = useState<string>('');
     const [communityBackground, setCommunityBackground] = useState<string>('');
     const [file, setFile] = useState<File>();
     const [userCommunities, setUserCommunities] = useState<Community[]>([]);
+
+    const user = useContext(UserContext);
 
     const router = useRouter();
 
@@ -27,12 +34,8 @@ const CommunitiesSection = ({ user }) => {
                 formData.append('file', file);
             }
 
-            const res = await instance({
-                url: '/community/create',
-                method: 'POST',
-                data: formData,
-            });
-            setUserCommunities([...userCommunities, res.data.newCommunity]);
+            const newCommunity = await CreateCommunityRequest(formData);
+            setUserCommunities([...userCommunities, newCommunity]);
         } catch (err) {}
     };
     const handleImage = (e) => {
@@ -47,12 +50,8 @@ const CommunitiesSection = ({ user }) => {
     };
     const getUserCommunities = async () => {
         try {
-            const res = await instance({
-                url: '/communities/user/get',
-                method: 'POST',
-                data: { nick: user.nick },
-            });
-            setUserCommunities(res.data.result);
+            const communities = await GetUserCommunitiesRequest(user.nick);
+            setUserCommunities(communities);
         } catch (err) {}
     };
 
@@ -152,11 +151,9 @@ const CommunitiesSection = ({ user }) => {
                 </S.Header>
                 {renderCommunities()}
                 <Tweets
-                    nick={user?.nick}
-                    avatar={user?.avatarId}
+                    avatar={user?.avatar}
                     type="communities"
                     photoMode={false}
-                    user={user}
                 />
             </S.Wrapper>
         </>

@@ -1,28 +1,29 @@
 'use client';
 import { useEffect, useState } from 'react';
-
-import ProfileSection from 'containers/ProfileSection';
-import BodyContent, { User } from 'components/BodyContent';
-import Settings from 'components/Settings';
-import MessageSection from 'containers/MessageSection';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
+
+import BodyContent from 'components/BodyContent';
+import MessageSection from 'containers/MessageSection';
 
 const Wrapper = styled.div`
     display: flex;
 `;
 
-const Home = () => {
-    const [user, setUser] = useState<User>();
+const Chat = () => {
     const [width, setWidth] = useState<number>();
+    const [chatQuery, setChatQuery] = useState<string>('');
+
     const router = useRouter();
     const { chat } = router.query;
-    const getUser = (data: User) => {
-        setUser(data);
-    };
 
     useEffect(() => {
-        setWidth(window.innerWidth);
+        if (typeof chat === 'string') {
+            setChatQuery(chat);
+        }
+    }, [chat]);
+
+    useEffect(() => {
         const handleWidth = () => {
             setWidth(window.innerWidth);
         };
@@ -34,24 +35,17 @@ const Home = () => {
     return (
         <BodyContent
             auth={false}
-            nickName={getUser}
             showHeader={width && width < 767 ? false : true}
             activeHeaderItem="Messages"
         >
             <Wrapper>
-                {typeof chat === 'string' && width && width > 1100 && (
-                    <MessageSection user={user} type="chats" chatQuery={chat} />
+                {width && width > 1100 && (
+                    <MessageSection type="chats" chatQuery={chatQuery} />
                 )}
-                {typeof chat === 'string' && (
-                    <MessageSection
-                        user={user}
-                        type="openedChat"
-                        chatQuery={chat}
-                    />
-                )}
+                <MessageSection type="openedChat" chatQuery={chatQuery} />
             </Wrapper>
         </BodyContent>
     );
 };
 
-export default Home;
+export default Chat;

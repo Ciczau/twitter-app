@@ -1,31 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-
-import instance from 'api/instance';
-
-import * as S from './index.styles';
-import PostSection from 'containers/PostSection';
-import { User } from 'components/BodyContent';
-import Tweets from 'components/Tweets';
-import { formatDate, formatTimeDifference } from 'components/TimeFormatter';
 import { useCookies } from 'react-cookie';
 
-export interface TweetType {
-    date: string;
-    nick: string;
-    text: string;
-    _id: string;
-    likes: number;
-    parentId: string;
-    imageId: string;
-    views: number;
-    retweets: number;
-    audienceName?: string;
-    reposts: number;
-    bookmarks: number;
-    repost?: { nick: string; date: string } | null;
-    repostBy?: Array<{ nick: string; date: string }> | null;
-}
+import instance from 'api/instance';
+import PostSection from 'containers/PostSection';
+import Tweets from 'components/Tweets';
+import { formatDate, formatTimeDifference } from 'components/TimeFormatter';
+import { TweetType } from 'types/tweets';
+import { User } from 'types/user';
+
+import * as S from './index.styles';
+import { UserContext } from 'components/BodyContent';
+import { GetUserRequest } from 'api/users';
+import { DeleteTweetRequest, GetTweetRequest } from 'api/tweets';
 
 interface Props extends TweetType {
     onTweetLike?: () => void;
@@ -39,9 +26,9 @@ interface Props extends TweetType {
     isReply: boolean;
     post: boolean;
     photoMode: boolean;
-    user: User;
     postQuery?: string;
     profileQuery?: string;
+    listQuery?: string;
     closeModal?: (id: string) => void;
 }
 
@@ -71,18 +58,20 @@ const Tweet = ({
     audienceName = 'Everyone',
     post,
     photoMode,
-    user,
     postQuery = '',
     profileQuery = '',
+    listQuery = '',
     closeModal = () => {},
 }: Props) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [userProfile, setUserProfile] = useState<User>();
     const [tweetAuthor, setTweetAuthor] = useState<User>();
-    const [tweet, setTweet] = useState<TweetType>();
+    const [tweet, setTweet] = useState<TweetType>({} as TweetType);
     const [moreModalVisible, setMoreModalVisible] = useState<boolean>(false);
     const [cookie] = useCookies(['refreshToken']);
     const dateObject = new Date(date);
+
+    const user = useContext(UserContext);
 
     const formattedDate = date
         ? !post || (post && isReply)
@@ -94,12 +83,8 @@ const Tweet = ({
 
     const getUser = async () => {
         try {
-            const res = await instance({
-                url: '/user',
-                method: 'POST',
-                data: { nick: nick },
-            });
-            setTweetAuthor(res.data.user);
+            const user = await GetUserRequest(nick);
+            setTweetAuthor(user);
         } catch (err) {}
     };
 
@@ -109,7 +94,11 @@ const Tweet = ({
         router.replace(
             {
                 pathname: `${router.pathname}`,
-                query: { profile: profileQuery, post: postQuery },
+                query: {
+                    profile: profileQuery,
+                    post: postQuery,
+                    list: listQuery,
+                },
             },
             {
                 pathname:
@@ -124,24 +113,14 @@ const Tweet = ({
 
     const getPost = async (id: string) => {
         try {
-            const res = await instance({
-                url: '/tweet/getone',
-                method: 'POST',
-                data: { tweetId: id },
-            });
-            setTweet(res.data.result);
+            const tweet = await GetTweetRequest(id);
+            setTweet(tweet);
         } catch (err) {}
     };
     const getUserByProfile = async () => {
         try {
-            const res = await instance({
-                url: '/user',
-                method: 'POST',
-                data: { nick: tweet?.nick },
-            });
-            if (res.status === 200) {
-                setUserProfile(res.data.user);
-            }
+            const user = await GetUserRequest(tweet.nick);
+            setUserProfile(user);
         } catch (err) {}
     };
     useEffect(() => {
@@ -172,11 +151,7 @@ const Tweet = ({
     const handleTweetDelete = async () => {
         setMoreModalVisible(false);
         try {
-            await instance({
-                url: '/tweet/delete',
-                method: 'POST',
-                data: { refreshToken: cookie.refreshToken, id: _id },
-            });
+            await DeleteTweetRequest(cookie.refreshToken, _id);
             router.reload();
         } catch (err) {}
     };
@@ -186,18 +161,15 @@ const Tweet = ({
                 {modalVisible && (
                     <PostSection
                         type="photo"
-                        user={user}
                         photo={tweet?.imageId}
                         handleModal={() => handleModal('close')}
                     >
                         <Tweets
-                            nick={user?.nick}
                             profile={userProfile?.nick}
                             type="post-replies"
                             avatar={userProfile?.avatar}
                             tweet={tweet}
                             photoMode={true}
-                            user={user}
                             postQuery={postQuery}
                             profileQuery={profileQuery}
                         />
@@ -211,7 +183,6 @@ const Tweet = ({
         <>
             {tweetAuthor && (
                 <>
-                    {' '}
                     {renderPhotoView()}
                     <S.Tweet
                         isReply={isReply}

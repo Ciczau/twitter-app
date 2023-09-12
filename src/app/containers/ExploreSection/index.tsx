@@ -1,20 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import Tweets from 'components/Tweets';
-import { User } from 'components/BodyContent';
 import Users from 'components/Users';
+import SideBar from 'components/SideBar';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
-import SideBar from 'components/SideBar';
 
-const ExploreSection = ({ user }) => {
+const ExploreSection = () => {
     const [focus, setFocus] = useState<boolean>(false);
     const [searchKey, setSearchKey] = useState<string>('');
-    const [userData, setUserData] = useState<User>();
     const [activeTab, setActiveTab] = useState<'tweets' | 'users'>('tweets');
     const [emptyTweetList, setEmptyTweetList] = useState<boolean>(false);
     const [emptyUserList, setEmptyUserList] = useState<boolean>(false);
     const [width, setWidth] = useState<number>(window.innerWidth);
+
+    const userData = useContext(UserContext);
+
     useEffect(() => {
         const handleWidth = () => {
             setWidth(window.innerWidth);
@@ -32,13 +34,11 @@ const ExploreSection = ({ user }) => {
             setSearchKey(e.target.value);
         }
     };
-    useEffect(() => {
-        setUserData(user);
-    }, [user]);
+
     return (
         <S.Wrapper>
             <S.Header>
-                {width < 767 && <SideBar user={user} />}
+                {width < 767 && <SideBar />}
                 <S.ExploreWrapper>
                     <S.SearchIcon size="100%" focus={focus} />
                     <S.ExploreInput
@@ -48,24 +48,25 @@ const ExploreSection = ({ user }) => {
                         onKeyPress={handleChange}
                     />
                 </S.ExploreWrapper>
-                {searchKey !== '' && (
-                    <S.SelectionWrapper>
-                        <S.Button
-                            onClick={() => setActiveTab('tweets')}
-                            active={activeTab === 'tweets' ? true : false}
-                        >
-                            Tweets
-                        </S.Button>
-                        <S.Button
-                            onClick={() => setActiveTab('users')}
-                            active={activeTab === 'users' ? true : false}
-                        >
-                            Users
-                        </S.Button>
-                    </S.SelectionWrapper>
-                )}
             </S.Header>
             {searchKey !== '' && (
+                <S.SelectionWrapper>
+                    <S.Button
+                        onClick={() => setActiveTab('tweets')}
+                        active={activeTab === 'tweets' ? true : false}
+                    >
+                        Tweets
+                    </S.Button>
+                    <S.Button
+                        onClick={() => setActiveTab('users')}
+                        active={activeTab === 'users' ? true : false}
+                    >
+                        Users
+                    </S.Button>
+                </S.SelectionWrapper>
+            )}
+
+            {searchKey !== '' && userData && (
                 <>
                     {activeTab === 'tweets' ? (
                         <>
@@ -75,12 +76,10 @@ const ExploreSection = ({ user }) => {
                                 </S.Warning>
                             ) : (
                                 <Tweets
-                                    nick={userData?.nick}
                                     avatar={userData?.avatar}
                                     type="search"
                                     photoMode={false}
                                     searchKey={searchKey}
-                                    user={user}
                                     isEmpty={(data) => setEmptyTweetList(data)}
                                 />
                             )}

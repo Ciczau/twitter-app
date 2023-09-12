@@ -1,7 +1,7 @@
-import Home from './index';
+import Profile from './index';
 
 const Replies = () => {
-    return <Home type="replies" />;
+    return <Profile type="replies" />;
 };
 
 export default Replies;

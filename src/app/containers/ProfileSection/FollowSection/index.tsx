@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-import { User } from 'components/BodyContent';
+import { User } from 'types/user';
 import {
     HeaderInfoWrapper,
     HeaderTweetCount,
     HeaderUserName,
     LeftArrowIcon,
 } from '../index.styles';
-import instance from 'api/instance';
+import Users from 'components/Users';
 
 import * as S from './index.styles';
-import Users from 'components/Users';
 
 const FollowSection = ({ user }) => {
     const router = useRouter();
     const pathname = router.pathname;
+
     const [userData, setUserData] = useState<User>();
-    const [users, setUsers] = useState<User[]>();
     const [activeTab, setActiveTab] = useState<'followers' | 'following'>(
         pathname === '/[profile]/followers' ? 'followers' : 'following'
     );

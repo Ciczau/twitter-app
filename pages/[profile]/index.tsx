@@ -3,54 +3,43 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 import ProfileSection from 'containers/ProfileSection';
-import BodyContent, { User } from 'components/BodyContent';
-import instance from 'api/instance';
+import BodyContent from 'components/BodyContent';
+import { User } from 'types/user';
+import { GetUserRequest } from 'api/users';
 
-const Home = ({ type = 'tweets' }) => {
+const Profile = ({ type = 'tweets' }) => {
+    const [profileQuery, setProfileQuery] = useState<string>('');
+    const [userProfile, setUserProfile] = useState<User>();
+
     const router = useRouter();
     const { profile } = router.query;
 
-    const [user, setUser] = useState<User>();
-    const [userProfile, setUserProfile] = useState<User>();
+    useEffect(() => {
+        if (typeof profile === 'string') {
+            setProfileQuery(profile);
+        }
+    }, [profile]);
 
-    const getUser = (data: User) => {
-        setUser(data);
-    };
     const getUserByProfile = async () => {
         try {
-            const res = await instance({
-                url: '/user',
-                method: 'POST',
-                data: { nick: profile },
-            });
-            if (res.status === 200) {
-                setUserProfile(res.data.user);
-            }
+            const user = await GetUserRequest(profileQuery);
+            setUserProfile(user);
         } catch (err) {}
     };
     useEffect(() => {
         getUserByProfile();
-    }, [profile]);
+    }, [profileQuery]);
 
     return (
-        <>
-            {typeof profile === 'string' && (
-                <BodyContent
-                    auth={false}
-                    nickName={getUser}
-                    activeHeaderItem="Profile"
-                >
-                    <ProfileSection
-                        user={user}
-                        profile={userProfile}
-                        type={type}
-                        profileQuery={profile}
-                    >
-                        {null}
-                    </ProfileSection>
-                </BodyContent>
-            )}
-        </>
+        <BodyContent auth={false} activeHeaderItem="Profile">
+            <ProfileSection
+                profile={userProfile}
+                type={type}
+                profileQuery={profileQuery}
+            >
+                {null}
+            </ProfileSection>
+        </BodyContent>
     );
 };
-export default Home;
+export default Profile;

@@ -14,11 +14,11 @@ export const Wrapper = styled.div`
     max-width: 85vw;
     height: 100vh;
     justify-content: space-between;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
-        border: 0;    
-        position    :fixed ;
+        border: 0;
+        position: fixed;
     }
 `;
 
@@ -61,7 +61,7 @@ export const InputContainer = styled.div`
     padding: 15px;
     justify-content: center;
     background-color: black;
-    @media screen and (max-width: 767px){
+    @media screen and (max-width: 767px) {
         position: fixed;
         bottom: 0;
     }
@@ -96,14 +96,14 @@ export const SendButton = styled(AiOutlineSend)`
 `;
 
 export const ChatWindowWrapper = styled.div`
-    height: auto;
+    height: 100%;
     width: 100%;
-   position :relative ;
+    position: relative;
     padding: 5px 15px;
     overflow-y: scroll;
     display: flex;
     flex-direction: column-reverse;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         margin-bottom: 160px;
     }
 `;
@@ -149,7 +149,7 @@ export const Image = styled.img`
 export const ModalImage = styled.img`
     max-width: 90vw;
     max-height: 90vh;
-    z-index: 999999999;
+    z-index: 10;
 `;
 export const InputImageWrapper = styled.div`
     display: flex;
@@ -188,7 +188,7 @@ export const CloseModalIcon = styled(DeleteImageButton)`
     top: 15px;
     left: 15px;
     background-color: transparent;
-    z-index: 999999999;
+    z-index: 10;
     &:hover {
         background-color: #686666;
     }

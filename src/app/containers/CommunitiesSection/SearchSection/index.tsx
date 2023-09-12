@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import * as S from './index.styles';
-import instance from 'api/instance';
 import { useRouter } from 'next/router';
-export interface Community {
-    name: string;
-    members: string[];
-    avatar: string;
-    _id: string;
-}
+
+import { Community } from 'types/community';
+import { GetSearchedCommunitiesRequest } from 'api/communities';
 
 const SearchSection = () => {
     const [focus, setFocus] = useState<boolean>(false);
@@ -18,12 +14,10 @@ const SearchSection = () => {
 
     const getCommunitiesByKey = async (e) => {
         try {
-            const res = await instance({
-                url: '/communities/get/bykey',
-                method: 'POST',
-                data: { key: e.target.value },
-            });
-            setSearchedCommunities(res.data.result);
+            const communities = await GetSearchedCommunitiesRequest(
+                e.target.value
+            );
+            setSearchedCommunities(communities);
         } catch (err) {}
     };
     const renderCommunities = () => {
@@ -31,7 +25,12 @@ const SearchSection = () => {
             <S.CommunitiesWrapper>
                 {searchedCommunities?.map((community, index) => {
                     return (
-                        <S.Community key={index}>
+                        <S.Community
+                            key={index}
+                            onClick={() =>
+                                router.push(`/i/communities/${community._id}`)
+                            }
+                        >
                             <S.CommunityAvatar src={community.avatar} />
                             <S.CommunityContent>
                                 <p>{community.name}</p>

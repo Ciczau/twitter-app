@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 
 import Tweets from 'components/Tweets';
-import { User } from 'components/BodyContent';
+import { User } from 'types/user';
 import instance from 'api/instance';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
+import { CheckIfFollowingRequest, HandleFollowRequest } from 'api/users';
 
 export default function ProfileSection({
-    user,
     profile,
     type,
     profileQuery = '',
@@ -23,8 +24,8 @@ export default function ProfileSection({
             ? 'replies'
             : 'likes'
     );
-    const [clientData, setClientData] = useState<User>();
-    const [userData, setUserData] = useState<User>();
+    const clientData = useContext(UserContext);
+    const [userData, setUserData] = useState<User>({} as User);
     const [isFollowing, setFollowing] = useState<boolean>(false);
 
     const handleChoice = (
@@ -36,33 +37,25 @@ export default function ProfileSection({
     };
 
     const checkIfFollowing = async () => {
-        const res = await instance({
-            url: '/follow/check',
-            method: 'POST',
-            data: { follower: clientData?.nick, following: userData?.nick },
-        });
-        setFollowing(res.data.result);
+        const check = await CheckIfFollowingRequest(
+            clientData.nick,
+            userData?.nick
+        );
+        setFollowing(check);
     };
 
     const handleFollow = async () => {
         const type = isFollowing ? 'delete' : 'add';
         try {
-            const res = await instance({
-                url: `/follow/${type}`,
-                method: 'POST',
-                data: { user: clientData?.nick, userToFollow: userData?.nick },
-            });
-            if (res.status === 200) {
-                setFollowing(!isFollowing);
-            }
+            await HandleFollowRequest(clientData.nick, userData.nick, type);
+            setFollowing(!isFollowing);
         } catch (err) {}
     };
 
     useEffect(() => {
         setUserData(profile);
-        setClientData(user);
         checkIfFollowing();
-    }, [profile, user, userData, clientData, profileQuery]);
+    }, [profile, userData, clientData, profileQuery]);
 
     return (
         <>
@@ -166,13 +159,10 @@ export default function ProfileSection({
                             </S.Button>
                         </S.NavBar>
                         <Tweets
-                            nick={clientData?.nick}
                             profile={userData?.nick}
                             avatar={userData?.avatar}
                             type={type}
-                            tweet={null}
                             photoMode={false}
-                            user={user}
                             profileQuery={profileQuery}
                         />
                     </>

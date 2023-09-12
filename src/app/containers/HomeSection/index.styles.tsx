@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
     min-height: 100vh;
     max-width: 85vw;
     position: relative;
-    z-index: 9;
+    z-index: 1;
     color: white;
     flex-direction: column;
     @media screen and (max-width: 767px) {
@@ -155,7 +155,7 @@ export const ReplyBackground = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9999;
+    z-index: 10;
     width: 100vw;
     height: 100vh;
     background-color: #7b808849;
@@ -166,7 +166,7 @@ export const ReplyWrapper = styled.div`
     justify-content: center;
     align-items: flex-start;
     top: 100px;
-    z-index: 99999999;
+    z-index: 5;
     left: 0;
     color: white;
     width: 100vw;
@@ -179,7 +179,7 @@ export const Reply = styled.div`
     border-radius: 15px;
     width: 600px;
     position: relative;
-    z-index: 9999999999;
+    z-index: 5;
     padding: 10px;
     display: flex;
     flex-direction: column;

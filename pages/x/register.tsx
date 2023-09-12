@@ -1,9 +1,12 @@
 import LoginRegisterForm from 'components/LoginRegisterForm';
-
-import Home from '.';
+import LoginRegister from '.';
 
 const Register = () => {
-    return <Home child={<LoginRegisterForm type="register" />} />;
+    return (
+        <LoginRegister>
+            <LoginRegisterForm type="register" />
+        </LoginRegister>
+    );
 };
 
 export default Register;

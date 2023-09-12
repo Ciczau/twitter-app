@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import instance from 'api/instance';
-import { User } from 'components/BodyContent';
-import { TweetType } from 'components/Tweet';
+import { User } from 'types/user';
+import { TweetType } from 'types/tweets';
 import Tweets from 'components/Tweets';
+import SideBar from 'components/SideBar';
+import { UserContext } from 'components/BodyContent';
+import { GetNotificationsRequest } from 'api/notifications';
+import { useRouter } from 'next/router';
 
 import * as S from './index.styles';
-import SideBar from 'components/SideBar';
 
 interface Notification {
     nick: string;
@@ -16,9 +18,13 @@ interface Notification {
     user: User | null;
 }
 
-const NotificationSection = ({ user }) => {
+const NotificationSection = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [width, setWidth] = useState<number>(window.innerWidth);
+
+    const router = useRouter();
+    const user = useContext(UserContext);
+
     useEffect(() => {
         const handleWidth = () => {
             setWidth(window.innerWidth);
@@ -31,12 +37,8 @@ const NotificationSection = ({ user }) => {
     }, []);
     const getNotifications = async () => {
         try {
-            const res = await instance({
-                url: '/notifications/get',
-                method: 'POST',
-                data: { nick: user.nick },
-            });
-            setNotifications(res.data.nots);
+            const nots = await GetNotificationsRequest(user.nick);
+            setNotifications(nots);
         } catch (err) {}
     };
     const renderNotifications = () => {
@@ -64,14 +66,12 @@ const NotificationSection = ({ user }) => {
 
                     return (
                         <S.Notification type={not.type} key={index}>
-                            {not.type === 'retweet' ? (
+                            {not.type === 'retweet' && not.user ? (
                                 <Tweets
-                                    nick={not.user?.nick}
                                     type="notificationTweet"
                                     avatar={not.user?.avatar}
                                     tweet={not.content}
                                     photoMode={true}
-                                    user={user}
                                 />
                             ) : (
                                 <>
@@ -106,7 +106,15 @@ const NotificationSection = ({ user }) => {
                                                     src={not.user?.avatar}
                                                 />
                                                 <div>
-                                                    <b>{not.user?.nick}</b>{' '}
+                                                    <b
+                                                        onClick={() =>
+                                                            router.push(
+                                                                `/${not.user?.nick}`
+                                                            )
+                                                        }
+                                                    >
+                                                        {not.user?.nick}
+                                                    </b>{' '}
                                                     {not.type === 'like' &&
                                                         'liked'}
                                                     {not.type === 'repost' &&
@@ -138,7 +146,7 @@ const NotificationSection = ({ user }) => {
     return (
         <S.Wrapper>
             <S.Header>
-                {width < 767 && <SideBar user={user} />}
+                {width < 767 && <SideBar />}
                 <S.Title>Notifications</S.Title>
             </S.Header>
             <S.NotificationsWrapper>

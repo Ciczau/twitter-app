@@ -1,14 +1,14 @@
 import BodyContent from 'components/BodyContent';
 import LoginRegisterPage from 'containers/LoginRegisterPage';
 
-const Home = ({ child }) => {
+const LoginRegister = ({ children }) => {
     return (
         <div>
-            <BodyContent auth={true} nickName={(data) => console.log(data)}>
-                <LoginRegisterPage child={child} />
+            <BodyContent auth={true}>
+                <LoginRegisterPage children={children} />
             </BodyContent>
         </div>
     );
 };
 
-export default Home;
+export default LoginRegister;

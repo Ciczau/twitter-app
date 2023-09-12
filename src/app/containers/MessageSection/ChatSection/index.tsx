@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useRouter } from 'next/router';
 
-import { User } from 'components/BodyContent';
+import { User } from 'types/user';
 import {
     ModalBackground,
     ModalWrapper,
@@ -10,12 +10,14 @@ import {
     UserNick,
 } from '../index.styles';
 import instance from 'api/instance';
-
-import * as S from './index.styles';
 import Loader from 'components/Loader';
 import { cacheImages } from 'hooks/cacheImages';
+import { UserContext } from 'components/BodyContent';
 
-const ChatSection = ({ chat, user, chatQuery, width }) => {
+import * as S from './index.styles';
+import { SendMessageRequest } from 'api/chat';
+
+const ChatSection = ({ chat, chatQuery, width }) => {
     const [selectedChat, setSelectedChat] = useState<{
         id: string;
         user: User;
@@ -36,6 +38,8 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
     const [isLoaded, setLoaded] = useState<boolean>(false);
     const [wss, setWebSocket] = useState<WebSocket | null>(null);
 
+    const user = useContext(UserContext);
+
     useEffect(() => {
         const socket = new WebSocket(
             'wss://ciczau-twitter-backend-e83fca20f698.herokuapp.com'
@@ -54,7 +58,7 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
         wss.onmessage = (e) => {
             if (e.data !== 'ping') {
                 const data = JSON.parse(e.data);
-                console.log(e);
+
                 if (
                     data.message?.id === chatQuery ||
                     data.image?.id === chatQuery
@@ -123,14 +127,8 @@ const ChatSection = ({ chat, user, chatQuery, width }) => {
                     img.src = image;
                 }
                 setImage('');
-                const res = await instance({
-                    url: '/chat/message/send',
-                    method: 'POST',
-                    data: formData,
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+
+                const res = await SendMessageRequest(formData);
 
                 if (res.status === 200 && wss) {
                     wss.send(

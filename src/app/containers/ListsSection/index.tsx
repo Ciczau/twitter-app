@@ -1,21 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import instance from 'api/instance';
-import { User } from 'components/BodyContent';
 import Users from 'components/Users';
+import { List } from 'types/list';
+import { User } from 'types/user';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
-export interface List {
-    id: string;
-    name: string;
-    desc: string;
-    creator: User;
-    members: Array<string>;
-    followers: Array<string>;
-}
+import {
+    AddUsersToListRequest,
+    CreateListRequest,
+    GetSearchedListsRequest,
+    GetUserListsRequest,
+} from 'api/list';
 
-const ListSection = ({ user }) => {
+const ListSection = () => {
     const [focus, setFocus] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [listName, setListName] = useState<string>('');
@@ -33,6 +33,8 @@ const ListSection = ({ user }) => {
     const [searchedLists, setSearchedLists] = useState<List[]>([]);
     const [resultVisible, setResultVisible] = useState<boolean>(false);
 
+    const user = useContext(UserContext);
+
     const router = useRouter();
 
     const handleListCreate = async () => {
@@ -40,33 +42,25 @@ const ListSection = ({ user }) => {
             setModalType('members');
 
             try {
-                const res = await instance({
-                    url: '/lists/create',
-                    method: 'POST',
-                    data: { creator: user, name: listName, desc: listDesc },
-                });
-                setUserLists([res.data.newList, ...userLists]);
+                const newList = await CreateListRequest(
+                    user,
+                    listName,
+                    listDesc
+                );
+                setUserLists([newList, ...userLists]);
             } catch (err) {}
         }
     };
     const getUserLists = async () => {
         try {
-            const res = await instance({
-                url: '/lists/user/get',
-                method: 'POST',
-                data: { nick: user.nick },
-            });
-            setUserLists(res.data.result);
+            const lists = await GetUserListsRequest(user.nick);
+            setUserLists(lists);
         } catch (err) {}
     };
     const getListsByKey = async () => {
         try {
-            const res = await instance({
-                url: '/lists/get/bykey',
-                method: 'POST',
-                data: { key: listSearchKey },
-            });
-            setSearchedLists(res.data.result);
+            const lists = await GetSearchedListsRequest(listSearchKey);
+            setSearchedLists(lists);
         } catch (err) {}
     };
     useEffect(() => {
@@ -79,15 +73,7 @@ const ListSection = ({ user }) => {
         setModalVisible(false);
         try {
             const membersArray = futureMembersList.map((el) => el.nick);
-            await instance({
-                url: '/lists/create/users',
-                method: 'POST',
-                data: {
-                    membersArray: membersArray,
-                    name: listName,
-                    desc: listDesc,
-                },
-            });
+            await AddUsersToListRequest(membersArray, listName, listDesc);
             setListDesc('');
             setListName('');
         } catch (err) {}

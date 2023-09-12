@@ -1,37 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { Community } from '../SearchSection';
+import { Community } from 'types/community';
 import instance from 'api/instance';
 import Tweets from 'components/Tweets';
 
 import * as S from './index.styles';
+import { UserContext } from 'components/BodyContent';
+import { GetCommunityRequest, JoinCommunityRequest } from 'api/communities';
 
-const CommunitySection = ({ communityQuery, user }) => {
-    const [community, setCommunity] = useState<Community>();
+const CommunitySection = ({ communityQuery }) => {
+    const [community, setCommunity] = useState<Community>({} as Community);
     const [buttonText, setButtonText] = useState<string>('');
+
+    const user = useContext(UserContext);
+
     const getCommunity = async () => {
         try {
-            const res = await instance({
-                url: '/community/get',
-                method: 'POST',
-                data: { id: communityQuery },
-            });
-            setCommunity(res.data.result);
+            const community = await GetCommunityRequest(communityQuery);
+            setCommunity(community);
         } catch (err) {}
     };
     const joinCommunity = async () => {
         const joined = community?.members.includes(user.nick) ? true : false;
 
         try {
-            const res = await instance({
-                url: '/community/join',
-                method: 'POST',
-                data: {
-                    nick: user.nick,
-                    joined: joined,
-                    community: community?._id,
-                },
-            });
+            const res = await JoinCommunityRequest(
+                user.nick,
+                joined,
+                community?._id
+            );
             if (res.status === 200) {
                 if (community) {
                     let tempCommunity: Community = community;
@@ -55,7 +52,7 @@ const CommunitySection = ({ communityQuery, user }) => {
         } catch (err) {}
     };
     const handleTextButton = (buttonHover: boolean) => {
-        if (community?.members.includes(user.nick)) {
+        if (community?.members?.includes(user.nick)) {
             if (buttonHover) {
                 setButtonText('Leave');
             } else {
@@ -84,13 +81,13 @@ const CommunitySection = ({ communityQuery, user }) => {
                 <S.CommunityTitle>{community?.name}</S.CommunityTitle>
                 <S.CommunityBar>
                     <S.MembersCount>
-                        <b>{community?.members.length}</b> Member
+                        <b>{community?.members?.length}</b> Member
                         {community !== undefined &&
                             community?.members?.length !== 1 && <>s</>}
                     </S.MembersCount>
                     <S.Button
                         onClick={joinCommunity}
-                        joined={community?.members.includes(user?.nick)}
+                        joined={community?.members?.includes(user?.nick)}
                         leave={buttonText === 'Leave' ? true : false}
                         onMouseEnter={() => handleTextButton(true)}
                         onMouseLeave={() => handleTextButton(false)}
@@ -99,18 +96,15 @@ const CommunitySection = ({ communityQuery, user }) => {
                     </S.Button>
                 </S.CommunityBar>
             </S.CommunityContent>
-            {community && (
-                <Tweets
-                    nick={user.nick}
-                    avatar={user.avatarId}
-                    profile={null}
-                    type="community"
-                    community={community?._id}
-                    tweet={null}
-                    photoMode={false}
-                    user={user}
-                />
-            )}
+
+            <Tweets
+                avatar={user.avatar}
+                profile={null}
+                type="community"
+                community={community._id}
+                tweet={null}
+                photoMode={false}
+            />
         </S.Wrapper>
     );
 };

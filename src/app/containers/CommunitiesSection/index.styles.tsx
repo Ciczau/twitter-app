@@ -53,7 +53,7 @@ export const CreatorIcon = styled(AiOutlineUsergroupAdd)`
 export const ModalWrapper = styled.div`
     width: 100vw;
     height: 100vh;
-    z-index: 99999999;
+    z-index: 5;
     position: fixed;
     top: 0;
     left: 0;
@@ -69,7 +69,7 @@ export const Modal = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
-    z-index: 999999999;
+    z-index: 10;
     color: white;
     border-radius: 10px;
     background-color: black;
@@ -78,7 +78,7 @@ export const Modal = styled.div`
 export const ModalBackground = styled.div`
     width: 100vw;
     height: 100vh;
-    z-index: 99999999;
+    z-index: 10;
     position: fixed;
     top: 0;
     left: 0;

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
     height: 100vh;
     display: flex;
-    z-index: 9;
+    z-index: 1;
     position: relative;
     padding: 10px 20px 25px 0;
     min-width: 70px;
@@ -30,7 +30,7 @@ export const Header = styled.header`
     display: flex;
     flex-direction: column;
     position: relative;
-    z-index: 9999;
+    z-index: 1;
     align-items: flex-start;
     justify-content: space-between;
     height: 60vh;
@@ -61,6 +61,7 @@ export const HeaderElement = styled.div`
     }
     @media screen and (max-width: 767px) {
         padding: 0;
+        display: ${(props) => props.mobileView === false && 'none'};
     }
 `;
 
@@ -85,7 +86,7 @@ export const Avatar = styled.img`
 `;
 export const ToolTip = styled.div`
     position: absolute;
-    z-index: 99999;
+    z-index: 1;
     width: 150px;
     border-radius: 15px;
     font-size: 18px;
@@ -101,4 +102,7 @@ export const ProfileElement = styled.div`
     color: white;
     position: relative;
     flex-direction: column;
+    @media screen and (max-width: 767px) {
+        display: none;
+    }
 `;

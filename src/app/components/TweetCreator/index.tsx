@@ -1,14 +1,16 @@
-import instance from 'api/instance';
-import { Community } from 'containers/CommunitiesSection/SearchSection';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+
+import { Community } from 'types/community';
+import { GetUserCommunitiesRequest } from 'api/communities';
+import { UserContext } from 'components/BodyContent';
+
 import * as S from './index.styles';
+
 const TweetCreator = ({
     text,
     handleChange,
     createTweet,
     placeholder,
-    avatar,
-    nick,
     handleFile,
     reply,
     type = '',
@@ -20,17 +22,16 @@ const TweetCreator = ({
         name: string;
         id: string;
     }>({ name: 'Everyone', id: '' });
+
+    const user = useContext(UserContext);
+
     const handleImage = (e) => {
         setImage(URL.createObjectURL(e.target.files[0]));
     };
     const getUserCommunities = async () => {
         try {
-            const res = await instance({
-                url: '/communities/user/get',
-                method: 'POST',
-                data: { nick: nick },
-            });
-            setCommunities(res.data.result);
+            const userCommunities = await GetUserCommunitiesRequest(user.nick);
+            setCommunities(userCommunities);
         } catch (err) {}
     };
     const handleChoice = (name: string, id: string) => {
@@ -39,7 +40,7 @@ const TweetCreator = ({
     };
     useEffect(() => {
         getUserCommunities();
-    }, [nick]);
+    }, [user]);
 
     const renderCommunities = () => {
         return (
@@ -67,7 +68,7 @@ const TweetCreator = ({
     };
     return (
         <S.TweetCreatorWrapper reply={reply}>
-            <S.Avatar src={avatar} />
+            <S.Avatar src={user.avatar} />
             <S.TweetCreator>
                 {type === 'home' && !reply && (
                     <S.ChooseWrapper>

@@ -111,7 +111,7 @@ export const EmojiListIcon = styled(FaRegSmile)`
 export const ChoiceName = styled.div`
     display: flex;
     position: relative;
-    z-index: 10;
+    z-index: 1;
     align-items: center;
 `;
 export const ChooseWrapper = styled.div`
@@ -124,7 +124,7 @@ export const ChooseWrapper = styled.div`
     cursor: pointer;
     flex-direction: column;
     align-items: flex-start;
-    z-index: 99;
+
     line-height: 20px;
     color: #1b60a0;
     position: relative;
@@ -136,7 +136,7 @@ export const ModalBackground = styled.div`
     cursor: default;
     left: 0;
     position: fixed;
-    z-index: 99999;
+    z-index: 10;
 `;
 
 export const ChooseModal = styled.div`
@@ -145,7 +145,7 @@ export const ChooseModal = styled.div`
     box-shadow: 0px 0px 5px 3px #7c7b7b7b;
     border-radius: 10px;
     width: 300px;
-    z-index: 999999999999;
+    z-index: 10;
     margin-top: 30px;
     padding: 10px;
 `;

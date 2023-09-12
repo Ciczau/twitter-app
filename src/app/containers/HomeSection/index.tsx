@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 
 import Tweets from 'components/Tweets';
-import { User } from 'components/BodyContent';
+import SideBar from 'components/SideBar';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
-import SideBar from 'components/SideBar';
 
-const HomeSection = ({ user }) => {
+const HomeSection = () => {
     const [activeTab, setActiveTab] = useState<'popular' | 'following'>(
         'popular'
     );
-    const [userData, setUserData] = useState<User>();
     const [width, setWidth] = useState<number>(window.innerWidth);
+
+    const userData = useContext(UserContext);
+
     useEffect(() => {
         const handleWidth = () => {
             setWidth(window.innerWidth);
@@ -22,9 +24,6 @@ const HomeSection = ({ user }) => {
             window.removeEventListener('resize', handleWidth);
         };
     }, []);
-    useEffect(() => {
-        setUserData(user);
-    }, [user]);
     return (
         <S.Wrapper>
             {width < 768 ? (
@@ -32,7 +31,7 @@ const HomeSection = ({ user }) => {
                     <S.TwitterIconWrapper>
                         <S.TwitterIcon size="100%" />
                     </S.TwitterIconWrapper>
-                    <SideBar user={userData} />
+                    <SideBar />
                 </S.Head>
             ) : (
                 <S.Head>Home</S.Head>
@@ -51,13 +50,12 @@ const HomeSection = ({ user }) => {
                     Following
                 </S.Button>
             </S.SelectionWrapper>
+
             <Tweets
-                nick={userData?.nick}
                 avatar={userData?.avatar}
                 type="home"
                 activeTab={activeTab}
                 photoMode={false}
-                user={user}
             />
         </S.Wrapper>
     );

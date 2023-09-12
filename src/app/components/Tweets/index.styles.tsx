@@ -158,7 +158,7 @@ export const ReplyBackground = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 999999;
+    z-index: 10;
     width: 100vw;
     height: 100vh;
     background-color: #7b808849;
@@ -169,7 +169,7 @@ export const ReplyWrapper = styled.div`
     justify-content: center;
     align-items: flex-start;
     top: 100px;
-    z-index: 9999999999;
+    z-index: 10;
     left: 0;
     color: white;
     width: 100vw;
@@ -183,7 +183,7 @@ export const Reply = styled.div`
     width: 600px;
     max-height: 80%;
     position: relative;
-    z-index: 9999999999;
+    z-index: 10;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -251,7 +251,7 @@ export const ChooseWrapper = styled.div`
     flex-direction: column;
     align-items: flex-start;
 
-    z-index: 9999999;
+    z-index: 5;
     line-height: 20px;
     color: #1b60a0;
     position: relative;
@@ -264,7 +264,7 @@ export const ModalBackground = styled.div`
     cursor: default;
     left: 0;
     position: fixed;
-    z-index: 9999999;
+    z-index: 10;
 `;
 
 export const ChooseModal = styled.div`
@@ -273,7 +273,7 @@ export const ChooseModal = styled.div`
     box-shadow: 0px 0px 5px 3px #7c7b7b7b;
     border-radius: 10px;
     width: 300px;
-    z-index: 999999999;
+    z-index: 5;
     margin-top: 30px;
     padding: 10px;
 `;
@@ -290,7 +290,7 @@ export const TitleModal = styled.div`
 export const ChoiceWrapper = styled.div`
     display: flex;
     position: relative;
-    z-index: 999;
+    z-index: 5;
     color: white;
     align-items: center;
 `;

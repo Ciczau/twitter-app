@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
     width: 100%;
     justify-content: center;
     align-items: center;
-    z-index: 9999999999;
+    z-index: 10;
 `;
 
 const spin = keyframes`

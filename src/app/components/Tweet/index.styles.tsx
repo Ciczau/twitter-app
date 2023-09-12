@@ -20,9 +20,14 @@ export const Tweet = styled(motion.div)`
     width: 100%;
     border-bottom: ${(props) => (props.isReply ? '0' : '1px solid #c7c7c745')};
     padding: 15px;
+    position: relative;
     overflow-x: hidden;
     display: flex;
     justify-content: space-between;
+    transition: all 0.3s ease;
+    &:hover {
+        background-color: #111010;
+    }
 `;
 export const Text = styled.div`
     margin: 15px 0;
@@ -31,6 +36,8 @@ export const Text = styled.div`
 `;
 export const TweetHeader = styled.div`
     display: flex;
+    position: relative;
+    z-index: 1;
     align-items: ${(props) => !props.post && 'center'};
     flex-direction: ${(props) => (props.post ? 'column' : 'row')};
 `;
@@ -41,7 +48,8 @@ export const TweetContent = styled.div`
     overflow: hidden;
     line-height: 20px;
     word-break: break-all;
-    overflow: hidden;
+    position: relative;
+    z-index: 1;
     flex-direction: column;
 `;
 
@@ -54,6 +62,8 @@ export const UserDate = styled.div`
     font-size: 15px;
     display: flex;
     color: gray;
+    z-index: 1;
+    position: relative;
     cursor: pointer;
     margin-left: ${(props) => (props.post ? '0px' : '10px')};
     p {
@@ -248,6 +258,7 @@ export const AudienceIcon = styled(LiaUserFriendsSolid)`
 export const DotsIcon = styled(HiOutlineDotsHorizontal)`
     width: 20px;
     height: 20px;
+    z-index: 1;
     position: absolute;
     right: 10px;
     color: gray;

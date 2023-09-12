@@ -6,9 +6,10 @@ import { IoMdClose } from 'react-icons/io';
 export const Wrapper = styled.div`
     color: white;
     width: 600px;
-
+    position: relative;
+    z-index: 50;
     max-width: 85vw;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
     }
@@ -17,7 +18,7 @@ export const PhotoWrapper = styled.div`
     width: calc(100vw - 400px);
     height: 100vh;
     position: fixed;
-    z-index: 9999999;
+    z-index: 5;
     top: 0;
 
     background-color: #000000ed;
@@ -41,7 +42,7 @@ export const IconWrapper = styled.div`
     justify-content: flex-start;
     align-items: flex-start;
     color: white;
-    z-index: 9999999999;
+    z-index: 5;
 `;
 
 export const CloseIcon = styled(IoMdClose)`
@@ -49,8 +50,9 @@ export const CloseIcon = styled(IoMdClose)`
     height: 30px;
     position: fixed;
     top: 15px;
+    cursor: pointer;
     left: 15px;
-    z-index: 9999999999999;
+    z-index: 10;
     color: white;
 `;
 

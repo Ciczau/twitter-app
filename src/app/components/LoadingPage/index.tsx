@@ -9,7 +9,7 @@ const Wrapper = styled(motion.div)`
     justify-content: center;
     align-items: center;
     position: fixed;
-    z-index: 99999999999999999999999;
+    z-index: 10;
     background-color: black;
 `;
 const Icon = styled(FaTwitter)`

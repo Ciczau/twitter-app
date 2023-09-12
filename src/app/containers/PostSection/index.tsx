@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import * as S from './index.styles';
 
-const PostSection = ({ user, children, type, photo, handleModal }) => {
+const PostSection = ({ children, type, photo, handleModal }) => {
     const router = useRouter();
 
     const [width, setWidth] = useState<number>(0);

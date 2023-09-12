@@ -1,14 +1,17 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useContext } from 'react';
 
 import instance from 'api/instance';
-import { User } from 'components/BodyContent';
+import { User } from 'types/user';
 import { useRouter } from 'next/router';
 import ChatSection from './ChatSection';
+import SideBar from 'components/SideBar';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
-import SideBar from 'components/SideBar';
+import { GetSearchedUsersForChatRequest } from 'api/users';
+import { CreateChatRequest, GetUserChatsRequest } from 'api/chat';
 
-const MessageSection = ({ user, type, chatQuery = '' }) => {
+const MessageSection = ({ type, chatQuery = '' }) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [users, setUsers] =
         useState<Array<{ user: User; followEachOther: boolean }>>();
@@ -18,15 +21,22 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     const [searchKey, setSearchKey] = useState<string>('');
     const router = useRouter();
 
+    const user = useContext(UserContext);
+
     const getUsers = async () => {
         try {
-            const res = await instance({
-                url: '/users/get/follow',
-                method: 'POST',
-                data: { nick: user?.nick, key: searchKey },
-            });
-            setUsers(res.data.result);
+            const usersList = await GetSearchedUsersForChatRequest(
+                user.nick,
+                searchKey
+            );
+            setUsers(usersList);
         } catch (err) {}
+    };
+    const handleCreateChat = async (user: {
+        user: User;
+        followEachOther: boolean;
+    }) => {
+        await createChat(user);
     };
     const createChat = async (choosenUser: {
         user: User;
@@ -34,15 +44,10 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     }) => {
         if (choosenUser.followEachOther) {
             try {
-                const res = await instance({
-                    url: '/chat/create',
-                    method: 'POST',
-                    data: {
-                        firstUser: user?.nick,
-                        secondUser: choosenUser.user.nick,
-                    },
-                });
-
+                const res = await CreateChatRequest(
+                    user.nick,
+                    choosenUser.user.nick
+                );
                 if (res.data.chatId) {
                     router.push(`/messages/${res.data.chatId}`);
                 }
@@ -55,12 +60,8 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
     };
     const getChats = async () => {
         try {
-            const res = await instance({
-                url: '/chats/get',
-                method: 'POST',
-                data: { nick: user?.nick },
-            });
-            setChats(res.data.tab);
+            const userChats = await GetUserChatsRequest(user.nick);
+            setChats(userChats);
         } catch (err) {}
     };
 
@@ -95,7 +96,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                     return (
                         <S.UserWrapper
                             key={index}
-                            onClick={async () => await createChat(user)}
+                            onClick={() => handleCreateChat(user)}
                             followEachOther={user.followEachOther}
                         >
                             <S.UserAvatar src={user.user.avatar} />
@@ -174,7 +175,7 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                         openedChat={chatQuery !== '' ? true : false}
                     >
                         <S.Header>
-                            {width < 767 && <SideBar user={user} />}
+                            {width < 767 && <SideBar />}
                             <S.Title>Messages</S.Title>
                             <S.NewChatIcon
                                 size="100%"
@@ -188,7 +189,6 @@ const MessageSection = ({ user, type, chatQuery = '' }) => {
                 {type === 'openedChat' && chats && (
                     <ChatSection
                         chat={filter}
-                        user={user}
                         chatQuery={chatQuery}
                         width={width}
                     />

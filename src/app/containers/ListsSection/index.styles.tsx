@@ -7,7 +7,7 @@ export const Wrapper = styled.div`
     width: 600px;
     color: white;
     max-width: 85vw;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
     }
@@ -98,7 +98,7 @@ export const ExploreInput = styled.input`
     background-color: transparent;
 `;
 export const ExploreWrapper = styled.div`
-    width: 100%;
+    width: 90%;
     border-radius: 50px;
     background-color: #1d1f24;
     border: 1px solid #1d1f24;
@@ -120,7 +120,7 @@ export const SearchIcon = styled(IoIosSearch)`
 export const ModalWrapper = styled.div`
     width: 100vw;
     height: 100vh;
-    z-index: 99999999;
+    z-index: 10;
     position: fixed;
     top: 0;
     left: 0;
@@ -136,7 +136,8 @@ export const Modal = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
-    z-index: 999999999;
+    overflow-y: scroll;
+    z-index: 10;
     color: white;
     border-radius: 10px;
     background-color: black;
@@ -145,7 +146,7 @@ export const Modal = styled.div`
 export const ModalBackground = styled.div`
     width: 100vw;
     height: 100vh;
-    z-index: 99999999;
+    z-index: 10;
     position: fixed;
     top: 0;
     left: 0;

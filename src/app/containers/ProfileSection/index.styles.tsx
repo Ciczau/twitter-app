@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
     color: white;
     width: 600px;
     max-width: 85vw;
-    @media screen and (max-width:767px){
+    @media screen and (max-width: 767px) {
         width: 100vw;
         max-width: 100vw;
     }
@@ -43,6 +43,7 @@ export const SetUpProfileButton = styled.button`
     margin: 50px 15px 0px 0px;
     font-family: inherit;
     color: inherit;
+    cursor: pointer;
     border: 1px solid #363642;
     font-weight: bold;
     font-size: 16px;

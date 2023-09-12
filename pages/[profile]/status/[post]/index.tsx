@@ -1,79 +1,73 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import instance from 'api/instance';
-import BodyContent, { User } from 'components/BodyContent';
-import { TweetType } from 'components/Tweet';
+import BodyContent from 'components/BodyContent';
 import Tweets from 'components/Tweets';
 import PostSection from 'containers/PostSection';
+import { User } from 'types/user';
+import { TweetType } from 'types/tweets';
+import { GetTweetRequest } from 'api/tweets';
+import { GetUserRequest } from 'api/users';
 
-const Home = () => {
-    const [user, setUser] = useState<User>();
+const Post = () => {
     const [userProfile, setUserProfile] = useState<User>();
-    const [tweet, setTweet] = useState<TweetType>();
-    const getUser = (data) => {
-        setUser(data);
-    };
+    const [tweet, setTweet] = useState<TweetType>({} as TweetType);
+    const [postQuery, setPostQuery] = useState<string>('');
+    const [profileQuery, setProfileQuery] = useState<string>('');
+
     const router = useRouter();
-    const { post, profile } = router.query;
+
+    useEffect(() => {
+        const { post, profile } = router.query;
+        if (typeof post === 'string') {
+            setPostQuery(post);
+        }
+        if (typeof profile === 'string') {
+            setProfileQuery(profile);
+        }
+    }, [router.query]);
+
     const getPost = async () => {
         try {
-            const res = await instance({
-                url: '/tweet/getone',
-                method: 'POST',
-                data: { tweetId: post },
-            });
-            setTweet(res.data.result);
+            const post = await GetTweetRequest(postQuery);
+            setTweet(post);
         } catch (err) {
             console.error(err);
         }
     };
     const getUserByProfile = async () => {
         try {
-            const res = await instance({
-                url: '/user',
-                method: 'POST',
-                data: { nick: tweet?.nick },
-            });
-            if (res.status === 200) {
-                setUserProfile(res.data.user);
-            }
+            const user = await GetUserRequest(tweet.nick);
+            setUserProfile(user);
         } catch (err) {
             console.error(err);
         }
     };
     useEffect(() => {
         getPost();
-    }, [post]);
+    }, [postQuery]);
     useEffect(() => {
         getUserByProfile();
     }, [tweet]);
     return (
-        <BodyContent auth={false} nickName={getUser}>
+        <BodyContent auth={false}>
             <PostSection
-                user={user}
                 type="normal"
                 photo={tweet?.imageId}
                 handleModal={null}
             >
-                {typeof post === 'string' &&
-                    typeof profile === 'string' &&
-                    user && (
-                        <Tweets
-                            nick={user?.nick}
-                            profile={userProfile?.nick}
-                            type="post-replies"
-                            avatar={userProfile?.avatar}
-                            tweet={tweet}
-                            photoMode={false}
-                            user={user}
-                            postQuery={post}
-                            profileQuery={profile}
-                        />
-                    )}
+                <Tweets
+                    profile={userProfile?.nick}
+                    type="post-replies"
+                    avatar={userProfile?.avatar}
+                    tweet={tweet}
+                    photoMode={false}
+                    postQuery={postQuery}
+                    profileQuery={profileQuery}
+                />
             </PostSection>
         </BodyContent>
     );
 };
 
-export default Home;
+export default Post;

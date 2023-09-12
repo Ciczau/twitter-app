@@ -9,7 +9,7 @@ export const Wrapper = styled.section`
     height: 100vh;
     top: 20vh;
     left: 0;
-    z-index: 9999;
+    z-index: 5;
     justify-content: center;
     align-items: flex-start;
 `;
@@ -29,11 +29,11 @@ export const Background = styled.div`
     top: 0;
     left: 0;
     height: 100vh;
-    z-index: 999999;
+    z-index: 10;
     background-color: #4546575a;
 `;
 
-export const SettingsWrapper = styled.div`
+export const SettingsWrapper = styled.form`
     width: 600px;
     max-width: 90vw;
     position: relative;
@@ -42,15 +42,16 @@ export const SettingsWrapper = styled.div`
 
     flex-direction: column;
     border-radius: 10px;
-    z-index: 9999999999;
+    z-index: 10;
     background-color: #000000;
     color: white;
 `;
 
-export const Button = styled.button`
+export const Button = styled.input`
     border-radius: 50px;
     padding: 2px 12px;
     border: 0;
+    cursor: pointer;
     font-weight: bold;
     font-family: inherit;
 `;
@@ -112,4 +113,6 @@ export const Label = styled.label`
     }
 `;
 
-export const CloseIcon = styled(IoMdClose)``;
+export const CloseIcon = styled(IoMdClose)`
+    cursor: pointer;
+`;

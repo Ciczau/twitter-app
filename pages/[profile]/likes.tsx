@@ -1,7 +1,7 @@
-import Home from './index';
+import Profile from './index';
 
 const Likes = () => {
-    return <Home type="likes" />;
+    return <Profile type="likes" />;
 };
 
 export default Likes;

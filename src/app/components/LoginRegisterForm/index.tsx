@@ -2,21 +2,30 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 
-import instance from 'api/instance';
+import { useForm } from 'react-hook-form';
+import Loader from 'components/Loader';
+import { LoginRegisterRequest } from 'api/users';
 
 import * as S from './index.styles';
 
 const LoginRegisterForm = ({ type }) => {
-    const [email, setEmail] = useState<string>('');
-    const [nick, setNick] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [passwordCheck, setPasswordCheck] = useState<string>('');
     const [_, setCookie] = useCookies();
     const [success, setSuccess] = useState<boolean>(false);
-    const [validEmail, setValidEmail] = useState<boolean>(true);
-    const [validPassword, setValidPassword] = useState<boolean>(true);
-    const [validNick, setValidNick] = useState<boolean>(true);
+    const [error, setError] = useState<{
+        errorCode: number;
+        message: string;
+    }>();
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitted },
+        formState,
+        watch,
+    } = useForm();
+
+    const password = watch('password', '');
+    const repassword = watch('repassword', '');
     const router = useRouter();
 
     const HeadText = type === 'login' ? 'Login on twitter' : 'Join twitter';
@@ -26,36 +35,12 @@ const LoginRegisterForm = ({ type }) => {
             : 'Already have an account?';
     const ButtonText = type === 'login' ? 'Register' : 'Login';
 
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-    };
-    const handleNickChange = (e) => {
-        setNick(e.target.value);
-    };
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
-    const handleRepeatPasswordChange = (e) => {
-        setPasswordCheck(e.target.value);
-    };
-
-    const handleRegistration = async () => {
-        setValidEmail(true);
-        setValidPassword(true);
+    const handleFormSubmit = async (data) => {
         try {
-            const res = await instance({
-                url: `/user/${type}`,
-                method: 'POST',
-                data: {
-                    email: email,
-                    nick: nick,
-                    password: password,
-                    repeatPassword: passwordCheck,
-                },
-            });
+            const res = await LoginRegisterRequest(type, data);
             if (res.status === 200) {
                 const expire = new Date();
-                expire.setTime(expire.getTime() + 60 * 60 * 24 * 1000);
+                expire.setTime(expire.getTime() + 60 * 60 * 24 * 1000 * 365);
                 setCookie('refreshToken', res.data.refreshToken, {
                     path: '/',
                     expires: expire,
@@ -66,26 +51,7 @@ const LoginRegisterForm = ({ type }) => {
                 }, 700);
             }
         } catch (err) {
-            if (err.request.status === 403) {
-                setValidPassword(false);
-            }
-            if (err.request.status === 409) {
-                if (err.response.data.mail) {
-                    setValidEmail(false);
-                }
-                if (err.response.data.nick) {
-                    setValidNick(false);
-                }
-            }
-            if (err.request.status === 401) {
-                setValidPassword(false);
-            }
-            if (err.request.status === 404) {
-                setValidEmail(false);
-            }
-            if (err.request.status === 408) {
-                setValidNick(false);
-            }
+            setError(err.response.data);
         }
     };
 
@@ -100,57 +66,158 @@ const LoginRegisterForm = ({ type }) => {
     return (
         <S.Wrapper initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
             <S.FormWindow>
-                <S.CloseIcon onClick={() => router.push('/x')} />
-                <S.FormWrapper>
-                    <p>{HeadText}</p>
-                    {type === 'register' && (
-                        <S.Input
-                            placeholder="Email"
-                            onChange={handleEmailChange}
-                            valid={validEmail}
-                        />
-                    )}
-                    <S.Input
-                        placeholder="Nick"
-                        onChange={handleNickChange}
-                        valid={validNick}
-                    />
-                    <S.Input
-                        placeholder="Password"
-                        type="password"
-                        onChange={handlePasswordChange}
-                        valid={validPassword}
-                    />
-                    {type === 'register' && (
-                        <S.Input
-                            placeholder="Repeat password"
-                            type="password"
-                            onChange={handleRepeatPasswordChange}
-                            valid={validPassword}
-                        />
-                    )}
-                    <S.SubmitButton
-                        onClick={handleRegistration}
-                        success={success}
-                    >
-                        {success ? (
-                            <>
-                                {type === 'login' ? (
-                                    <div>Logged in!</div>
-                                ) : (
-                                    <div>Registered!</div>
+                {success ? (
+                    <Loader />
+                ) : (
+                    <>
+                        {' '}
+                        <S.CloseIcon onClick={() => router.push('/x')} />
+                        <S.FormWrapper
+                            onSubmit={handleSubmit(handleFormSubmit)}
+                        >
+                            <p>{HeadText}</p>
+                            <S.FormLabel>
+                                {type === 'register' && (
+                                    <>
+                                        <S.Input
+                                            placeholder="Email"
+                                            {...register('email', {
+                                                required: 'Required',
+                                                pattern: {
+                                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                    message: 'Wrong email',
+                                                },
+                                                minLength: {
+                                                    value: 3,
+                                                    message: 'Wrong email',
+                                                },
+                                                onChange: () =>
+                                                    setError({
+                                                        errorCode: 0,
+                                                        message: '',
+                                                    }),
+                                            })}
+                                            valid={
+                                                error?.errorCode !== 2 &&
+                                                !errors.email
+                                            }
+                                        />
+                                        {errors.email ? (
+                                            <div>
+                                                {(errors.email as any).message}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {error?.errorCode === 2 && (
+                                                    <div>{error.message}</div>
+                                                )}
+                                            </>
+                                        )}
+                                    </>
                                 )}
-                            </>
-                        ) : (
-                            <>{type.toUpperCase()}</>
-                        )}
-                    </S.SubmitButton>
-
-                    <S.BottomTextWrapper onClick={handleRedirect}>
-                        <div>{BottomText} </div>
-                        <button>{ButtonText}</button>
-                    </S.BottomTextWrapper>
-                </S.FormWrapper>
+                            </S.FormLabel>
+                            <S.FormLabel>
+                                <S.Input
+                                    placeholder="Nick"
+                                    {...register('nick', {
+                                        required: 'Required',
+                                        minLength: {
+                                            value: 6,
+                                            message:
+                                                'Your nickname should be at least 6 characters long',
+                                        },
+                                        onChange: () =>
+                                            setError({
+                                                errorCode: 0,
+                                                message: '',
+                                            }),
+                                    })}
+                                    valid={
+                                        error?.errorCode !== 3 &&
+                                        (type === 'login' || !errors.nick)
+                                    }
+                                />
+                                {errors.nick ? (
+                                    <div>{(errors.nick as any).message}</div>
+                                ) : (
+                                    <>
+                                        {(error?.errorCode === 4 ||
+                                            error?.errorCode === 3) && (
+                                            <div>{error.message}</div>
+                                        )}
+                                    </>
+                                )}
+                            </S.FormLabel>
+                            <S.FormLabel>
+                                <S.Input
+                                    placeholder="Password"
+                                    type="password"
+                                    {...register('password', {
+                                        required: 'Required',
+                                        minLength: {
+                                            value: 8,
+                                            message:
+                                                'Your password should be at least 8 characters long',
+                                        },
+                                        onChange: () =>
+                                            setError({
+                                                errorCode: 0,
+                                                message: '',
+                                            }),
+                                    })}
+                                    valid={
+                                        type === 'login' ||
+                                        !errors.password ||
+                                        (password !== '' &&
+                                            password === repassword)
+                                    }
+                                />
+                                {errors.password ? (
+                                    <div>
+                                        {(errors.password as any).message}
+                                    </div>
+                                ) : (
+                                    <>
+                                        {error?.errorCode === 5 && (
+                                            <div>{error.message}</div>
+                                        )}
+                                    </>
+                                )}
+                            </S.FormLabel>
+                            <S.FormLabel>
+                                {type === 'register' && (
+                                    <>
+                                        <S.Input
+                                            placeholder="Repeat password"
+                                            type="password"
+                                            {...register('repassword', {
+                                                required: 'Required',
+                                                minLength: 8,
+                                            })}
+                                            valid={
+                                                !errors.repassword ||
+                                                password === repassword
+                                            }
+                                        />
+                                        {isSubmitted &&
+                                            (password !== repassword ||
+                                                error?.errorCode === 1) && (
+                                                <div>Passwords don't match</div>
+                                            )}
+                                    </>
+                                )}
+                            </S.FormLabel>
+                            <S.SubmitButton
+                                type="submit"
+                                value={type.toUpperCase()}
+                            />
+                        </S.FormWrapper>
+                    </>
+                )}
+                <S.BottomTextWrapper onClick={handleRedirect} success={success}>
+                    <div>{BottomText} </div>
+                    <button>{ButtonText}</button>
+                </S.BottomTextWrapper>
             </S.FormWindow>
         </S.Wrapper>
     );

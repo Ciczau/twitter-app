@@ -4,7 +4,7 @@ import { font } from 'components/BodyContent';
 
 import * as S from './index.styles';
 
-const LoginRegisterPage = ({ child }) => {
+const LoginRegisterPage = ({ children }) => {
     const router = useRouter();
 
     const handleToggle = (type: string) => {
@@ -13,7 +13,7 @@ const LoginRegisterPage = ({ child }) => {
 
     return (
         <div className={font.className}>
-            {child}
+            {children}
             <S.Wrapper>
                 <div>
                     <h1>LATEST WORLD NEWS</h1>

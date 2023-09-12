@@ -1,41 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 
-import Tweet, { TweetType } from 'components/Tweet';
+import Tweet from 'components/Tweet';
 import instance from 'api/instance';
 import TweetCreator from 'components/TweetCreator';
-import { User } from 'components/BodyContent';
 import Loader from 'components/Loader';
 import { cacheImages } from 'hooks/cacheImages';
+import { TweetType, TweetsType } from 'types/tweets';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
-
-type TweetsType = {
-    nick: string | undefined;
-    profile?: string | null;
-    type: string;
-    avatar: string | undefined;
-    tweet?: TweetType | null;
-    photoMode: boolean;
-    user: User;
-    community?: string;
-    postQuery?: string;
-    profileQuery?: string;
-    listQuery?: string;
-    searchKey?: string;
-    activeTab?: string;
-    closeModal?: (id: string) => void;
-    isEmpty?: (data: boolean) => void;
-};
+import {
+    GetAllTweetsRequest,
+    GetAllUserCommunitiesTweets,
+    GetBookmarksRequest,
+    GetCommunityTweetsRequest,
+    GetFollowingTweetsRequest,
+    GetListTweetsRequest,
+    GetPostRepliesRequest,
+    GetProfileTweetsRequest,
+    GetSearchedTweetsRequest,
+    GetTweetRequest,
+    GetUserBookmarksRequest,
+    GetUserLikesRequest,
+    HandleTweetEventRequest,
+} from 'api/tweets';
 
 const Tweets: React.FC<TweetsType> = ({
-    nick,
     profile,
     type,
     avatar,
     tweet = null,
     photoMode,
-    user,
     community = '',
     postQuery = '',
     profileQuery = '',
@@ -45,7 +41,7 @@ const Tweets: React.FC<TweetsType> = ({
     closeModal = (id: string) => {},
     isEmpty = (data: boolean) => {},
 }) => {
-    const [post, setPost] = useState<TweetType>();
+    const [post, setPost] = useState<TweetType>({} as TweetType);
     const [text, setText] = useState<string>('');
     const [tweets, setTweets] = useState<TweetType[]>([]);
     const [postParent, setPostParent] = useState<TweetType | null>(null);
@@ -58,6 +54,8 @@ const Tweets: React.FC<TweetsType> = ({
     const [cookie] = useCookies(['refreshToken']);
     const [isLoaded, setLoaded] = useState<boolean>(false);
     const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
+
+    const userData = useContext(UserContext);
 
     const handleChange = (e) => {
         setText(e.target.value);
@@ -76,9 +74,9 @@ const Tweets: React.FC<TweetsType> = ({
                 parentId = post._id;
             }
             const formData = new FormData();
-            if (nick) {
-                formData.append('nick', nick);
-            }
+
+            formData.append('nick', userData.nick);
+
             formData.append('text', text);
             if (parentId) {
                 formData.append('parentId', parentId);
@@ -127,98 +125,48 @@ const Tweets: React.FC<TweetsType> = ({
 
     const getTweets = async () => {
         try {
-            let res;
+            let tweetsArray;
 
             if (type === 'home' && activeTab === 'popular') {
-                res = await instance({ url: '/tweet/get', method: 'GET' });
+                tweetsArray = await GetAllTweetsRequest();
             } else if (type === 'home' && activeTab === 'following') {
-                res = await instance({
-                    url: '/tweets/user/get/following',
-                    method: 'POST',
-                    data: { nick: nick },
-                });
+                tweetsArray = await GetFollowingTweetsRequest(userData.nick);
             } else if (type === 'post-replies') {
-                res = await instance({
-                    url: '/tweet/get/replies',
-                    method: 'POST',
-                    data: { tweetId: post?._id },
-                });
+                tweetsArray = await GetPostRepliesRequest(post._id);
             } else if (type === 'search') {
-                res = await instance({
-                    url: '/tweet/get/search',
-                    method: 'POST',
-                    data: { key: searchKey },
-                });
+                tweetsArray = await GetSearchedTweetsRequest(searchKey);
             } else if (type === 'bookmarks') {
-                res = await instance({
-                    url: '/user/bookmarks',
-                    method: 'POST',
-                    data: { nick: nick },
-                });
-            } else if (type === 'notificationTweet') {
-                res = await instance({
-                    url: '/tweet/getone',
-                    method: 'POST',
-                    data: { tweetId: tweet?._id },
-                });
+                tweetsArray = await GetBookmarksRequest(userData.nick);
             } else if (type === 'list') {
-                res = await instance({
-                    url: `/list/get/tweets`,
-                    method: 'POST',
-                    data: { listId: listQuery },
-                });
+                tweetsArray = await GetListTweetsRequest(listQuery);
             } else if (type === 'community') {
-                res = await instance({
-                    url: `/community/get/tweets`,
-                    method: 'POST',
-                    data: { communityId: community },
-                });
+                tweetsArray = await GetCommunityTweetsRequest(community);
             } else if (type === 'communities') {
-                res = await instance({
-                    url: `/communities/user/get/tweets`,
-                    method: 'POST',
-                    data: { nick: nick },
-                });
+                tweetsArray = await GetAllUserCommunitiesTweets(userData.nick);
             } else {
-                res = await instance({
-                    url: `/user/${type}`,
-                    method: 'POST',
-                    data: { nick: profile },
-                });
+                tweetsArray = await GetProfileTweetsRequest(profile, type);
             }
-            console.log(res);
-            const likes = await instance({
-                url: '/tweet/likes',
-                method: 'POST',
-                data: { nick: nick },
-            });
-            const bookmarks = await instance({
-                url: '/tweet/bookmarks/get',
-                method: 'POST',
-                data: { nick: nick },
-            });
-            if (res.data.result.length === 0) {
+            console.log(tweetsArray);
+            const likes = await GetUserLikesRequest(userData.nick);
+            const bookmarks = await GetUserBookmarksRequest(userData.nick);
+            if (tweetsArray.length === 0) {
                 isEmpty(true);
             } else {
                 isEmpty(false);
             }
-            setBookmarks(bookmarks.data.result);
-            setLikes(likes.data.result);
-            const imagesArray: string[] = [user.avatar];
-            const tweetList: TweetType[] = res.data.result;
-            tweetList.forEach((tweet) => {
+            setBookmarks(bookmarks);
+            setLikes(likes);
+            const imagesArray: string[] = [userData.avatar];
+            tweetsArray.forEach((tweet) => {
                 if (tweet.imageId !== '') {
                     imagesArray.push(tweet.imageId);
                 }
             });
 
             if (type !== 'notificationTweet') {
-                setTweets(res.data.result);
+                setTweets(tweetsArray);
             }
-            if (type === 'notificationTweet' && !post) {
-                setPost(res.data.result);
-                setReplyTarget(res.data.result);
-            }
+            console.log(tweetsArray);
             await cacheImages(imagesArray, setImagesLoaded);
         } catch (err) {}
     };
@@ -245,7 +193,7 @@ const Tweets: React.FC<TweetsType> = ({
         } else if (eventType === 'repost') {
             isEventExecuted =
                 targetTweet.repostBy?.find(
-                    (item) => item.nick === user.nick
+                    (item) => item.nick === userData?.nick
                 ) !== undefined;
         }
         setTweets((prevTweets) =>
@@ -254,11 +202,11 @@ const Tweets: React.FC<TweetsType> = ({
                 if (tweet._id === targetTweet._id && eventType === 'repost') {
                     if (isEventExecuted) {
                         reposters = reposters?.filter(
-                            (item) => item.nick !== user.nick
+                            (item) => item.nick !== userData?.nick
                         );
                     } else {
                         reposters?.push({
-                            nick: user.nick,
+                            nick: userData.nick,
                             date: '',
                         });
                     }
@@ -303,47 +251,36 @@ const Tweets: React.FC<TweetsType> = ({
                 setPostParent(temp);
             }
         }
-        await instance({
-            url: `/tweet/${eventType}`,
-            method: 'POST',
-            data: {
-                nick: nick,
-                tweetId: targetTweet._id,
-                mode: isEventExecuted,
-                refreshToken: cookie.refreshToken,
-            },
-        });
+        await HandleTweetEventRequest(
+            eventType,
+            userData.nick,
+            targetTweet._id,
+            isEventExecuted,
+            cookie.refreshToken
+        );
     };
     const getParents = async () => {
         let parentTweets: Array<TweetType> = [];
 
         for (const tweet of tweets) {
             if (tweet.parentId) {
-                const res = await instance({
-                    url: '/tweet/getone',
-                    method: 'POST',
-                    data: { tweetId: tweet.parentId },
-                });
-                parentTweets.push(res.data.result);
+                const parent = await GetTweetRequest(tweet.parentId);
+                parentTweets.push(parent);
             }
         }
         if (post && (type === 'post-replies' || type === 'notificationTweet')) {
             if (post.parentId) {
-                const response = await instance({
-                    url: '/tweet/getone',
-                    method: 'POST',
-                    data: { tweetId: post?.parentId },
-                });
-                parentTweets.push(response.data.result);
+                const parent = await GetTweetRequest(post.parentId);
+                parentTweets.push(parent);
             }
         }
         setParents(parentTweets);
     };
     useEffect(() => {
-        if ((type === 'home' && nick) || type !== 'home') {
+        if ((type === 'home' && userData.nick) || type !== 'home') {
             getTweets();
         }
-    }, [nick, profile, post, searchKey, community, activeTab]);
+    }, [userData.nick, profile, post, searchKey, community, activeTab]);
     useEffect(() => {
         getParents();
         if (!postParent) {
@@ -352,15 +289,19 @@ const Tweets: React.FC<TweetsType> = ({
     }, [tweets, post]);
     useEffect(() => {
         getParent();
+        console.log(post);
     }, [post, parents]);
     useEffect(() => {
-        if (type === 'post-replies' && tweet) {
+        if (
+            (type === 'post-replies' || type === 'notificationTweet') &&
+            tweet
+        ) {
             setReplyTarget(tweet);
             setPost(tweet);
         }
     }, [tweet]);
     useEffect(() => {
-        if (tweets && parents && likes && bookmarks) {
+        if ((tweets || post) && (parents || postParent) && likes && bookmarks) {
             setTimeout(() => {
                 setLoaded(true);
             }, 1000);
@@ -401,7 +342,7 @@ const Tweets: React.FC<TweetsType> = ({
                         (el) => el._id === tweet.parentId
                     );
 
-                    const repost = tweet.repost ? tweet.repost[0] : null;
+                    const repost = tweet.repost ? tweet.repost : null;
 
                     return (
                         <Tweet
@@ -415,10 +356,11 @@ const Tweets: React.FC<TweetsType> = ({
                             retweets={tweet.retweets}
                             bookmarks={tweet.bookmarks}
                             reposts={tweet.reposts}
-                            repost={repost}
+                            repost={tweet.repost}
+                            listQuery={listQuery}
                             isReposted={
                                 tweet.repostBy?.find(
-                                    (item) => item.nick === nick
+                                    (item) => item.nick === userData.nick
                                 ) !== undefined
                             }
                             audienceName={tweet.audienceName}
@@ -441,7 +383,6 @@ const Tweets: React.FC<TweetsType> = ({
                             post={false}
                             key={index}
                             photoMode={false}
-                            user={user}
                             profileQuery={profileQuery}
                             postQuery={postQuery}
                             closeModal={closeModal}
@@ -484,7 +425,6 @@ const Tweets: React.FC<TweetsType> = ({
                                     isReply={true}
                                     post={false}
                                     photoMode={false}
-                                    user={user}
                                     closeModal={closeModal}
                                 />
 
@@ -494,8 +434,6 @@ const Tweets: React.FC<TweetsType> = ({
                                     handleFile={handleFile}
                                     createTweet={createTweet}
                                     placeholder="Post your reply!"
-                                    avatar={avatar}
-                                    nick={nick}
                                     reply={true}
                                 />
                             </S.Reply>
@@ -506,6 +444,7 @@ const Tweets: React.FC<TweetsType> = ({
         );
     };
     const renderPostView = () => {
+        console.log(post);
         return (
             <>
                 {(type === 'post-replies' || type === 'notificationTweet') &&
@@ -531,6 +470,9 @@ const Tweets: React.FC<TweetsType> = ({
                                         postParent._id
                                     )}
                                     isReply={true}
+                                    onTweetRepost={() =>
+                                        handleTweetEvent(postParent, 'repost')
+                                    }
                                     onTweetLike={() =>
                                         handleTweetEvent(postParent, 'like')
                                     }
@@ -542,7 +484,6 @@ const Tweets: React.FC<TweetsType> = ({
                                     }
                                     post={true}
                                     photoMode={photoMode}
-                                    user={user}
                                     postQuery={postQuery}
                                     profileQuery={profileQuery}
                                     closeModal={closeModal}
@@ -564,6 +505,9 @@ const Tweets: React.FC<TweetsType> = ({
                                 isLiked={likes.includes(post._id)}
                                 bookmark={bookmarks.includes(post._id)}
                                 isReply={false}
+                                onTweetRepost={() =>
+                                    handleTweetEvent(post, 'repost')
+                                }
                                 parentTweet={
                                     type === 'post-replies' ? null : postParent
                                 }
@@ -578,7 +522,6 @@ const Tweets: React.FC<TweetsType> = ({
                                 }
                                 post={type === 'post-replies' ? true : false}
                                 photoMode={photoMode}
-                                user={user}
                                 postQuery={postQuery}
                                 profileQuery={profileQuery}
                                 closeModal={closeModal}
@@ -603,18 +546,16 @@ const Tweets: React.FC<TweetsType> = ({
                                 ? 'What is happening?!'
                                 : 'Post your reply!'
                         }
-                        avatar={avatar}
-                        nick={nick}
                         reply={false}
                     />
                 )}
             </>
         );
     };
-    if (!isLoaded || !imagesLoaded) {
+    if (type !== 'notificationTweet' && (!isLoaded || !imagesLoaded)) {
         return (
             <>
-                {post && <Loader />}
+                {type === 'post-replies' && <Loader />}
                 {renderCreator()}
                 <Loader />
             </>

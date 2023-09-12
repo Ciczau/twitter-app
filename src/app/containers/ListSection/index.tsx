@@ -1,40 +1,32 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { List } from 'containers/ListsSection';
+import { List } from 'types/list';
 import Tweets from 'components/Tweets';
 import instance from 'api/instance';
+import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
+import { FollowListRequest, GetListRequest } from 'api/list';
 
-const ListSection = ({ user, listQuery }) => {
-    const [list, setList] = useState<List>();
-    const [isFollowing, setFollowing] = useState<boolean>();
+const ListSection = ({ listQuery }) => {
+    const [list, setList] = useState<List>({} as List);
+    const [isFollowing, setFollowing] = useState<boolean>({} as boolean);
+
+    const user = useContext(UserContext);
 
     const router = useRouter();
 
     const getList = async () => {
         try {
-            const res = await instance({
-                url: '/list/get',
-                method: 'POST',
-                data: { id: listQuery },
-            });
-            setList(res.data.result);
+            const listData = await GetListRequest(listQuery);
+            setList(listData);
         } catch (err) {}
     };
 
     const followList = async () => {
         try {
-            await instance({
-                url: '/list/follow',
-                method: 'POST',
-                data: {
-                    id: list?.id,
-                    nick: user?.nick,
-                    isFollowing: isFollowing,
-                },
-            });
+            await FollowListRequest(list?.id, user.nick, isFollowing);
             let followers = list?.followers;
             if (isFollowing && followers) {
                 followers = followers.filter((el) => el !== user.nick);
@@ -56,66 +48,54 @@ const ListSection = ({ user, listQuery }) => {
         } catch (err) {}
     };
     useEffect(() => {
-        setFollowing(list?.followers.includes(user.nick));
+        setFollowing(list?.followers?.includes(user.nick));
     }, [list]);
     useEffect(() => {
         getList();
-    }, [listQuery]);
+    }, [listQuery, user]);
     return (
         <S.Wrapper>
-            {list && (
-                <>
-                    <S.Header>
-                        <S.LeftArrowIcon
-                            size="100%"
-                            onClick={() => router.back()}
-                        />
-                        <S.TitleWrapper>
-                            <S.Title>
-                                <div>{list?.name}</div>
-                                <p>@{list?.creator.nick}</p>
-                            </S.Title>
-                        </S.TitleWrapper>
-                    </S.Header>
-                    <S.ListInfoWrapper>
-                        <S.ListTitle>{list?.name}</S.ListTitle>
-                        <S.ListDesc>{list?.desc}</S.ListDesc>
-                        <S.ListInfo>
-                            {list?.creator.name}&nbsp;{' '}
-                            <p>@{list?.creator.nick}</p>
-                        </S.ListInfo>
-                        <S.ListInfo>
-                            <div>{list?.members.length}&nbsp;</div>
-                            <p>Members&nbsp;</p>
-                            <div>{list?.followers.length}&nbsp;</div>
-                            <p>Followers&nbsp;</p>
-                        </S.ListInfo>
-                        <S.FollowButton
-                            following={
-                                list?.followers.includes(user?.nick)
-                                    ? true
-                                    : false
-                            }
-                            onClick={followList}
-                        >
-                            {list?.followers.includes(user?.nick) ? (
-                                <div>Following</div>
-                            ) : (
-                                <div>Follow</div>
-                            )}
-                        </S.FollowButton>
-                    </S.ListInfoWrapper>
-                    {user && listQuery && (
-                        <Tweets
-                            nick={user?.nick}
-                            avatar={user?.avatarId}
-                            type="list"
-                            photoMode={false}
-                            user={user}
-                            listQuery={listQuery}
-                        />
+            <S.Header>
+                <S.LeftArrowIcon size="100%" onClick={() => router.back()} />
+                <S.TitleWrapper>
+                    <S.Title>
+                        <div>{list?.name}</div>
+                        <p>@{list?.creator?.nick}</p>
+                    </S.Title>
+                </S.TitleWrapper>
+            </S.Header>
+            <S.ListInfoWrapper>
+                <S.ListTitle>{list?.name}</S.ListTitle>
+                <S.ListDesc>{list?.desc}</S.ListDesc>
+                <S.ListInfo>
+                    {list?.creator?.name}&nbsp; <p>@{list?.creator?.nick}</p>
+                </S.ListInfo>
+                <S.ListInfo>
+                    <div>{list?.members?.length}&nbsp;</div>
+                    <p>Members&nbsp;</p>
+                    <div>{list?.followers?.length}&nbsp;</div>
+                    <p>Followers&nbsp;</p>
+                </S.ListInfo>
+                <S.FollowButton
+                    following={
+                        list?.followers?.includes(user?.nick) ? true : false
+                    }
+                    onClick={followList}
+                >
+                    {list?.followers?.includes(user?.nick) ? (
+                        <div>Following</div>
+                    ) : (
+                        <div>Follow</div>
                     )}
-                </>
+                </S.FollowButton>
+            </S.ListInfoWrapper>
+            {user && listQuery && (
+                <Tweets
+                    avatar={user?.avatar}
+                    type="list"
+                    photoMode={false}
+                    listQuery={listQuery}
+                />
             )}
         </S.Wrapper>
     );
