@@ -201,7 +201,9 @@ const LoginRegisterForm = ({ type }) => {
                                         {isSubmitted &&
                                             (password !== repassword ||
                                                 error?.errorCode === 1) && (
-                                                <div>Passwords don't match</div>
+                                                <div>
+                                                    Passwords don&quot;t match
+                                                </div>
                                             )}
                                     </>
                                 )}
