@@ -8,6 +8,7 @@ import { UserContext } from 'components/BodyContent';
 
 import * as S from './index.styles';
 import { CheckIfFollowingRequest, HandleFollowRequest } from 'api/users';
+import { LinkWrapper } from 'components/Tweet/index.styles';
 
 export default function ProfileSection({
     profile,
@@ -56,7 +57,23 @@ export default function ProfileSection({
         setUserData(profile);
         checkIfFollowing();
     }, [profile, userData, clientData, profileQuery]);
-
+    const renderBio = (bio: string) => {
+        if (bio) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const textParts = bio.split(urlRegex);
+            return textParts.map((part, index) => {
+                if (part.match(urlRegex)) {
+                    return (
+                        <LinkWrapper key={index} href={part} target="_blank">
+                            {part}
+                        </LinkWrapper>
+                    );
+                } else {
+                    return <>{part}</>;
+                }
+            });
+        }
+    };
     return (
         <>
             {children}
@@ -111,7 +128,9 @@ export default function ProfileSection({
                             </S.NameWrapper>
                             {userData?.nick !== '' && (
                                 <>
-                                    <S.UserBio>{userData?.bio}</S.UserBio>
+                                    <S.UserBio>
+                                        {renderBio(userData.bio)}
+                                    </S.UserBio>
                                     <div>
                                         <S.LinkWrapper
                                             href={`/${userData?.nick}/following`}
