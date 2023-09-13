@@ -87,9 +87,9 @@ export const Avatar = styled.img`
 export const ToolTip = styled.div`
     position: absolute;
     z-index: 1;
-    width: 150px;
+    width: 200px;
     border-radius: 15px;
-    font-size: 18px;
+    font-size: 15px;
     cursor: pointer;
     top: -55px;
     padding: 5px 10px;

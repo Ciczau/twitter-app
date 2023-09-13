@@ -90,6 +90,10 @@ const LoginRegisterForm = ({ type }) => {
                                                     value: 3,
                                                     message: 'Wrong email',
                                                 },
+                                                maxLength: {
+                                                    value: 50,
+                                                    message: 'Wrong email',
+                                                },
                                                 onChange: () =>
                                                     setError({
                                                         errorCode: 0,
@@ -125,6 +129,11 @@ const LoginRegisterForm = ({ type }) => {
                                             message:
                                                 'Your nickname should be at least 6 characters long',
                                         },
+                                        maxLength: {
+                                            value: 20,
+                                            message:
+                                                'Your nickname should be maximum 30 characters long',
+                                        },
                                         onChange: () =>
                                             setError({
                                                 errorCode: 0,
@@ -157,6 +166,11 @@ const LoginRegisterForm = ({ type }) => {
                                             value: 8,
                                             message:
                                                 'Your password should be at least 8 characters long',
+                                        },
+                                        maxLength: {
+                                            value: 30,
+                                            message:
+                                                'Your password should be maximum 30 characters long',
                                         },
                                         onChange: () =>
                                             setError({
@@ -192,6 +206,7 @@ const LoginRegisterForm = ({ type }) => {
                                             {...register('repassword', {
                                                 required: 'Required',
                                                 minLength: 8,
+                                                maxLength: 30,
                                             })}
                                             valid={
                                                 !errors.repassword ||
