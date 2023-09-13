@@ -21,7 +21,7 @@ export const Tweet = styled(motion.div)`
     border-bottom: ${(props) => (props.isReply ? '0' : '1px solid #c7c7c745')};
     padding: 15px;
     position: relative;
-    overflow-x: hidden;
+
     display: flex;
     justify-content: space-between;
     transition: all 0.3s ease;

@@ -175,6 +175,9 @@ export const ReplyWrapper = styled.div`
     width: 100vw;
     height: 100vh;
     position: fixed;
+    @media screen and (max-width: 767px) {
+        top: 0;
+    }
 `;
 
 export const Reply = styled.div`
@@ -189,6 +192,16 @@ export const Reply = styled.div`
     flex-direction: column;
     justify-content: space-between;
     max-width: 90vw;
+    @media screen and (max-width: 767px) {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 150vh;
+        padding-bottom: 50px;
+        border-radius: 0;
+        justify-content: flex-start;
+        overflow-y: scroll;
+    }
 `;
 
 export const LinkWrapper = styled(Link)`
@@ -217,7 +230,9 @@ export const DeleteImageButton = styled(IoMdClose)`
 
 export const ReplyClose = styled(IoMdClose)`
     margin-bottom: 15px;
+    position: relative;
     color: white;
+    overflow: visible;
     cursor: pointer;
 `;
 

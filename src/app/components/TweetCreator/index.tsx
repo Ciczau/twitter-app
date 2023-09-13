@@ -22,6 +22,7 @@ const TweetCreator = ({
         name: string;
         id: string;
     }>({ name: 'Everyone', id: '' });
+    const [tweetValid, setTweetValid] = useState<boolean>(false);
 
     const user = useContext(UserContext);
 
@@ -65,6 +66,20 @@ const TweetCreator = ({
                 })}
             </>
         );
+    };
+    const handleCreateTweet = () => {
+        if (tweetValid) {
+            createTweet(audienceChoice.id, audienceChoice.name);
+            setImage('');
+        }
+    };
+    const handleText = (e) => {
+        handleChange(e);
+        if (e.target.value.trim() !== '') {
+            setTweetValid(true);
+        } else {
+            setTweetValid(false);
+        }
     };
     return (
         <S.TweetCreatorWrapper reply={reply}>
@@ -114,7 +129,7 @@ const TweetCreator = ({
                     maxRows={5}
                     maxLength={255}
                     placeholder={placeholder}
-                    onChange={handleChange}
+                    onChange={(e) => handleText(e)}
                     value={text}
                 />
                 {image !== '' && (
@@ -144,10 +159,8 @@ const TweetCreator = ({
                         {/*<S.EmojiListIcon size="100%" />*/}
                     </div>
                     <S.SendButton
-                        onClick={() => {
-                            createTweet(audienceChoice.id, audienceChoice.name);
-                            setImage('');
-                        }}
+                        onClick={handleCreateTweet}
+                        valid={tweetValid}
                     >
                         Tweet
                     </S.SendButton>

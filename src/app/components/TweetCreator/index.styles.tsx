@@ -57,6 +57,7 @@ export const SendButton = styled.button`
     border-radius: 25px;
     color: white;
     font-family: inherit;
+    opacity: ${(props) => (props.valid ? '1' : '0.5')};
 `;
 
 export const Avatar = styled.img`
