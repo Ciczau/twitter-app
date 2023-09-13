@@ -13,6 +13,7 @@ import * as S from './index.styles';
 import { UserContext } from 'components/BodyContent';
 import { GetUserRequest } from 'api/users';
 import { DeleteTweetRequest, GetTweetRequest } from 'api/tweets';
+import Link from 'next/link';
 
 interface Props extends TweetType {
     onTweetLike?: () => void;
@@ -178,7 +179,21 @@ const Tweet = ({
             </>
         );
     };
-
+    const renderText = (text: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const textParts = text.split(urlRegex);
+        return textParts.map((part, index) => {
+            if (part.match(urlRegex)) {
+                return (
+                    <S.LinkWrapper key={index} href={part} target="_blank">
+                        {part}
+                    </S.LinkWrapper>
+                );
+            } else {
+                return <>{part}</>;
+            }
+        });
+    };
     return (
         <>
             {tweetAuthor && (
@@ -270,7 +285,7 @@ const Tweet = ({
                                     </S.LinkWrapper>
                                 </S.ReplyingInfo>
                             )}
-                            <S.Text>{text}</S.Text>
+                            <S.Text>{renderText(text)}</S.Text>
                             {imageId !== '' && photoMode !== true && (
                                 <S.ImageWrapper>
                                     <S.Image
