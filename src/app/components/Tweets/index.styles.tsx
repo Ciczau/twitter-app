@@ -197,7 +197,7 @@ export const Reply = styled.div`
         height: 100vh;
         max-width: 100vw;
         max-height: 150vh;
-        padding-bottom: 50px;
+        padding-bottom: 150px;
         border-radius: 0;
         justify-content: flex-start;
         overflow-y: scroll;

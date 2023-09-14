@@ -25,8 +25,10 @@ export const Tweet = styled(motion.div)`
     display: flex;
     justify-content: space-between;
     transition: all 0.3s ease;
-    &:hover {
-        background-color: #111010;
+    @media screen and (min-width: 767px) {
+        &:hover {
+            background-color: #111010;
+        }
     }
 `;
 export const Text = styled.div`
@@ -100,8 +102,12 @@ export const LinkWrapper = styled(Link)`
 export const Image = styled.img`
     width: 100%;
     height: 100%;
+    max-height: 40vh;
     object-fit: cover;
     border-radius: 15px;
+    @media screen and (max-width: 767px) {
+        max-height: 100vh;
+    }
 `;
 
 export const ImageWrapper = styled.div`

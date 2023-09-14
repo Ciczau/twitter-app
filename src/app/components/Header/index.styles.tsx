@@ -21,7 +21,7 @@ export const Wrapper = styled.div`
         border-top: 1px solid #3b3a3a;
         width: 100vw;
         height: auto;
-        z-index: 9999;
+        z-index: 5;
         flex-direction: row;
     }
 `;
