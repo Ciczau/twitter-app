@@ -275,6 +275,8 @@ export const MoreModal = styled.div`
     box-shadow: 0px 0px 5px 3px #64606039;
     border-radius: 5px;
     position: absolute;
+    z-index: 2;
+    top: 20px;
     right: 10px;
     cursor: pointer;
     display: flex;
